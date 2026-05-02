@@ -102,5 +102,9 @@ SESSION_TIMEOUT = 960
 # 사망 트리거 단어
 # 유저 입력 또는 NPC 응답에 이 단어가 포함되면 자동 사망 처리
 # chat_node.py에서 키워드 감지 로직에 사용
+# 문장이 길수록 정확한 일치에 가까워지니 오히려 더 안전할 수 있음 (in 연산자로 체크할 예정)
 # 프로듀서 확정 후 채우기
-DEATH_KEYWORDS: list[str] = []
+DEATH_KEYWORDS: list[str] = [
+    "내가 잘못했어",
+    "당신을 용서할 수 없어",
+]

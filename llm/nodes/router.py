@@ -5,8 +5,8 @@ LangGraph의 conditional_edge에서 호출되며, 문자열로 다음 노드 이
 분기 조건
 ---------
 1. phase == PHASE_BUTTON  → "button_phase"  (버튼 선택 단계)
-2. is_dead == True        → "loop_reset"    (사망 → 루프 리셋)
-3. loop_count > TOTAL_LOOPS → END           (루프 3회 초과 → 게임 종료)
+2. is_dead == True AND loop_count >= TOTAL_LOOPS → END        (3루프 사망 → 게임 종료)
+3. is_dead == True AND loop_count < TOTAL_LOOPS  → "loop_reset" (1~2루프 사망 → 루프 리셋)
 4. 그 외                  → "chat_phase"    (정상 대화 진행)
 """
 
@@ -47,6 +47,17 @@ def route_entry(state: GameState) -> str:
 # ────────────────────────────────────────────
 
 def route_after_chat(state: GameState) -> str:
+    """
+    챗봇 대화 턴이 끝난 뒤 호출된다.
+    사망 여부와 루프 횟수를 확인해 다음 노드를 결정한다.
+
+    분기 순서
+    ---------
+    1. 사망 + 3루프 → 게임 종료
+    2. 사망 + 1~2루프 → 루프 리셋
+    3. 그 외 → 계속 대화
+    """
+    
     if state["is_dead"]:
         # 3루프에서 사망 → 게임 종료
         if state["loop_count"] >= TOTAL_LOOPS:
