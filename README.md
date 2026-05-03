@@ -98,8 +98,8 @@ def build_image_store(image_dir: str) -> None:
 - [x] 박도원 Few-Shot 샘플
 - [ ] 사망 트리거 단어 목록
 - [ ] 스토리별 버튼 조합
-- [ ] 스토리별 NPC 수치
-- [ ] NPC 수치 항목 최종 확정
+- [x] 스토리별 NPC 수치
+- [x] NPC 수치 항목 최종 확정
 
 **구현 완료**
 - `state.py`, `config.py`, `graph.py`, `runner.py`
@@ -322,8 +322,8 @@ openai
 - [x] 박도원 Few-Shot 샘플
 - [ ] 사망 트리거 단어 목록
 - [ ] 스토리별 버튼 조합
-- [ ] 스토리별 NPC 수치
-- [ ] NPC 수치 항목 최종 확정
+- [x] 스토리별 NPC 수치
+- [x] NPC 수치 항목 최종 확정
 
 ### Phase 3 관련
 - [ ] 캐릭터별 배경 스토리 전문
