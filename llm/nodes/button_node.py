@@ -12,7 +12,8 @@ Phase 1(버튼 선택)의 로직을 담당하는 노드 파일.
 import copy
 
 from state import GameState, PHASE_CHAT
-from config import BUTTON_STORY_MAP, STORIES, DEFAULT_NPC_STATS
+from config import DEFAULT_NPC_STATS
+from stories import STORIES, BUTTON_STORY_MAP
 
 
 # ────────────────────────────────────────────

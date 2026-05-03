@@ -5,7 +5,7 @@ NPC별 초기 수치, 사용할 GPT 모델명, 루프 횟수 등
 
 수치 밸런싱 시        → DEFAULT_NPC_STATS 수정
 모델 교체 시          → LLM_MODEL_DEFAULT / LLM_MODEL_HEAVY 수정
-스토리 추가 시        → STORIES + BUTTON_STORY_MAP에 함께 추가
+스토리/버튼 수정 시   → stories.py의 STORIES / BUTTON_STORY_MAP 수정
 사망 트리거 수정 시   → DEATH_KEYWORDS / MAX_CHAT_TURNS / SESSION_TIMEOUT 수정
 
 [스토리 결정 흐름]
@@ -44,18 +44,19 @@ MESSAGE_SUMMARY_THRESHOLD = 10
 # ────────────────────────────────────────────
 # NPC 초기 수치
 # ────────────────────────────────────────────
-# 수치 범위: 0 ~ 100
-# 수치 항목은 캐릭터마다 다를 수 있음 (base.py의 stats_to_tone_guidance 참고)
+# 수치 범위: 0 ~ 100 (단, Fleshy는 100 초과 가능)
 # 루프 리셋 시 loop_node.py에서 이 값으로 초기화됨
 # 버튼 선택 전 기본값으로 되돌리는 용도
+# (base.py의 stats_to_tone_guidance 참고)
 #
-# [임시값 - 기획 확정 후 수정 필요]
 # trust     : 유저에 대한 신뢰도
 # hostility : 유저에 대한 적대감
 # suspicion : 유저에 대한 의심
+# caution   : 경계심/방어성
 # composure : 감정 억제력 (낮을수록 말실수/감정 노출)
 # guilt     : 죄책감
 # grief     : 슬픔/상실감
+# Fleshy    : 범인 확정 수치 (가장 높은 NPC가 범인으로 판정)
 # ────────────────────────────────────────────
 
 DEFAULT_NPC_STATS: dict[str, dict[str, int]] = {
@@ -63,21 +64,25 @@ DEFAULT_NPC_STATS: dict[str, dict[str, int]] = {
         "trust"     : 20,
         "hostility" : 70,
         "composure" : 80,
+        "Fleshy"    : 20,
     },
     "차서연": {
         "trust"     : 50,
         "suspicion" : 60,
         "caution"   : 75,
+        "Fleshy"    : 20,
     },
     "엄마": {
         "trust"     : 80,
         "guilt"     : 90,
         "composure" : 40,
+        "Fleshy"    : 20,
     },
     "박도원": {
         "trust"     : 60,
         "grief"     : 85,
         "composure" : 65,
+        "Fleshy"    : 20,
     },
 }
 
@@ -86,12 +91,26 @@ DEFAULT_NPC_STATS: dict[str, dict[str, int]] = {
 # 수치 임계값 (threshold)
 # ────────────────────────────────────────────
 # base.py의 stats_to_tone_guidance()에서 말투 분기 기준으로 사용
-# 예: trust >= HIGH_THRESHOLD → 친절한 말투
-#     trust <= LOW_THRESHOLD  → 단답/회피하는 말투
+# 각 수치마다 high/low를 개별 정의하여 수치별 범위 차이를 반영
+# 예: trust >= THRESHOLDS["trust"]["high"] → 친절한 말투
+#     trust <= THRESHOLDS["trust"]["low"]  → 단답/회피하는 말투
+#
+# Fleshy는 범인 판정 전용 수치로 THRESHOLDS 적용 대상에서 제외
+#    범인 판정 기준은 FLESHY_THRESHOLD 사용
+#    Fleshy 1등: 80~125 / 2등 이하: 20~55 → 안전 갭 25 확보
 # ────────────────────────────────────────────
 
-HIGH_THRESHOLD = 70   # 이 값 이상이면 해당 수치가 "높음"으로 판단
-LOW_THRESHOLD  = 30   # 이 값 이하이면 해당 수치가 "낮음"으로 판단
+THRESHOLDS: dict[str, dict[str, int]] = {
+    "trust"     : {"high": 60,  "low": 25},   # 기본 20~80
+    "hostility" : {"high": 100, "low": 75},   # 기본 70~145
+    "composure" : {"high": 60,  "low": 30},   # 기본 0~80
+    "suspicion" : {"high": 90,  "low": 65},   # 기본 60~135
+    "caution"   : {"high": 90,  "low": 75},   # 기본 75~110
+    "guilt"     : {"high": 115, "low": 95},   # 기본 90~131
+    "grief"     : {"high": 130, "low": 90},   # 기본 85~164
+}
+
+FLESHY_THRESHOLD = 67
 
 
 # ────────────────────────────────────────────
@@ -120,49 +139,6 @@ DEATH_KEYWORDS: list[str] = [
     "당신을 용서할 수 없어",
 ]
 
-
-# ────────────────────────────────────────────
-# 스토리 목록
-# ────────────────────────────────────────────
-# Phase 1 버튼 선택 완료 후 확정되는 NPC 수치 세트.
-# BUTTON_STORY_MAP으로 스토리가 결정되면
-# state["npc_stats"]를 이 값으로 덮어씀.
-# [임시값 - 프로듀서 확정 후 수치 채우기]
-# ────────────────────────────────────────────
-
-STORIES: dict[str, dict] = {
-    "story_A": {
-        "김도현": {"trust": 20, "hostility": 70, "composure": 80},
-        "차서연": {"trust": 50, "suspicion": 60, "caution": 75},
-        "엄마":   {"trust": 80, "guilt": 90,     "composure": 40},
-        "박도원": {"trust": 60, "grief": 85,      "composure": 65},
-    },
-    "story_B": {
-        # 프로듀서 확정 후 채우기
-    },
-    "story_C": {
-        # 프로듀서 확정 후 채우기
-    },
-}
-
-
-# ────────────────────────────────────────────
-# 버튼 조합 → 스토리 매핑
-# ────────────────────────────────────────────
-# Phase 1에서 유저가 선택한 버튼 순서(tuple)를 스토리 ID에 매핑한다.
-# 순서가 다르면 다른 스토리로 판단한다.
-# 예: ("A","B","A","A") ≠ ("A","A","B","A")
-#
-# button_node.py에서 tuple(state["button_history"])로 키를 조회한다.
-# 매핑되는 조합이 없으면 DEFAULT_STORY를 기본값으로 사용한다.
-# [임시값 - 프로듀서 확정 후 조합 채우기]
-# ────────────────────────────────────────────
-
-BUTTON_STORY_MAP: dict[tuple, str] = {
-    ("A", "B", "A", "A"): "story_A",   # 프로듀서 확정 후 수정
-    ("A", "B", "C", "A"): "story_B",
-    ("B", "A", "A", "C"): "story_C",
-}
 
 # ── Phase 3: RAG ──────────────────────
 import os as _os

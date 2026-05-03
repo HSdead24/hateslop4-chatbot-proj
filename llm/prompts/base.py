@@ -13,7 +13,7 @@
 
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
-from config import HIGH_THRESHOLD, LOW_THRESHOLD
+from config import THRESHOLDS
 
 
 # ────────────────────────────────────────────
@@ -95,11 +95,11 @@ def stats_to_tone_guidance(stats: dict) -> str:
     수치 범위에 따라 캐릭터 말투 조정 지침을 생성한다.
     프롬프트의 '수치에 따른 말투 조정 지침' 섹션에 삽입된다.
 
-    - HIGH_THRESHOLD(70) 이상 → 해당 수치가 "높음"
-    - LOW_THRESHOLD(30) 이하  → 해당 수치가 "낮음"
-    - 그 사이                 → 기본 성격 유지
+    수치별 high/low 임계값은 config.py의 THRESHOLDS에서 관리한다.
+    Fleshy는 범인 판정 전용 수치로 말투 분기 대상에서 제외한다.
 
-    새로운 수치 항목 추가 시 이 함수에 elif 블록만 추가하면 된다.
+    새로운 수치 항목 추가 시 config.py의 THRESHOLDS에 항목 추가 후
+    이 함수에 elif 블록만 추가하면 된다.
 
     Parameters
     ----------
@@ -113,82 +113,88 @@ def stats_to_tone_guidance(stats: dict) -> str:
 
     for key, value in stats.items():
 
+        if key not in THRESHOLDS:
+            continue  # Fleshy 등 임계값 미정의 수치는 건너뜀
+
+        high = THRESHOLDS[key]["high"]
+        low  = THRESHOLDS[key]["low"]
+
         if key == "trust":
-            if value >= HIGH_THRESHOLD:
+            if value >= high:
                 guidance.append(
                     "- 신뢰도가 높음: 유저에게 비교적 솔직하게 대화한다. "
                     "가끔 힌트성 발언을 할 수 있으며, 말투가 부드러워진다."
                 )
-            elif value <= LOW_THRESHOLD:
+            elif value <= low:
                 guidance.append(
                     "- 신뢰도가 낮음: 단답 위주로 대화하고 질문을 회피한다. "
                     "유저의 말을 의심하며 질문에 질문으로 받아친다."
                 )
 
         elif key == "hostility":
-            if value >= HIGH_THRESHOLD:
+            if value >= high:
                 guidance.append(
                     "- 적대감이 높음: 공격적인 말투를 사용한다. "
                     "빈정거림과 위협적인 뉘앙스가 섞이며, 유저를 몰아붙인다."
                 )
-            elif value <= LOW_THRESHOLD:
+            elif value <= low:
                 guidance.append(
                     "- 적대감이 낮음: 비교적 차분하고 중립적인 태도를 유지한다."
                 )
 
         elif key == "suspicion":
-            if value >= HIGH_THRESHOLD:
+            if value >= high:
                 guidance.append(
                     "- 의심이 높음: 유저의 모든 말에서 모순을 찾으려 한다. "
                     "정황과 근거를 들어 유저를 압박하는 질문을 던진다."
                 )
-            elif value <= LOW_THRESHOLD:
+            elif value <= low:
                 guidance.append(
                     "- 의심이 낮음: 유저의 말을 일단 받아들이는 편이다. "
                     "단정적인 표현보다 가능성을 열어두는 말투를 사용한다."
                 )
 
         elif key == "caution":
-            if value >= HIGH_THRESHOLD:
+            if value >= high:
                 guidance.append(
                     "- 경계심이 높음: 민감한 정보는 절대 먼저 꺼내지 않는다. "
                     "유저가 특정 주제에 접근하면 화제를 돌리거나 말을 흐린다."
                 )
-            elif value <= LOW_THRESHOLD:
+            elif value <= low:
                 guidance.append(
                     "- 경계심이 낮음: 비교적 자유롭게 정보를 공유한다."
                 )
 
         elif key == "composure":
-            if value >= HIGH_THRESHOLD:
+            if value >= high:
                 guidance.append(
                     "- 침착함이 높음: 감정을 잘 숨기고 논리적으로 말한다. "
                     "도발적인 질문에도 쉽게 흔들리지 않는다."
                 )
-            elif value <= LOW_THRESHOLD:
+            elif value <= low:
                 guidance.append(
                     "- 침착함이 낮음: 감정이 말투에 쉽게 드러난다. "
                     "말을 흐리거나 같은 말을 반복하는 등 불안정한 모습을 보인다."
                 )
 
         elif key == "guilt":
-            if value >= HIGH_THRESHOLD:
+            if value >= high:
                 guidance.append(
                     "- 죄책감이 높음: 특정 주제에서 말끝을 흐리거나 화제를 돌린다. "
                     "유저가 핵심에 가까워질수록 방어적이 되고 감정이 흔들린다."
                 )
-            elif value <= LOW_THRESHOLD:
+            elif value <= low:
                 guidance.append(
                     "- 죄책감이 낮음: 과거 사건에 대해 비교적 담담하게 말한다."
                 )
 
         elif key == "grief":
-            if value >= HIGH_THRESHOLD:
+            if value >= high:
                 guidance.append(
                     "- 슬픔/상실감이 높음: 말의 속도가 느려지고 한숨이 섞인다. "
                     "딸(박주원) 관련 이야기가 나오면 감정이 크게 흔들린다."
                 )
-            elif value <= LOW_THRESHOLD:
+            elif value <= low:
                 guidance.append(
                     "- 슬픔/상실감이 낮음: 감정을 많이 추스른 상태로 비교적 차분하다."
                 )
@@ -197,7 +203,6 @@ def stats_to_tone_guidance(stats: dict) -> str:
         guidance.append("- 모든 수치가 중간 범위: 기본 성격과 말투를 그대로 유지한다.")
 
     return "\n".join(guidance)
-
 
 # ────────────────────────────────────────────
 # SystemMessage 조립
