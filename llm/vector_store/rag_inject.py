@@ -25,7 +25,7 @@ rag_inject.py — Phase 3 RAG 파이프라인 4단계 (접착제)
 
 from __future__ import annotations
 
-from llm.vector_store.retriever import retrieve_story_context
+from vector_store.retriever import retrieve_story_context
 
 # ──────────────────────────────────────────────
 # 상수
