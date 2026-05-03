@@ -17,6 +17,55 @@ from config import HIGH_THRESHOLD, LOW_THRESHOLD
 
 
 # ────────────────────────────────────────────
+# 플레이어 이름 유틸
+# ────────────────────────────────────────────
+
+def get_first_name(full_name: str) -> str:
+    """
+    한국 이름 기준으로 성(첫 글자)을 제거하고 이름만 반환한다.
+
+    Parameters
+    ----------
+    full_name : "정재희"
+
+    Returns
+    -------
+    "재희"
+    """
+    return full_name[1:] if len(full_name) >= 2 else full_name
+
+
+def get_child_term(player_gender: str) -> str:
+    """
+    성별에 따라 자녀 호칭을 반환한다.
+
+    Parameters
+    ----------
+    player_gender : "남자" | "여자" | "무관"
+
+    Returns
+    -------
+    "아들" | "딸"
+    """
+    return "아들" if player_gender == "남자" else "딸"
+
+
+def get_sibling_term(player_gender: str) -> str:
+    """
+    성별에 따라 형제자매 호칭(동생 입장에서 부르는 말)을 반환한다.
+
+    Parameters
+    ----------
+    player_gender : "남자" | "여자" | "무관"
+
+    Returns
+    -------
+    "오빠" | "언니"
+    """
+    return "오빠" if player_gender == "남자" else "언니"
+
+
+# ────────────────────────────────────────────
 # 수치 → 자연어 설명
 # ────────────────────────────────────────────
 
@@ -155,19 +204,23 @@ def stats_to_tone_guidance(stats: dict) -> str:
 # ────────────────────────────────────────────
 
 def build_system_prompt(
-    npc_name       : str,
+    npc_name        : str,
     base_personality: str,
-    stats          : dict,
-    few_shot       : str,
-    loop_count     : int,
-    clues          : list,
-    player_name    : str,
-    player_gender  : str,
+    stats           : dict,
+    few_shot        : str,
+    loop_count      : int,
+    clues           : list,
+    player_name     : str,
+    player_gender   : str,
 ) -> str:
     """
     캐릭터별 SystemMessage 문자열을 조립해 반환한다.
     chat_node.py에서 호출하며, 반환값을 ChatPromptTemplate의
     system 메시지로 전달한다.
+
+    base_personality와 few_shot 안의 플레이스홀더를 여기서 치환한다.
+    각 prompts/*.py에서는 {player_name}, {first_name}, {child_term},
+    {sibling_term}, {player_gender} 플레이스홀더만 사용하면 된다.
 
     Parameters
     ----------
@@ -177,9 +230,26 @@ def build_system_prompt(
     few_shot        : 캐릭터 모범 대화 예시 문자열 (각 prompts/*.py에서 정의)
     loop_count      : 현재 루프 회차
     clues           : 유저 보유 단서 목록
-    player_name     : 유저 닉네임
-    player_gender   : 유저 성별 ("남" / "여" / "무관")
+    player_name     : 유저 닉네임 (예: "정재희")
+    player_gender   : 유저 성별 ("남자" / "여자" / "무관")
     """
+    # ── 플레이어 관련 파생 값 계산 ──────────────────
+    first_name   = get_first_name(player_name)    # "정재희" → "재희"
+    child_term   = get_child_term(player_gender)  # "남자" → "아들", 나머지 → "딸"
+    sibling_term = get_sibling_term(player_gender) # "남자" → "오빠", 나머지 → "언니"
+
+    # ── base_personality / few_shot 플레이스홀더 치환 ──
+    fmt_kwargs = dict(
+        player_name   = player_name,
+        first_name    = first_name,
+        player_gender = player_gender,
+        child_term    = child_term,
+        sibling_term  = sibling_term,
+    )
+    base_personality = base_personality.format(**fmt_kwargs)
+    few_shot         = few_shot.format(**fmt_kwargs)
+
+    # ── 프롬프트 조립 ───────────────────────────────
     clues_str = ", ".join(clues) if clues else "없음"
 
     return f"""당신은 '{npc_name}'입니다.
