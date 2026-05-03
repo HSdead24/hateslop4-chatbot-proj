@@ -165,7 +165,8 @@ BUTTON_STORY_MAP: dict[tuple, str] = {
 }
 
 # ── Phase 3: RAG ──────────────────────
-CHROMA_PATH = "./llm/vector_store/db" #Chroma DB가 실제로 저장되는 폴더 경로
+import os as _os
+CHROMA_PATH = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "vector_store", "db")  # 절대경로
 STORY_COLLECTION = "story_chunks" #스토리 문서 청크를 저장하는 컬렉션 이름
 RAG_TOP_K = 3 #유저 발화와 유사한 문서를 몇개까지 가져올 것인가
 
