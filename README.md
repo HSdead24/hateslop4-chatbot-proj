@@ -13,7 +13,7 @@
 
 ## 역할 분담
 
-| | 엔지니어 A (본인) | 엔지니어 B |
+| | 엔지니어 A | 엔지니어 B |
 |---|---|---|
 | LLM | Phase 3 (RAG) + chat_node.py 최종 수정 | Phase 4 (이미지 임베딩) |
 | 추가 담당 | Phase 6 (백엔드 API) | Phase 5 (채팅 UI) |
@@ -34,7 +34,7 @@
 ### Phase 2 — LLM 캐릭터 코어 ✅ 완료 (+ 마무리 작업 필요)
 
 **Phase 2 마무리 작업**
-- [ ] 팀원이 작성한 `cha_seoyeon.py`, `umma.py`, `park_dowon.py` 코드 합치기
+- [ ] `cha_seoyeon.py`, `umma.py`, `park_dowon.py` 코드 합치기
 - [ ] `chat_node.py` stub 함수 3개 → import로 교체
 - [ ] 프로듀서에게 받은 Few-Shot 샘플 추가 (치키 4개, 김도현 나머지, 차서연/엄마/박도원)
 - [ ] 프로듀서 확정 후 `config.py` 수정 (수치, 스토리, 버튼 조합, 사망 트리거)
