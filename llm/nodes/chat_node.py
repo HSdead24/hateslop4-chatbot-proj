@@ -15,11 +15,10 @@ import copy
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from state import GameState, NPC_EXECUTOR, NPC_KIM, NPC_CHA, NPC_MOM, NPC_PARK
+from state import GameState, NPC_EXECUTOR, NPC_KIM, NPC_CHA, NPC_MOM, NPC_PARK, TOTAL_LOOPS
 from config import (
     LLM_MODEL_DEFAULT, LLM_MODEL_HEAVY, LLM_TEMPERATURE,
     DEATH_KEYWORDS, MAX_CHAT_TURNS, MESSAGE_SUMMARY_THRESHOLD,
-    TOTAL_LOOPS,
 )
 
 from prompts.base import build_message_history, build_chat_prompt
@@ -29,6 +28,8 @@ from prompts.cha_seoyeon import build_cha_prompt
 from prompts.umma import build_umma_prompt
 from prompts.park_dowon import build_park_prompt
 
+from vector_store.rag_inject import get_enriched_system_prompt
+from vector_store.image_retriever import retrieve_image
 
 # ────────────────────────────────────────────
 # NPC → 프롬프트 빌더 매핑
@@ -196,6 +197,13 @@ def generate_npc_response(
             player_gender = player_gender,
         )
 
+    system_prompt = get_enriched_system_prompt(
+        system_prompt = system_prompt,
+        user_input    = user_input,
+        loop          = state["loop_count"],
+        character     = npc_name,
+    )
+
     # 대화 기록 요약 처리
     current_messages = state["messages"].get(npc_name, [])
     summarized       = summarize_messages(current_messages, llm)
@@ -249,7 +257,7 @@ def update_messages(
 # LangGraph 노드 함수
 # ────────────────────────────────────────────
 
-def chat_node(state: GameState, user_input: str) -> tuple[GameState, str]:
+def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str | None]:
     """
     LangGraph에서 chat_phase 노드로 등록되는 함수.
     유저 입력을 받아 NPC 응답을 생성하고 GameState를 업데이트한다.
@@ -287,4 +295,7 @@ def chat_node(state: GameState, user_input: str) -> tuple[GameState, str]:
     updated_state["messages"] = updated_messages
     updated_state["is_dead"]  = is_dead
 
-    return GameState(**updated_state), response
+    # 6. 이미지 검색
+    image_url = retrieve_image(response)
+
+    return GameState(**updated_state), response, image_url

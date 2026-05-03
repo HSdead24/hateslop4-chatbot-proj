@@ -5,11 +5,16 @@
 
 import json
 import os
+import sys
 import uuid
 import chromadb
 from openai import OpenAI
 
-from llm.config import CHROMA_PATH, IMAGE_COLLECTION, EMBEDDING_MODEL, IMAGE_THRESHOLD
+_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
+from config import CHROMA_PATH, IMAGE_COLLECTION, EMBEDDING_MODEL, IMAGE_THRESHOLD
 
 
 def _get_embedding(text: str) -> list[float]:
