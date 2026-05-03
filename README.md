@@ -146,7 +146,7 @@ llm/vector_store/
 
 ---
 
-### Phase 4 — 이미지 유사도 검색 (엔지니어 B) 🔄 진행 중
+### Phase 4 — 이미지 유사도 검색 (엔지니어 B) ✅ 완료 (프로듀서 자료 대기 중)
 
 **브랜치**: `image`
 
@@ -160,15 +160,28 @@ llm/vector_store/
 3. LLM 응답 문장 임베딩 생성
 4. 코사인 유사도 계산 → Top-1 이미지 선택 API
 
-**추가되는 파일**
+**추가된 파일**
 ```
 llm/vector_store/
-├── image_retriever.py   ← 이미지 유사도 검색 함수
+├── image_retriever.py      ← 이미지 유사도 검색 함수
+├── test_image_retriever.py ← 단위 테스트
 └── data/
-    ├── images/          ← 프로듀서 제공 이미지 + 캡션
-    ├── image_captions.json
+    ├── images/             ← 프로듀서 제공 이미지 + 캡션 (대기 중)
+    ├── image_captions.json ← 이미지 캡션 데이터 (초안, 실제 데이터 수령 후 교체)
     └── dummy_responses.py  ← 단위 테스트용 더미 LLM 응답 샘플
 ```
+
+**완료 작업**
+- [x] `config.py` Phase 4 섹션 상수 추가
+- [x] `image_retriever.py` 작성 (build_image_store, retrieve_image)
+- [x] `image_captions.json` 초안 작성
+- [x] `dummy_responses.py` 작성
+- [x] `test_image_retriever.py` 작성 및 테스트 확인 (4/5 통과, 1개는 실제 데이터 수령 후 재확인)
+
+**프로듀서 자료 수령 후 할 작업**
+- [ ] 실제 이미지 파일 → `data/images/`에 추가
+- [ ] `image_captions.json` 실제 데이터로 교체
+- [ ] DB 재구축 후 테스트 전체 통과 확인
 
 **chat_node.py 수정 내용 (엔지니어 A가 Phase 3 완료 후 반영)**
 ```python
@@ -177,9 +190,9 @@ llm/vector_store/
 # 변경: (GameState, response, image_url)
 ```
 
-**수정되는 파일 (chat_node.py 제외)**
+**통합 시 수정되는 파일 (엔지니어 A와 함께)**
+- `chat_node.py` — retrieve_image 연동 (엔지니어 A 담당)
 - `runner.py` — `image_url`을 백엔드로 전달하도록 수정
-- `config.py` — Phase 4 섹션에 상수 추가
 
 ---
 
