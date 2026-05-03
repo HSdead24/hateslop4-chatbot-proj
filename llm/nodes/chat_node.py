@@ -25,20 +25,9 @@ from config import (
 from prompts.base import build_message_history, build_chat_prompt
 from prompts.executor import build_executor_prompt
 from prompts.kim_dohyun import build_kim_prompt
-
-# 팀원 파일 완성 후 아래 주석 해제 + stub 함수 3개 삭제
-# from prompts.cha_seoyeon import build_cha_prompt
-# from prompts.umma import build_mom_prompt
-# from prompts.park_dowon import build_park_prompt
-
-def build_cha_prompt(stats, loop_count, clues, player_name, player_gender) -> str:
-    raise NotImplementedError("cha_seoyeon.py 완성 후 위 주석 해제")
-
-def build_mom_prompt(stats, loop_count, clues, player_name, player_gender) -> str:
-    raise NotImplementedError("umma.py 완성 후 위 주석 해제")
-
-def build_park_prompt(stats, loop_count, clues, player_name, player_gender) -> str:
-    raise NotImplementedError("park_dowon.py 완성 후 위 주석 해제")
+from prompts.cha_seoyeon import build_cha_prompt
+from prompts.umma import build_umma_prompt
+from prompts.park_dowon import build_park_prompt
 
 
 # ────────────────────────────────────────────
@@ -48,7 +37,7 @@ def build_park_prompt(stats, loop_count, clues, player_name, player_gender) -> s
 NPC_PROMPT_BUILDERS = {
     NPC_KIM  : build_kim_prompt,
     NPC_CHA  : build_cha_prompt,
-    NPC_MOM  : build_mom_prompt,
+    NPC_MOM  : build_umma_prompt,
     NPC_PARK : build_park_prompt,
 }
 

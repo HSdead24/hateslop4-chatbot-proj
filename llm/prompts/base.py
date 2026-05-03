@@ -231,7 +231,7 @@ def build_system_prompt(
     loop_count      : 현재 루프 회차
     clues           : 유저 보유 단서 목록
     player_name     : 유저 닉네임 (예: "정재희")
-    player_gender   : 유저 성별 ("남자" / "여자" / "무관")
+    player_gender   : 유저 성별 ("남자" / "여자")
     """
     # ── 플레이어 관련 파생 값 계산 ──────────────────
     first_name   = get_first_name(player_name)    # "정재희" → "재희"
@@ -275,6 +275,9 @@ def build_system_prompt(
 - 유저 닉네임: {player_name}
 - 유저 성별: {player_gender}
 - 유저 보유 단서: {clues_str}
+- 중요: 이 게임의 주인공(상담사)은 유저 본인이며, 이름은 '{player_name}'입니다.
+  대화 상대가 곧 주인공이므로, 프롬프트 내 고정된 이름 대신
+  반드시 '{player_name}'(이름만 부를 경우 '{first_name}')을 사용하세요.
 
 === 말투 예시 (Few-Shot) ===
 {few_shot}
