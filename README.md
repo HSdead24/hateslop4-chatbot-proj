@@ -108,7 +108,7 @@ def build_image_store(image_dir: str) -> None:
 
 ---
 
-### Phase 3 — RAG 파이프라인 (엔지니어 A) 🔄 진행 중
+### Phase 3 — RAG 파이프라인 🔄 진행 중
 
 **브랜치**: `RAG`
 
@@ -135,7 +135,7 @@ llm/vector_store/
     └── world/         ← 세계관 설정 문서 (프로듀서 제공)
 ```
 
-**chat_node.py 수정 내용 (엔지니어 A가 Phase 4 완료 후 반영)**
+**chat_node.py 수정 내용**
 ```python
 # generate_npc_response()에 RAG 검색 결과 주입
 # 유저 입력 → 벡터 DB 검색 → 관련 문서 추출 → 프롬프트에 주입
@@ -146,7 +146,7 @@ llm/vector_store/
 
 ---
 
-### Phase 4 — 이미지 유사도 검색 (엔지니어 B) ✅ 완료 (프로듀서 자료 대기 중)
+### Phase 4 — 이미지 유사도 검색 ✅ 완료 (프로듀서 자료 대기 중)
 
 **브랜치**: `image`
 
