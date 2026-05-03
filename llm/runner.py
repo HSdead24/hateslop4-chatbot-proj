@@ -109,7 +109,7 @@ def run_chat(
     state     : GameState,
     npc_name  : str,
     user_input: str,
-) -> tuple[GameState, str, str]:
+) -> tuple[GameState, str, str | None, str]:
     """
     유저가 NPC에게 메시지를 보낼 때 호출된다.
     LangGraph를 통해 NPC 응답을 생성하고 업데이트된 GameState를 반환한다.
@@ -125,7 +125,11 @@ def run_chat(
 
     Returns
     -------
-    (업데이트된 GameState, NPC 응답 텍스트, game_status)
+    (업데이트된 GameState, NPC 응답 텍스트, image_url, game_status)
+
+    image_url
+    ---------
+    유사 이미지가 있으면 URL 문자열, 없으면 None
 
     game_status
     -----------
@@ -138,12 +142,14 @@ def run_chat(
     injected["current_npc"]    = npc_name
     injected["_user_input"]    = user_input
     injected["_last_response"] = ""
+    injected["_image_url"]     = None
 
     # LangGraph 실행 (chat_phase 노드 1회 실행)
     result = game_graph.invoke(GameState(**injected))
 
     # 임시 필드 제거
-    response   = result.pop("_last_response", "")
+    response  = result.pop("_last_response", "")
+    image_url = result.pop("_image_url", None)
     result.pop("_user_input", None)
 
     updated_state = GameState(**result)
@@ -157,7 +163,7 @@ def run_chat(
     else:
         game_status = "continue"
 
-    return updated_state, response, game_status
+    return updated_state, response, image_url, game_status
 
 
 # ────────────────────────────────────────────
