@@ -41,10 +41,10 @@
 
 **프로듀서 제공 자료**
 - [ ] 치키 Few-Shot 샘플 나머지 4개
-- [ ] 김도현 Few-Shot 샘플 나머지
-- [ ] 차서연 Few-Shot 샘플
-- [ ] 엄마 Few-Shot 샘플
-- [ ] 박도원 Few-Shot 샘플
+- [x] 김도현 Few-Shot 샘플 나머지
+- [x] 차서연 Few-Shot 샘플
+- [x] 엄마 Few-Shot 샘플
+- [x] 박도원 Few-Shot 샘플
 - [ ] 사망 트리거 단어 목록
 - [ ] 스토리별 버튼 조합
 - [ ] 스토리별 NPC 수치
