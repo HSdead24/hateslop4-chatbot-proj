@@ -40,7 +40,9 @@ def record_button(state: GameState, button: int) -> GameState:
         return state
 
     updated_state = dict(state)
-    updated_state["button_history"] = [button]  # 마지막 버튼만 유지
+    if not state["button_history"]:              # button_history가 비어있으면 = 첫 번째 선택
+        updated_state["first_button"] = button
+    updated_state["button_history"] = [button] # 이후 덮어씀
     return GameState(**updated_state)
 
 

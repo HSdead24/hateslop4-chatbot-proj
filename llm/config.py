@@ -11,7 +11,7 @@ NPC별 초기 수치, 사용할 GPT 모델명, 루프 횟수 등
 [스토리 결정 흐름]
 루프 시작
 → DEFAULT_NPC_STATS로 수치 초기화 (버튼 선택 전 기본값)
-→ Phase 1 버튼 선택 순서 기록 (button_history에 누적)
+→ Phase 1 버튼 선택 완료 시 마지막 버튼 ID를 button_history에 저장
 → 버튼 선택 완료 시 BUTTON_STORY_MAP으로 스토리 직접 확정
 → state["npc_stats"] = STORIES[selected_story]로 수치 덮어씀
 → Phase 2 채팅 (수치 고정)
