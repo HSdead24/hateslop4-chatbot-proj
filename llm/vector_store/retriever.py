@@ -87,6 +87,7 @@ def _get_collection() -> chromadb.Collection:
 def retrieve_story_context(
     user_input : str,
     loop       : int,
+    first_button : int      = 0,
     character  : str | None = None,
     top_k      : int        = RAG_TOP_K,
 ) -> str:
@@ -96,6 +97,7 @@ def retrieve_story_context(
     Args:
         user_input: 유저가 입력한 메시지
         loop      : 현재 루프 회차 (0-based). loop_level <= loop 인 문서만 검색.
+        first_button: 첫 번째로 선택된 버튼 ID
         character : NPC 이름. 주어지면 해당 캐릭터 문서를 우선 검색한다.
                     None이면 전체 문서에서 검색.
         top_k     : 반환할 최대 청크 수 (기본값: config.RAG_TOP_K)
@@ -112,20 +114,34 @@ def retrieve_story_context(
     # ── where 필터 구성 ────────────────────────
     # loop_level <= loop 조건 + 선택적 character 필터
     # Chroma where 문법: $and / $lte / $eq
+    route_filter = {
+        "$or": [
+            {"route": {"$eq": 0}},
+            {"route": {"$eq": first_button}},
+        ]
+    }
+
     if character:
         where: dict = {
             "$and": [
                 {"loop_level": {"$lte": loop}},
+                route_filter,
                 {
                     "$or": [
                         {"character": {"$eq": character}},
-                        {"doc_type" : {"$eq": "world"}},   # 세계관 문서는 항상 포함
+                        {"doc_type" : {"$eq": "world"}},
                     ]
                 },
             ]
         }
     else:
-        where = {"loop_level": {"$lte": loop}}
+        where = {
+            "$and": [
+                {"loop_level": {"$lte": loop}},
+                route_filter,
+            ]
+        }
+    
 
     # ── 검색 실행 ──────────────────────────────
     try:
@@ -152,6 +168,7 @@ def retrieve_story_context_by_character(
     user_input : str,
     loop       : int,
     character  : str,
+    first_button : int = 0,
     top_k      : int = RAG_TOP_K,
 ) -> str:
     """
@@ -162,6 +179,7 @@ def retrieve_story_context_by_character(
         user_input: 유저 입력
         loop      : 현재 루프 회차
         character : NPC 이름 (반드시 전달해야 함)
+        first_button: 첫 번째로 선택된 버튼 ID
         top_k     : 반환할 최대 청크 수
 
     Returns:
@@ -171,6 +189,7 @@ def retrieve_story_context_by_character(
         user_input = user_input,
         loop       = loop,
         character  = character,
+        first_button = first_button,
         top_k      = top_k,
     )
 
