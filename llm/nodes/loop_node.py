@@ -13,14 +13,16 @@
     - current_npc    : 빈 문자열로 초기화
     - clues          : 빈 리스트로 초기화
     - is_dead        : False로 초기화
+    - is_loop_reset  : False로 초기화
     - current_story  : 빈 문자열로 초기화
-    - button_history : past_sequences에 저장 후 빈 리스트로 초기화
+    - button_history : 빈 리스트로 초기화
+    - first_button   : 0으로 초기화
+    - context        : 빈 리스트로 초기화
 
 초기화 X (누적 유지):
     - player_name    : 게임 전체에서 유지
     - player_gender  : 게임 전체에서 유지
     - used_stories   : 중복 스토리 방지를 위해 누적 유지
-    - past_sequences : 중복 버튼 조합 방지를 위해 누적 유지
 """
 
 import copy
@@ -32,7 +34,6 @@ from config import DEFAULT_NPC_STATS
 def loop_reset_node(state: GameState) -> GameState:
     """
     루프 리셋 시 호출되는 노드 함수.
-    현재 루프의 button_history를 past_sequences에 저장한 뒤
     다음 루프를 위해 GameState를 부분 초기화한다.
 
     router.py의 route_after_chat()에서 is_dead == True 조건으로 호출됨.
@@ -47,16 +48,6 @@ def loop_reset_node(state: GameState) -> GameState:
     -------
     부분 초기화된 GameState
     """
-
-    # ────────────────────────────────────────
-    # 1. 현재 루프 button_history → past_sequences에 저장
-    # ────────────────────────────────────────
-    # 빈 리스트도 저장해서 루프 진행 기록을 남긴다.
-    updated_past_sequences = state["past_sequences"] + [list(state["button_history"])]
-
-    # ────────────────────────────────────────
-    # 2. GameState 부분 초기화
-    # ────────────────────────────────────────
     return GameState(
         # 루프 회차 +1
         loop_count     = state["loop_count"] + 1,
@@ -82,11 +73,20 @@ def loop_reset_node(state: GameState) -> GameState:
         # 사망 상태 초기화
         is_dead        = False,
 
+        # 루프 강제 리셋 플래그 초기화
+        is_loop_reset  = False,
+
         # 현재 스토리 초기화 (다음 루프에서 새로 결정)
         current_story  = "",
 
-        # 버튼 선택 기록 초기화 (past_sequences에 저장 완료)
+        # 버튼 선택 기록 초기화
         button_history = [],
+
+        # 첫 번째 버튼 ID 초기화
+        first_button   = 0,
+
+        # 버튼 텍스트 누적 목록 초기화
+        context        = [],
 
         # ── 누적 유지 필드 ──────────────────────
         # 유저 정보 유지
@@ -95,7 +95,4 @@ def loop_reset_node(state: GameState) -> GameState:
 
         # 진행한 스토리 목록 누적 유지 (중복 스토리 방지)
         used_stories   = state["used_stories"],
-
-        # 이전 루프 버튼 조합 누적 유지 (중복 버튼 조합 방지)
-        past_sequences = updated_past_sequences,
     )

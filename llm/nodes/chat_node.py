@@ -3,7 +3,7 @@ Phase 2(챗봇 대화)의 핵심 로직을 담당하는 노드 파일.
 
 주요 역할
 ---------
-1. 유저 입력에서 사망 트리거 감지 (DEATH_KEYWORDS, MAX_CHAT_TURNS)
+1. 유저 입력에서 사망 트리거 감지 (DEATH_TRIGGERS, MAX_CHAT_TURNS)
 2. 현재 NPC에 맞는 캐릭터 프롬프트 로드
 3. 대화 기록이 MESSAGE_SUMMARY_THRESHOLD 초과 시 LLM으로 자동 요약
 4. LLM 호출 후 NPC 응답 생성
@@ -18,8 +18,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from state import GameState, NPC_EXECUTOR, NPC_KIM, NPC_CHA, NPC_MOM, NPC_PARK, TOTAL_LOOPS
 from config import (
     LLM_MODEL_DEFAULT, LLM_MODEL_HEAVY, LLM_TEMPERATURE,
-    DEATH_KEYWORDS, MAX_CHAT_TURNS, MESSAGE_SUMMARY_THRESHOLD,
+    MAX_CHAT_TURNS, MESSAGE_SUMMARY_THRESHOLD,
 )
+from death_triggers import check_death_trigger, check_chiki_loop_reset
 
 from prompts.base import build_message_history, build_chat_prompt
 from prompts.executor import build_executor_prompt
@@ -41,40 +42,6 @@ NPC_PROMPT_BUILDERS = {
     NPC_MOM  : build_umma_prompt,
     NPC_PARK : build_park_prompt,
 }
-
-
-# ────────────────────────────────────────────
-# 사망 트리거 감지
-# ────────────────────────────────────────────
-
-def check_death_trigger(state: GameState, user_input: str) -> bool:
-    """
-    유저 입력에서 사망 트리거를 감지한다.
-    아래 두 조건 중 하나라도 충족되면 True를 반환한다.
-
-    1. DEATH_KEYWORDS 중 하나가 user_input에 포함된 경우
-    2. 현재 NPC와의 대화 턴이 MAX_CHAT_TURNS 이상인 경우
-
-    Parameters
-    ----------
-    state      : 현재 GameState
-    user_input : 유저가 입력한 텍스트
-
-    Returns
-    -------
-    True이면 사망 처리
-    """
-    # 키워드 감지 (유저 입력에만 적용)
-    for keyword in DEATH_KEYWORDS:
-        if keyword in user_input:
-            return True
-
-    # 대화 턴 수 초과 감지
-    npc_name = state["current_npc"]
-    if npc_name and len(state["messages"].get(npc_name, [])) >= MAX_CHAT_TURNS:
-        return True
-
-    return False
 
 
 # ────────────────────────────────────────────
@@ -171,11 +138,11 @@ def generate_npc_response(
     -------
     NPC 응답 텍스트
     """
-    stats        = state["npc_stats"].get(npc_name, {})
-    loop_count   = state["loop_count"]
-    clues        = state["clues"]
-    player_name  = state["player_name"]
-    player_gender= state["player_gender"]
+    stats         = state["npc_stats"].get(npc_name, {})
+    loop_count    = state["loop_count"]
+    clues         = state["clues"]
+    player_name   = state["player_name"]
+    player_gender = state["player_gender"]
 
     # 집행자(치키)는 별도 프롬프트 빌더 사용
     if npc_name == NPC_EXECUTOR:
@@ -201,6 +168,7 @@ def generate_npc_response(
         system_prompt = system_prompt,
         user_input    = user_input,
         loop          = state["loop_count"],
+        first_button  = state["first_button"],
         character     = npc_name,
     )
 
@@ -271,7 +239,7 @@ def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str | 
 
     Returns
     -------
-    (업데이트된 GameState, NPC 응답 텍스트)
+    (업데이트된 GameState, NPC 응답 텍스트, 이미지 URL 또는 None)
     """
     npc_name = state["current_npc"]
 
@@ -279,7 +247,17 @@ def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str | 
         raise ValueError("current_npc가 설정되지 않았습니다. runner.py에서 설정 후 호출하세요.")
 
     # 1. 사망 트리거 감지
-    is_dead = check_death_trigger(state, user_input)
+    is_dead = check_death_trigger(npc_name, user_input)
+
+    # 치키 + __ALL__ 트리거 → 사망 아닌 루프 강제 리셋
+    is_loop_reset = False
+    if is_dead and npc_name == NPC_EXECUTOR:
+        is_dead       = False
+        is_loop_reset = True
+
+    # 대화 턴 수 초과 감지
+    if len(state["messages"].get(npc_name, [])) >= MAX_CHAT_TURNS:
+        is_dead = True
 
     # 2. LLM 선택
     llm = get_llm(state["loop_count"])
@@ -292,8 +270,9 @@ def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str | 
 
     # 5. GameState 업데이트
     updated_state = dict(state)
-    updated_state["messages"] = updated_messages
-    updated_state["is_dead"]  = is_dead
+    updated_state["messages"]      = updated_messages
+    updated_state["is_dead"]       = is_dead
+    updated_state["is_loop_reset"] = is_loop_reset
 
     # 6. 이미지 검색
     image_url = retrieve_image(response)

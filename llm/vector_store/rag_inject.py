@@ -55,6 +55,7 @@ _NO_CONTEXT_MSG = ""   # 컨텍스트가 없을 때 삽입할 내용 (빈 문자
 def build_rag_block(
     user_input : str,
     loop       : int,
+    first_button : int      = 0,
     character  : str | None = None,
 ) -> str:
     """
@@ -63,6 +64,7 @@ def build_rag_block(
     Args:
         user_input: 유저가 입력한 메시지
         loop      : 현재 루프 회차
+        first_button: 첫 번째로 선택된 버튼 ID
         character : NPC 이름 (None이면 전체 문서에서 검색)
 
     Returns:
@@ -72,6 +74,7 @@ def build_rag_block(
     context = retrieve_story_context(
         user_input = user_input,
         loop       = loop,
+        first_button = first_button,
         character  = character,
     )
 
@@ -108,6 +111,7 @@ def get_enriched_system_prompt(
     system_prompt : str,
     user_input    : str,
     loop          : int,
+    first_button  : int      = 0,
     character     : str | None = None,
 ) -> str:
     """
@@ -118,6 +122,7 @@ def get_enriched_system_prompt(
         system_prompt: 기존 NPC 시스템 프롬프트
         user_input   : 유저 입력 메시지
         loop         : 현재 루프 회차
+        first_button : 첫 번째로 선택된 버튼 ID
         character    : NPC 이름
 
     Returns:
@@ -126,6 +131,7 @@ def get_enriched_system_prompt(
     rag_block = build_rag_block(
         user_input = user_input,
         loop       = loop,
+        first_button = first_button,
         character  = character,
     )
     return inject_rag_into_system(system_prompt, rag_block)
