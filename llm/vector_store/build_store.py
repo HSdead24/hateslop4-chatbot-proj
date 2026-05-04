@@ -76,6 +76,11 @@ def _parse_loop_level(filename: str) -> int:
     m = re.search(r"_loop(\d+)", filename)
     return int(m.group(1)) if m else 0
 
+def _parse_route(filename: str) -> int:
+    """파일명에서 route를 추출한다. 예) route101_loop2_단서1_USB.md → 101"""
+    m = re.search(r"_route(\d+)", filename)
+    return int(m.group(1)) if m else 0
+
 #파일명에서 캐릭터 이름만 추출한다.
 def _parse_character(filename: str) -> str:
     """캐릭터 파일명에서 캐릭터명을 추출한다. 예) 김도현_loop2.md → 김도현"""
@@ -132,6 +137,7 @@ def _read_docs(data_dir: str) -> tuple[list[str], list[dict], list[str]]:
                 "doc_type"  : doc_type,
                 "character" : character,
                 "loop_level": loop_level,
+                "route"     : _parse_route(filename),
             })
             ids.append(doc_id)
 
