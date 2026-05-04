@@ -96,15 +96,8 @@ class GameState(TypedDict):
         루프 리셋 시 초기화하지 않고 누적 유지.
         (3루프 동안 같은 스토리가 반복되지 않도록 관리)
 
-    button_history : list[str]
-        현재 루프의 버튼 선택 순서 기록 (예: ["A", "B", "A"]).
-        루프 리셋 시 past_sequences에 저장 후 초기화.
-
-    past_sequences : list[list]
-        이전 루프들의 버튼 선택 순서 기록.
-        예시: [["A","B","A","A"], ["B","A","B","C"]]
-        중복 버튼 조합 방지를 위해 button_node.py에서 참조.
-        루프가 끝날 때까지 누적 유지.
+    button_history : list[int]
+        마지막으로 선택한 버튼만 저장.
     """
 
     loop_count     : int
@@ -120,8 +113,7 @@ class GameState(TypedDict):
     player_gender  : str
     current_story  : str
     used_stories   : list   # list[str]
-    button_history : list   # list[str]
-    past_sequences : list   # list[list]
+    button_history : list   # list[int]
     first_button   : int    # 첫 번째 선택지 버튼 ID (예: "101"). RAG route 필터에 사용.
 
 
@@ -159,6 +151,5 @@ def create_initial_state(
         current_story  = "",
         used_stories   = [],
         button_history = [],
-        past_sequences = [],
         first_button   = 0,
     )
