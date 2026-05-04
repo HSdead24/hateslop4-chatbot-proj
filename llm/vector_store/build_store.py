@@ -87,13 +87,33 @@ def _parse_character(filename: str) -> str:
     base = os.path.splitext(filename)[0]
     return re.sub(r"_loop\d+$", "", base)
 
+# 청킹 설정
+CHUNK_SIZE    = 3000   # 청크 1개당 최대 글자 수 (약 750토큰)
+CHUNK_OVERLAP = 200    # 앞뒤 문맥 겹치는 글자 수
+
+
+def _chunk_text(text: str) -> list[str]:
+    """
+    텍스트를 CHUNK_SIZE 단위로 나눈다.
+    CHUNK_OVERLAP만큼 앞 청크와 겹쳐서 문맥이 끊기지 않도록 한다.
+    """
+    chunks = []
+    start  = 0
+    while start < len(text):
+        end = start + CHUNK_SIZE
+        chunks.append(text[start:end])
+        start += CHUNK_SIZE - CHUNK_OVERLAP
+    return chunks
+
+
 #data 폴더 내의 모든 .md 파일을 찾아서 정보를 수집한다.
 def _read_docs(data_dir: str) -> tuple[list[str], list[dict], list[str]]:
     """
-    data/characters/ 와 data/world/ 의 .md 파일을 모두 읽어
+    data/characters/, data/world/, data/clues/ 의 .md 파일을 모두 읽어
     (texts, metadatas, ids) 튜플로 반환한다.
 
-    파일 1개 = 문서 1개 (청킹 없음).
+    긴 파일은 CHUNK_SIZE 단위로 청킹해 여러 문서로 저장한다.
+    파일 1개 = 1개 이상의 문서.
     """
     texts     : list[str]  = []
     metadatas : list[dict] = []
@@ -102,6 +122,7 @@ def _read_docs(data_dir: str) -> tuple[list[str], list[dict], list[str]]:
     subdirs = {
         "character": os.path.join(data_dir, "characters"),
         "world"    : os.path.join(data_dir, "world"),
+        "clue"     : os.path.join(data_dir, "clues"),
     }
 
     for doc_type, folder in subdirs.items():
@@ -127,19 +148,27 @@ def _read_docs(data_dir: str) -> tuple[list[str], list[dict], list[str]]:
 
             loop_level = _parse_loop_level(filename)
             character  = _parse_character(filename) if doc_type == "character" else ""
+            route      = _parse_route(filename)
 
-            short_uuid = str(uuid.uuid4())[:8]
-            doc_id     = f"{character or 'world'}_{short_uuid}"
+            # 청킹: 짧은 파일은 1개, 긴 파일은 여러 개로 분할
+            chunks = _chunk_text(text)
+            if len(chunks) > 1:
+                print(f"[build_store] 청킹: {filename} → {len(chunks)}개 조각")
 
-            texts.append(text)
-            metadatas.append({
-                "source"    : filepath,
-                "doc_type"  : doc_type,
-                "character" : character,
-                "loop_level": loop_level,
-                "route"     : _parse_route(filename),
-            })
-            ids.append(doc_id)
+            for i, chunk in enumerate(chunks):
+                short_uuid = str(uuid.uuid4())[:8]
+                doc_id     = f"{character or doc_type}_{short_uuid}"
+
+                texts.append(chunk)
+                metadatas.append({
+                    "source"    : filepath,
+                    "doc_type"  : doc_type,
+                    "character" : character,
+                    "loop_level": loop_level,
+                    "route"     : route,
+                    "chunk_index": i,          # 몇 번째 청크인지 (디버깅용)
+                })
+                ids.append(doc_id)
 
     return texts, metadatas, ids
 
