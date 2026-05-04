@@ -289,33 +289,61 @@ llm/vector_store/
 
 ---
 
-### Phase 6 — 백엔드 API 서버
+### Phase 6 — 백엔드 API 서버 ✅ 완료
 
 **프로듀서 제공 자료**
 - 없음 (엔지니어 자체 설계)
 
-**구현 내용**
+**디렉토리 구조**
 ```
 backend/
-├── main.py           ← FastAPI 앱 진입점 + CORS 설정
+├── main.py               ← FastAPI 앱 진입점 + CORS 설정
 ├── api/
-│   ├── game.py       ← 게임 관련 엔드포인트
-│   └── chat.py       ← 채팅 관련 엔드포인트
+│   ├── __init__.py
+│   ├── game.py           ← 게임 흐름 엔드포인트
+│   └── chat.py           ← 채팅 엔드포인트
 ├── models/
-│   └── schemas.py    ← 요청/응답 데이터 모델 (Pydantic)
-└── session/
-    └── manager.py    ← 유저별 GameState 관리
+│   ├── __init__.py
+│   └── schemas.py        ← 요청/응답 데이터 모델 (Pydantic)
+├── session/
+│   ├── __init__.py
+│   └── manager.py        ← 유저별 GameState 인메모리 관리
+└── tests/
+    └── test_api.py       ← pytest 구조 테스트 (LLM 미호출, 16개 케이스)
 ```
 
 **주요 엔드포인트**
 ```
-POST /new-game                    ← 게임 시작, session_id 반환
-GET  /available-buttons           ← 비활성화할 버튼 ID 목록 반환
-POST /finalize                    ← 마지막 버튼 ID + context → story_id 확정, NPC 스탯 반환
-POST /chat                        ← NPC와 대화
-POST /player-dead                 ← 타이머 만료 사망 처리
-POST /new-loop                    ← 루프 리셋
+POST /new-game            ← 게임 시작 (player_name, player_gender 입력) → session_id 반환
+GET  /available-buttons   ← 비활성화할 버튼 ID 목록 반환
+POST /record-button       ← 버튼 클릭 시마다 호출 (마지막 ID 기록)
+POST /finalize            ← 마지막 버튼 ID + context → story_id 확정, NPC 스탯 반환
+POST /chat                ← NPC와 대화 → response, image_url, is_dead, is_loop_reset 반환
+POST /player-dead         ← 타이머 만료 사망 처리 → 루프 리셋
+POST /new-loop            ← 루프 리셋 → loop_count, is_game_over 반환
+GET  /health              ← 서버 상태 확인
 ```
+
+**구현 완료 작업**
+- [x] `schemas.py` — 요청/응답 Pydantic 모델 전체 정의
+  - `NewGameRequest` / `NewGameResponse`
+  - `RecordButtonRequest`
+  - `FinalizeRequest` / `FinalizeResponse`
+  - `ChatRequest` / `ChatResponse` (`is_dead`, `is_loop_reset` 포함)
+  - `LoopResetRequest` / `LoopResetResponse`
+  - `PlayerDeadRequest`
+- [x] `session/manager.py` — `create_initial_state()` 기반 세션 생성/조회/갱신/삭제
+- [x] `api/game.py` — 게임 흐름 6개 엔드포인트 구현
+  - `button_node.py`의 `record_button()`, `finalize_stats()`, `get_disabled_buttons()` 연동
+  - `loop_reset_node()` 연동 (함수명 실제 코드 기준으로 수정)
+- [x] `api/chat.py` — `/chat` 엔드포인트 구현
+  - `chat_node(state, user_input)` 호출 전 `state["current_npc"]` 설정
+  - 반환값 `(GameState, response, image_url)` 처리
+- [x] `main.py` — 라우터 등록, CORS 설정, 전역 예외 핸들러
+- [x] 버그 수정
+  - `sys.path`를 `../../` → `../../llm`, `../../llm/nodes` 로 수정 (모듈 import 오류 해결)
+  - `loop_node` → `loop_reset_node` 함수명 수정
+  - `allow_credentials=True` + `allow_origins=["*"]` 조합 → `allow_credentials=False` 수정 (CORS 브라우저 거부 방지)
 
 **llm/frontend/backend 역할 분담 요약**
 
@@ -335,6 +363,67 @@ POST /new-loop                    ← 루프 리셋
 | RAG 주입 | ✅ | ❌ | ❌ |
 | 이미지 검색 | ✅ | ❌ | ❌ |
 
+**백엔드 서버 실행 방법**
+```bash
+# 패키지 설치 (최초 1회)
+pip install fastapi uvicorn python-dotenv httpx pytest
+
+# 프로젝트 루트에서 실행
+uvicorn backend.main:app --reload --port 8000
+
+# Swagger UI (엔드포인트 전체 확인)
+# http://localhost:8000/docs
+```
+
+---
+
+### Phase 6 — 테스트 ✅ 완료
+
+**테스트 파일 위치**
+```
+backend/tests/test_api.py
+```
+
+**테스트 구성 (총 16개 케이스, LLM 실제 호출 없음)**
+
+| 테스트 클래스 | 케이스 수 | 검증 항목 |
+|---|---|---|
+| `TestNewGame` | 1 | `session_id` 반환 여부 |
+| `TestAvailableButtons` | 2 | 첫 게임 빈 리스트 반환 + 404 |
+| `TestRecordButton` | 2 | 200 응답 + 404 |
+| `TestFinalize` | 4 | `story_id` / `npc_stats` / `disabled_button_ids` 필드 존재, 버튼 비활성화 동작 + 404 |
+| `TestNewLoop` | 3 | `loop_count=2`, `is_game_over=False` + 404 |
+| `TestInvalidSession` | 4 | 전 엔드포인트 잘못된 session_id → 404 |
+
+**테스트 실행 방법**
+```bash
+# backend/ 폴더 안에서 실행
+cd backend
+pytest tests/test_api.py -v
+
+# 특정 클래스만 실행
+pytest tests/test_api.py::TestFinalize -v
+
+# 특정 케이스만 실행
+pytest tests/test_api.py::TestNewLoop::test_loop_count_increments -v
+```
+
+**테스트 설계 포인트**
+- `chat_node`를 `sys.modules` 선주입으로 mock 처리 → LLM 호출 없이 구조만 검증
+- `session_id` fixture는 `scope=function` → 테스트마다 독립적인 세션 사용
+- `finalized_session` fixture → `record-button` + `finalize` 완료 상태에서 시작하는 테스트에 사용
+
+**방법 2 구조 테스트 결과 (curl 기반, 완료)**
+
+| 엔드포인트 | 결과 | 응답 |
+|---|---|---|
+| `POST /new-game` | ✅ | `{"session_id": "..."}` |
+| `GET /available-buttons` | ✅ | `{"disabled_button_ids": []}` |
+| `POST /record-button` | ✅ | `{"ok": true}` |
+| `POST /finalize` | ✅ | `story_id`, `npc_stats`, `disabled_button_ids: [600]` |
+| `POST /chat` | ✅ | `{"response":"테스트 응답","image_url":null,"is_dead":false,"is_loop_reset":false}` |
+| `POST /new-loop` | ✅ | `{"loop_count": 2, "is_game_over": false}` |
+
 ---
 
 ### Phase 7 — 통합 연동 테스트 (공통)
@@ -347,6 +436,9 @@ POST /new-loop                    ← 루프 리셋
 - 루프 3회 전체 흐름 테스트
 - 사망 트리거 3가지 동작 확인
 - API 호출 횟수 모니터링 (팀당 300~400회 제한)
+
+> Phase 7 실제 `/chat` 호출 포함 통합 테스트는 Phase 3/4/5/6 전부 완료 후 진행.
+> 실행 방법은 방법 1(curl 전체 흐름) 참고.
 
 ---
 
@@ -372,6 +464,8 @@ uvicorn
 python-dotenv
 chromadb
 openai
+httpx
+pytest
 ```
 
 ---
