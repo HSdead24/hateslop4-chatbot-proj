@@ -115,6 +115,7 @@ class GameState(TypedDict):
     current_npc    : str
     clues          : list   # list[str]
     is_dead        : bool
+    is_loop_reset  : bool   # 치키 + __ALL__ 트리거 시 루프 강제 리셋 플래그
     player_name    : str
     player_gender  : str
     current_story  : str
@@ -151,6 +152,7 @@ def create_initial_state(
         current_npc    = "",
         clues          = [],
         is_dead        = False,
+        is_loop_reset  = False,
         player_name    = player_name,
         player_gender  = player_gender,
         current_story  = "",
