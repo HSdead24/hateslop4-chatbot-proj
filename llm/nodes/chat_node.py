@@ -168,6 +168,7 @@ def generate_npc_response(
         system_prompt = system_prompt,
         user_input    = user_input,
         loop          = state["loop_count"],
+        first_button  = state["first_button"],
         character     = npc_name,
     )
 
