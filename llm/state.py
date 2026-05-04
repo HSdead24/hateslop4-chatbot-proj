@@ -122,6 +122,7 @@ class GameState(TypedDict):
     used_stories   : list   # list[str]
     button_history : list   # list[str]
     past_sequences : list   # list[list]
+    first_button   : int    # 첫 번째 선택지 버튼 ID (예: "101"). RAG route 필터에 사용.
 
 
 # ────────────────────────────────────────────
@@ -159,4 +160,5 @@ def create_initial_state(
         used_stories   = [],
         button_history = [],
         past_sequences = [],
+        first_button   = 0,
     )
