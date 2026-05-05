@@ -4,16 +4,18 @@
 
 /* ── 리셋 ── */
 * { margin:0; padding:0; box-sizing:border-box; }
-
+/*전체 배경과 게임 화면이 들어갈 중심 틀을 정의하는 핵심 부분*/
 body {
-  background: #05070d;
-  color: #cdd8d4;
+  background: #05070d;/*배경색*/
+  color: #cdd8d4;/*기본 글자 색상*/
   font-family: 'Noto Sans KR', sans-serif;
-  min-height: 100vh;
+  min-height: 100vh;/*화면의 최소 높이*/
   display: flex;
   justify-content: center;
 }
 
+/*게임 화면 본체
+실제 게임 UI가 그려지는 가상의 스마트폰 화면 같은 영역*/
 .game-wrapper {
   width: 100%;
   max-width: 460px;
@@ -29,7 +31,8 @@ body {
    전역 섬뜩 효과 레이어들
 ══════════════════════════════════ */
 
-/* 배경 전체에 깔리는 핏빛 안개 */
+/* 배경 전체에 깔리는 핏빛 안개 
+세가지 색상의 조명을 섞어 놨음*/
 .atmo-layer {
   position: fixed; inset: 0;
   pointer-events: none; z-index: 0;
@@ -39,7 +42,8 @@ body {
     radial-gradient(ellipse 50% 30% at 80% 100%, rgba(10,30,50,0.12) 0%, transparent 60%);
 }
 
-/* CRT 스캔라인 */
+/* CRT 스캔라인 
+미세한 가로줄 효과*/
 .scanlines {
   position: fixed; inset: 0; pointer-events: none; z-index: 200;
   background: repeating-linear-gradient(
@@ -51,7 +55,8 @@ body {
   );
 }
 
-/* 화면 모서리 비네트 */
+/* 화면 모서리 비네트 
+카메라 렌즈 주변이 어둡게 찍히는 현상을 흉내낸 효과*/
 .vignette {
   position: fixed; inset: 0; pointer-events: none; z-index: 1;
   background: radial-gradient(ellipse 100% 100% at 50% 50%,
