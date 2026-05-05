@@ -138,18 +138,14 @@ function updateTimer() {
   const s   = totalSeconds % 60;
   const str = `${pad(h)}:${pad(m)}:${pad(s)}`;
 
-  document.getElementById('timer').textContent        = str;
   document.getElementById('timer-display').textContent= str;
 
   const mins = totalSeconds / 60;
-  const t    = document.getElementById('timer');
   const d    = document.getElementById('timer-display');
 
   if (mins < 3) {
-    t.classList.add('warning');
     d.classList.add('critical');
   } else {
-    t.classList.remove('warning');
     d.classList.remove('critical');
   }
 
@@ -270,11 +266,10 @@ function switchNPC(idx) {
   ht.style.borderColor  = npc.tagColor + '44';
   ht.style.background   = npc.tagColor + '14';
 
-  // 헤더 스탯
-  document.getElementById('header-stat-label').textContent  = npc.statLabel;
-  document.getElementById('header-stat-bar').style.width    = npc.statVal + '%';
-  document.getElementById('header-stat-bar').style.background = npc.statColor;
-  document.getElementById('header-stat-val').textContent    = npc.statVal;
+  // 헤더 스탯 (제거됨)
+  // document.getElementById('header-stat-label')
+  // document.getElementById('header-stat-bar')
+  // document.getElementById('header-stat-val')
 
   // 채팅창 전환
   for (let i = 0; i < NPCs.length; i++) {
@@ -443,7 +438,6 @@ function triggerDeath() {
     loopCount++;
     document.getElementById('loop-num').textContent     = loopNum;
     document.getElementById('loop-count').textContent   = loopCount;
-    document.getElementById('loop-display').textContent = `LOOP #${pad(loopNum)}`;
     totalSeconds = 47 * 60 + 12;
 
     setTimeout(() => {
