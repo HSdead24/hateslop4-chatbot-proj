@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>죽기 24시간 전에</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #05070d;
+  color: #cdd8d4;
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.game-wrapper {
+  width: 100%;
+  max-width: 460px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #05070d;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════
+   전역 섬뜩 효과 레이어들
+══════════════════════════════════ */
+
+/* 배경 전체에 깔리는 핏빛 안개 */
+.atmo-layer {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,   rgba(140,10,10,0.13) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 20% 80%,  rgba(0,60,60,0.10)  0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 100%, rgba(10,30,50,0.12) 0%, transparent 60%);
+}
+
+/* CRT 스캔라인 */
+.scanlines {
+  position: fixed; inset: 0; pointer-events: none; z-index: 200;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.018) 2px,
+    rgba(0,0,0,0.018) 4px
+  );
+}
+
+/* 화면 모서리 비네트 */
+.vignette {
+  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%,
+    transparent 50%,
+    rgba(0,0,0,0.55) 100%
+  );
+}
+
+/* 클릭 플래시 */
+.flash-overlay {
+  position: fixed; inset: 0; pointer-events: none;
+  opacity: 0; z-index: 300;
+  background: rgba(0,180,160,0.07);
+  transition: opacity 0.06s;
+}
+.flash-overlay.on { opacity: 1; }
+
+/* ══════════════════════════════════
+   TOP BAR
+══════════════════════════════════ */
+.top-bar {
+  position: relative; z-index: 10;
+  display: flex; align-items: center;
+  padding: 8px 13px;
+  gap: 8px; min-height: 56px;
+  background: rgba(5,7,13,0.92);
+  border-bottom: 1px solid rgba(0,200,180,0.10);
+  backdrop-filter: blur(4px);
+}
+
+/* 왼쪽: 루프 박스 */
+.loop-box {
+  display: flex; flex-direction: column; align-items: center;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px; padding: 3px 7px 4px; min-width: 48px;
+  background: rgba(255,255,255,0.025);
+}
+.loop-top { font-size:8px;   color:rgba(205,216,212,0.45); letter-spacing:.12em; line-height:1.2; }
+.loop-num { font-size:14px;  font-weight:700; color:rgba(205,216,212,0.8); line-height:1.1; }
+.loop-inf { font-size:14px;  color:rgba(205,216,212,0.6); line-height:1.1; }
+.loop-bot { font-size:7.5px; color:rgba(205,216,212,0.3); letter-spacing:.06em; line-height:1.2; }
+
+/* 제목 - 섬뜩하게 */
+.game-title {
+  flex: 1;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 19px; font-weight: 800;
+  color: #c8c0b4;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-shadow: 0 0 22px rgba(160,20,10,0.4), 0 1px 2px rgba(0,0,0,0.9);
+  position: relative;
+}
+/* 제목 글자 깜박임 — 미세하게 */
+@keyframes titleFlicker {
+  0%,94%,100% { opacity:1; text-shadow: 0 0 22px rgba(160,20,10,0.4), 0 1px 2px rgba(0,0,0,0.9); }
+  95%          { opacity:0.88; text-shadow: 0 0 40px rgba(180,20,10,0.7), 0 1px 2px rgba(0,0,0,0.9); }
+  97%          { opacity:1; }
+}
+.game-title { animation: titleFlicker 6s ease-in-out infinite; }
+
+.game-title .red {
+  color: #d42018;
+  font-style: italic;
+  text-shadow:
+    0 0 8px  rgba(210,32,24,0.9),
+    0 0 24px rgba(200,20,15,0.5),
+    0 0 48px rgba(180,10,5,0.25);
+}
+
+/* 타이머 */
+.timer-block { display:flex; flex-direction:column; align-items:center; gap:1px; }
+.timer-digits {
+  font-size:20px; font-weight:700; color:#ff3a30;
+  letter-spacing:.04em; font-variant-numeric:tabular-nums; line-height:1;
+  text-shadow: 0 0 12px rgba(255,58,48,0.6);
+}
+@keyframes timerPulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+.timer-digits.urgent { animation: timerPulse 0.8s ease-in-out infinite; }
+.timer-label { font-size:8px; color:rgba(205,216,212,0.35); letter-spacing:.1em; }
+
+/* 우측 아이콘 */
+.top-icons { display:flex; align-items:center; gap:14px; margin-left:4px; }
+.icon-btn {
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  cursor:pointer; position:relative; opacity:0.6; transition:opacity .15s;
+}
+.icon-btn:hover { opacity:1; }
+.icon-btn .red-dot {
+  width:6px; height:6px; background:#e8312a; border-radius:50%;
+  position:absolute; top:-2px; right:-3px;
+  box-shadow: 0 0 5px rgba(232,49,42,0.8);
+}
+.icon-btn svg {
+  width:22px; height:22px; fill:none; stroke:#a8b8b4;
+  stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;
+}
+.icon-btn span { font-size:8px; color:rgba(205,216,212,0.35); letter-spacing:.07em; }
+
+/* ══════════════════════════════════
+   LOCATION BAR
+══════════════════════════════════ */
+.location-bar {
+  position:relative; z-index:10;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 14px;
+  background:rgba(5,7,13,0.85);
+  border-bottom:1px solid rgba(0,200,180,0.07);
+}
+.loc-left { display:flex; align-items:center; gap:5px; }
+.loc-pin  { font-size:12px; opacity:.5; }
+.loc-name { font-size:13px; font-weight:500; color:#c8d0cc; line-height:1.2; }
+.loc-sub  { font-size:9px; color:rgba(205,216,212,0.3); }
+.loc-right { display:flex; align-items:center; gap:8px; }
+.loc-place-name .name { font-size:12px; color:#c8d0cc; font-weight:500; text-align:right; }
+.loc-place-name .sub  { font-size:9px; color:rgba(205,216,212,0.3); text-align:right; }
+.loc-building {
+  width:30px; height:30px;
+  border:1px solid rgba(0,200,180,0.18); border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; opacity:0.55;
+  background:rgba(0,40,40,0.3);
+}
+
+/* ══════════════════════════════════
+   SCENE
+══════════════════════════════════ */
+.scene-container {
+  position:relative; width:100%;
+  min-height:290px; max-height:370px;
+  overflow:hidden; background:#030508;
+  flex: 1 0 auto;
+}
+
+/* 실제 이미지 */
+.scene-image {
+  position:absolute; inset:0;
+  width:100%; height:100%; object-fit:cover;
+  display:none;
+}
+
+/* 플레이스홀더 배경 — 수심처럼 어두운 청록 안개 */
+.scene-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 20%, #0d1a1a 0%, #060c12 50%, #030508 100%),
+    radial-gradient(ellipse 40% 30% at 30% 70%, rgba(0,60,50,0.15) 0%, transparent 60%);
+}
+
+/* 상단 페이드 */
+.scene-top-fade {
+  position:absolute; top:0; left:0; right:0; height:22%;
+  background:linear-gradient(to bottom, rgba(5,7,13,0.65) 0%, transparent 100%);
+  pointer-events:none; z-index:3;
+}
+
+/* 하단 페이드 — 대화창으로 자연스럽게 */
+.scene-fade {
+  position:absolute; bottom:0; left:0; right:0; height:50%;
+  background:linear-gradient(to bottom,
+    transparent 0%,
+    rgba(5,7,13,0.5) 35%,
+    rgba(5,7,13,0.92) 75%,
+    #05070d 100%
+  );
+  pointer-events:none; z-index:3;
+}
+
+/* 왼쪽 가장자리 청록 안개 */
+.scene-left-mist {
+  position:absolute; left:0; top:0; bottom:0; width:25%;
+  background:linear-gradient(to right, rgba(0,40,35,0.25) 0%, transparent 100%);
+  pointer-events:none; z-index:2;
+}
+
+/* 플레이스홀더 인물 */
+.scene-figure {
+  position:absolute; bottom:0; left:50%;
+  transform:translateX(-50%);
+  width:72%; max-width:310px; z-index:2;
+  filter: drop-shadow(0 0 30px rgba(0,160,130,0.08));
+}
+
+/* 우측 스탯 패널 */
+.stats-panel {
+  position:absolute; right:10px; top:10px;
+  display:flex; flex-direction:column; gap:5px; z-index:5;
+}
+.stat-card {
+  background:rgba(5,7,13,0.75);
+  border:1px solid rgba(0,200,160,0.12);
+  border-radius:6px; padding:5px 8px;
+  display:flex; flex-direction:column; align-items:center;
+  min-width:46px; backdrop-filter:blur(8px);
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.4), 0 0 10px rgba(0,0,0,0.3);
+}
+.stat-label { font-size:8px; color:rgba(180,210,200,0.45); letter-spacing:.05em; line-height:1.3; }
+.stat-val   { font-size:14px; font-weight:700; line-height:1.2; color:rgba(180,210,200,0.75); }
+.stat-val.red { color:#e8312a; text-shadow: 0 0 8px rgba(232,49,42,0.5); }
+.hb-svg { width:38px; height:13px; display:block; margin-bottom:1px; }
+
+/* ══════════════════════════════════
+   DIALOGUE
+══════════════════════════════════ */
+.dialogue-section {
+  position:relative; z-index:10;
+  background:rgba(7,10,17,0.96);
+  border-top:1px solid rgba(0,160,130,0.10);
+  padding:11px 14px 12px;
+}
+.speaker-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+.speaker-name { font-size:13px; font-weight:700; color:#cdd8d4; letter-spacing:.02em; }
+.speaker-dot {
+  width:6px; height:6px; background:#e8312a; border-radius:50%;
+  box-shadow:0 0 6px rgba(232,49,42,0.9); flex-shrink:0;
+}
+.speaker-role { font-size:10px; color:rgba(180,210,200,0.35); font-weight:300; }
+.dialogue-text {
+  font-family:'Nanum Myeongjo', serif;
+  font-size:16px; line-height:1.75; color:#cdd8d4; font-weight:400;
+}
+.voice-log {
+  position:absolute; right:13px; bottom:10px;
+  display:flex; align-items:center; gap:4px; opacity:.4;
+}
+.voice-log svg { width:22px; height:10px; }
+.voice-log-txt { font-size:7px; letter-spacing:.14em; color:rgba(180,210,200,0.7); }
+.voice-dot { width:5px; height:5px; background:#e8312a; border-radius:50%; }
+
+/* ══════════════════════════════════
+   CHOICES  ← 핵심 변경부분
+══════════════════════════════════ */
+.choices-section {
+  position:relative; z-index:10;
+  padding:6px 12px 9px;
+  display:flex; flex-direction:column; gap:5px;
+  /* 배경도 반투명으로 — 이미지 연속성 유지 */
+  background: rgba(5,7,13,0.82);
+}
+
+.choice-btn {
+  display:flex; align-items:center; gap:12px;
+  padding:11px 15px;
+  border-radius:6px;
+  cursor:pointer;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  text-align:left; width:100%;
+  font-family:'Noto Sans KR', sans-serif;
+  position:relative; overflow:hidden;
+
+  /* 청록 그라디언트 반투명 */
+  background:
+    linear-gradient(105deg,
+      rgba(0,60,55,0.38)  0%,
+      rgba(0,40,50,0.28) 50%,
+      rgba(0,25,40,0.20) 100%
+    );
+  border: 1px solid rgba(0,200,170,0.20);
+  color: #b8d4cc;
+  backdrop-filter: blur(6px);
+  box-shadow:
+    inset 0 1px 0 rgba(0,220,180,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* 버튼 왼쪽 청록 세로선 */
+.choice-btn::before {
+  content:'';
+  position:absolute; left:0; top:8%; bottom:8%; width:2px;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(0,210,170,0.55) 30%,
+    rgba(0,210,170,0.55) 70%,
+    transparent 100%
+  );
+  border-radius:2px;
+  opacity:0.7;
+}
+
+/* hover */
+.choice-btn:hover {
+  background:
+    linear-gradient(105deg,
+      rgba(0,80,70,0.50)  0%,
+      rgba(0,55,65,0.38) 50%,
+      rgba(0,35,52,0.28) 100%
+    );
+  border-color: rgba(0,220,185,0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(0,230,185,0.13),
+    inset 0 -1px 0 rgba(0,0,0,0.3),
+    0 2px 14px rgba(0,140,120,0.18),
+    0 0 0 1px rgba(0,180,150,0.10);
+}
+.choice-btn:hover::before { opacity:1; }
+
+/* active */
+.choice-btn:active {
+  background:
+    linear-gradient(105deg,
+      rgba(0,100,85,0.55) 0%,
+      rgba(0,70,75,0.42) 100%
+    );
+  transform: scale(0.995);
+}
+
+/* selected */
+.choice-btn.selected {
+  background:
+    linear-gradient(105deg,
+      rgba(0,100,85,0.45) 0%,
+      rgba(0,65,70,0.35) 100%
+    );
+  border-color: rgba(0,230,190,0.40);
+  box-shadow:
+    inset 0 0 16px rgba(0,180,150,0.10),
+    0 0 0 1px rgba(0,200,165,0.15),
+    0 4px 16px rgba(0,0,0,0.35);
+}
+
+/* disabled */
+.choice-btn.disabled {
+  opacity:0.28; cursor:not-allowed; pointer-events:none;
+  filter:grayscale(0.5);
+}
+
+/* 아이콘 원 */
+.choice-icon {
+  width:29px; height:29px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,40,40,0.50);
+  border:1px solid rgba(0,200,170,0.28);
+  box-shadow: 0 0 8px rgba(0,160,130,0.12);
+}
+.choice-icon svg {
+  width:14px; height:14px; fill:none;
+  stroke:rgba(0,200,170,0.85);
+  stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+}
+
+.choice-text {
+  flex:1; font-size:14px; font-weight:400;
+  color:#b8d4cc; letter-spacing:.01em;
+}
+
+/* 신뢰도 수치 숨김 */
+.trust-badge { display:none; }
+
+/* ══════════════════════════════════
+   BOTTOM HINT
+══════════════════════════════════ */
+.bottom-hint {
+  position:relative; z-index:10;
+  background:rgba(5,7,13,0.85);
+  padding:7px 14px 14px;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  border-top:1px solid rgba(0,160,130,0.07);
+}
+.hint-arrow {
+  color:rgba(0,200,170,0.35); font-size:11px;
+  animation:arrowBounce 1.9s ease-in-out infinite;
+}
+@keyframes arrowBounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(3px);} }
+.hint-text { font-size:10px; color:rgba(180,210,200,0.32); letter-spacing:.08em; }
+
+/* ══════════════════════════════════
+   섬뜩한 연출: 피 방울 효과 (장식)
+══════════════════════════════════ */
+.drip-container {
+  position:absolute; top:0; left:0; right:0;
+  height:4px; z-index:6; pointer-events:none;
+  overflow:visible;
+}
+.drip {
+  position:absolute; top:0;
+  width:2px;
+  background:linear-gradient(to bottom, rgba(160,10,10,0.7), rgba(140,8,8,0.0));
+  border-radius:0 0 2px 2px;
+  transform-origin:top center;
+  animation:drip var(--dur) var(--delay) ease-in infinite;
+}
+@keyframes drip {
+  0%   { height:0; opacity:0.8; transform:scaleY(0); }
+  15%  { height:calc(var(--len)); opacity:0.9; transform:scaleY(1); }
+  80%  { height:calc(var(--len)); opacity:0.6; }
+  100% { height:calc(var(--len)); opacity:0; transform:translateY(8px); }
+}
+</style>
+</head>
+<body>
+
+<div class="atmo-layer"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+<div class="flash-overlay" id="flashOverlay"></div>
+
+<div class="game-wrapper">
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="loop-box">
+      <span class="loop-top">LOOP</span>
+      <span class="loop-num">1</span>
+      <span class="loop-inf">∞</span>
+      <span class="loop-bot">루프 정보</span>
+    </div>
+
+    <div class="game-title">죽기 <span class="red">24시간</span> 전에</div>
+
+    <div class="timer-block">
+      <div class="timer-digits" id="timerDisplay">00:47:12</div>
+      <div class="timer-label">남은 시간</div>
+    </div>
+
+    <div class="top-icons">
+      <div class="icon-btn">
+        <div class="red-dot"></div>
+        <svg viewBox="0 0 24 24">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+        <span>기록</span>
+      </div>
+      <div class="icon-btn">
+        <svg viewBox="0 0 24 24">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <span>메뉴</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- LOCATION BAR -->
+  <div class="location-bar">
+    <div class="loc-left">
+      <span class="loc-pin">📍</span>
+      <div>
+        <div class="loc-name">현관 앞</div>
+        <div class="loc-sub">현재 위치</div>
+      </div>
+    </div>
+    <div class="loc-right">
+      <div class="loc-place-name">
+        <div class="name">안식 정신건강의학과</div>
+        <div class="sub">장소 정보</div>
+      </div>
+      <div class="loc-building">🏥</div>
+    </div>
+  </div>
+
+  <!-- SCENE -->
+  <div class="scene-container" id="sceneContainer">
+    <div class="scene-bg"></div>
+    <img class="scene-image" id="sceneImage" src="" alt="">
+
+    <!-- 피 방울 장식 -->
+    <div class="drip-container" id="dripContainer"></div>
+
+    <!-- 플레이스홀더 인물 SVG -->
+    <svg class="scene-figure" id="sceneFigure"
+      viewBox="0 0 320 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+      <rect x="60"  y="0" width="200" height="380" fill="#080c0f" rx="2" opacity="0.55"/>
+      <rect x="0"   y="0" width="65"  height="380" fill="#040608" opacity="0.85"/>
+      <rect x="255" y="0" width="65"  height="380" fill="#040608" opacity="0.85"/>
+      <path d="M90 200 L70 370 L250 370 L230 200 Q210 188 160 190 Q110 188 90 200Z"
+        fill="#0a0e14" stroke="#14202a" stroke-width="1"/>
+      <path d="M138 200 L130 240 L160 234 L190 240 L182 200 Q174 208 160 208 Q146 208 138 200Z"
+        fill="#152038"/>
+      <path d="M90 200 L55 310 L90 316 L115 230" fill="#0a0e14" stroke="#141e28" stroke-width="1"/>
+      <path d="M230 200 L265 310 L230 316 L205 230" fill="#0a0e14" stroke="#141e28" stroke-width="1"/>
+      <ellipse cx="60"  cy="322" rx="18" ry="20" fill="#7a1010"/>
+      <ellipse cx="60"  cy="318" rx="14" ry="12" fill="#661010"/>
+      <ellipse cx="260" cy="322" rx="18" ry="20" fill="#7a1010"/>
+      <ellipse cx="260" cy="318" rx="14" ry="12" fill="#661010"/>
+      <rect x="80" y="342" width="160" height="38" rx="4" fill="#20200f" stroke="#303018" stroke-width="1.5"/>
+      <rect x="130" y="342" width="60" height="6" rx="1" fill="#2c2c14" opacity="0.8"/>
+      <rect x="120" y="326" width="48" height="32" rx="3" fill="#dcd8ce" opacity="0.9"/>
+      <line x1="126" y1="334" x2="162" y2="334" stroke="#b0a898" stroke-width="1" opacity="0.6"/>
+      <line x1="126" y1="339" x2="155" y2="339" stroke="#b0a898" stroke-width="1" opacity="0.6"/>
+      <rect x="148" y="172" width="24" height="22" rx="5" fill="#10101a"/>
+      <ellipse cx="160" cy="148" rx="44" ry="48" fill="#141018"/>
+      <ellipse cx="160" cy="112" rx="40" ry="28" fill="#c8c0b4" opacity="0.9"/>
+      <path d="M122 118 C118 100 128 88 148 86 C155 85 160 87 160 87
+               C160 87 165 85 172 86 C192 88 202 100 198 118
+               C192 106 178 100 160 101 C142 100 128 106 122 118Z"
+        fill="#c0b8ac" opacity="0.95"/>
+      <path d="M138 96 C135 85 142 78 150 80" fill="none" stroke="#a8a09a" stroke-width="3" stroke-linecap="round"/>
+      <path d="M155 88 C153 76 160 72 164 78" fill="none" stroke="#b0a8a0" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M170 90 C172 80 180 82 178 90" fill="none" stroke="#a4a098" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="143" cy="144" rx="9" ry="7" fill="#0c0810"/>
+      <ellipse cx="143" cy="145" rx="6" ry="4.5" fill="#6a0c0c"/>
+      <ellipse cx="141" cy="144" rx="3" ry="2.5" fill="#8c1414" opacity="0.9"/>
+      <ellipse cx="177" cy="144" rx="9" ry="7" fill="#0c0810"/>
+      <ellipse cx="177" cy="145" rx="6" ry="4.5" fill="#6a0c0c"/>
+      <ellipse cx="175" cy="144" rx="3" ry="2.5" fill="#8c1414" opacity="0.9"/>
+      <ellipse cx="143" cy="151" rx="11" ry="5" fill="#060410" opacity="0.65"/>
+      <ellipse cx="177" cy="151" rx="11" ry="5" fill="#060410" opacity="0.65"/>
+      <path d="M156 158 L152 170 L168 170" fill="none" stroke="#241828" stroke-width="2" stroke-linecap="round"/>
+      <path d="M146 178 Q160 186 174 178" fill="none" stroke="#341828" stroke-width="2.5" stroke-linecap="round"/>
+      <ellipse cx="120" cy="150" rx="14" ry="32" fill="#040410" opacity="0.6"/>
+      <ellipse cx="200" cy="150" rx="14" ry="32" fill="#040410" opacity="0.6"/>
+      <ellipse cx="160" cy="374" rx="105" ry="10" fill="#020306" opacity="0.8"/>
+    </svg>
+
+    <div class="scene-left-mist"></div>
+    <div class="scene-top-fade"></div>
+    <div class="scene-fade"></div>
+
+    <!-- 스탯 패널 -->
+    <div class="stats-panel">
+      <div class="stat-card">
+        <div style="margin-bottom:1px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="rgba(0,200,160,0.6)" stroke-width="1.8" stroke-linecap="round">
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+          </svg>
+        </div>
+        <div class="stat-label">단서</div>
+        <div class="stat-val" id="clueCount">02/07</div>
+      </div>
+      <div class="stat-card">
+        <svg class="hb-svg" viewBox="0 0 38 13">
+          <polyline
+            points="0,6.5 5,6.5 8,3 11,10.5 14.5,1 18,12 21,6.5 26,6.5 29,4 31.5,6.5 38,6.5"
+            fill="none" stroke="#e8312a" stroke-width="1.6"
+            stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <div class="stat-label">심박</div>
+        <div class="stat-val red" id="heartRate">72</div>
+      </div>
+      <div class="stat-card">
+        <div style="margin-bottom:1px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="rgba(0,200,160,0.6)" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+        </div>
+        <div class="stat-label">신뢰도</div>
+        <div class="stat-val" id="trustValue">28%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIALOGUE -->
+  <div class="dialogue-section">
+    <div class="speaker-row">
+      <span class="speaker-name" id="speakerName">박도원</span>
+      <div class="speaker-dot"></div>
+      <span class="speaker-role" id="speakerRole">택배 기사</span>
+    </div>
+    <div class="dialogue-text" id="dialogueText">
+      선생님... 택배 왔습니다.<br>늦은 시간에 죄송합니다.
+    </div>
+    <div class="voice-log">
+      <svg viewBox="0 0 22 10">
+        <polyline points="0,5 4,5 6,2.5 8,7.5 10,1 12,9 14,5 18,5 20,3 22,5"
+          fill="none" stroke="rgba(0,200,160,0.5)" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span class="voice-log-txt">VOICE LOG 01</span>
+      <div class="voice-dot"></div>
+    </div>
+  </div>
+
+  <!-- CHOICES -->
+  <div class="choices-section" id="choicesSection"></div>
+
+  <!-- BOTTOM HINT -->
+  <div class="bottom-hint">
+    <span class="hint-arrow">▾</span>
+    <span class="hint-text">선택을 통해 스토리가 진행됩니다.</span>
+  </div>
+
+</div><!-- /game-wrapper -->
+
+<script>
+/* ──────────── 상태 ──────────── */
+const GAME_STATE = {
+  timer: { h:0, m:47, s:12 },
+  clues: { cur:2, total:7 },
+  heartRate: 72,
+  trust: 28,
+};
+
+const CHOICES = [
+  { id:600, iconType:'door',     text:'문을 연다',       trustDelta:-5, disabled:false },
+  { id:601, iconType:'question', text:'누구냐고 묻는다', trustDelta:-3, disabled:false },
+  { id:602, iconType:'lock',     text:'문을 잠근다',     trustDelta:+5, disabled:false },
+];
+
+const ICONS = {
+  door:
+    `<svg viewBox="0 0 24 24"><rect x="3" y="2" width="14" height="20" rx="1"/>
+     <path d="M17 9l4 3-4 3"/>
+     <circle cx="14.5" cy="12" r=".8" fill="rgba(0,200,170,0.85)" stroke="none"/></svg>`,
+  question:
+    `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/>
+     <path d="M12 8a2 2 0 011.886 2.667C13.5 11.5 12 12 12 13"/>
+     <circle cx="12" cy="16.5" r=".8" fill="rgba(0,200,170,0.85)" stroke="none"/></svg>`,
+  lock:
+    `<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/>
+     <path d="M8 11V7a4 4 0 018 0v4"/></svg>`,
+};
+
+/* ──────────── 피 방울 생성 ──────────── */
+function createDrips() {
+  const container = document.getElementById('dripContainer');
+  const drips = [
+    { left:'12%', len:'22px', dur:'7s',  delay:'1.5s' },
+    { left:'28%', len:'14px', dur:'9s',  delay:'4.2s' },
+    { left:'43%', len:'30px', dur:'11s', delay:'0.8s' },
+    { left:'61%', len:'18px', dur:'8s',  delay:'3.0s' },
+    { left:'75%', len:'25px', dur:'10s', delay:'6.5s' },
+    { left:'88%', len:'12px', dur:'13s', delay:'2.1s' },
+  ];
+  drips.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'drip';
+    el.style.left = d.left;
+    el.style.setProperty('--len', d.len);
+    el.style.setProperty('--dur', d.dur);
+    el.style.setProperty('--delay', d.delay);
+    container.appendChild(el);
+  });
+}
+
+/* ──────────── 타이머 ──────────── */
+const timerEl = document.getElementById('timerDisplay');
+let total = GAME_STATE.timer.h*3600 + GAME_STATE.timer.m*60 + GAME_STATE.timer.s;
+setInterval(() => {
+  if (total <= 0) return;
+  total--;
+  const h=Math.floor(total/3600), m=Math.floor((total%3600)/60), s=total%60;
+  timerEl.textContent =
+    String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  if (total < 300) timerEl.classList.add('urgent');
+}, 1000);
+
+/* ──────────── 선택지 렌더링 ──────────── */
+function renderChoices(choices) {
+  const sec = document.getElementById('choicesSection');
+  sec.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn' + (c.disabled ? ' disabled' : '');
+    btn.dataset.id = c.id;
+    btn.innerHTML = `
+      <div class="choice-icon">${ICONS[c.iconType] || ICONS.question}</div>
+      <span class="choice-text">${c.text}</span>
+    `;
+    if (!c.disabled) btn.addEventListener('click', () => onChoice(c, btn));
+    sec.appendChild(btn);
+  });
+}
+
+function onChoice(choice, btn) {
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const fl = document.getElementById('flashOverlay');
+  fl.classList.add('on');
+  setTimeout(() => fl.classList.remove('on'), 140);
+  GAME_STATE.trust = Math.max(0, Math.min(100, GAME_STATE.trust + choice.trustDelta));
+  GAME_STATE.heartRate = Math.min(130, GAME_STATE.heartRate + Math.abs(choice.trustDelta)*2);
+  document.getElementById('trustValue').textContent = GAME_STATE.trust + '%';
+  document.getElementById('heartRate').textContent  = GAME_STATE.heartRate;
+  // 백엔드 연동:
+  // fetch('/api/record-button', { method:'POST', headers:{'Content-Type':'application/json'},
+  //   body: JSON.stringify({ last_button_id: choice.id, context:[choice.text] }) });
+  console.log('[선택]', choice.id, choice.text);
+}
+
+/* ──────────── 씬 이미지 교체 ──────────── */
+function setSceneImage(url) {
+  if (!url) return;
+  const img = document.getElementById('sceneImage');
+  const fig = document.getElementById('sceneFigure');
+  img.src = url; img.style.display = 'block';
+  if (fig) fig.style.display = 'none';
+}
+
+function updateScene({ imageUrl, speaker, dialogue, choices }) {
+  if (imageUrl !== undefined) setSceneImage(imageUrl);
+  if (speaker) {
+    document.getElementById('speakerName').textContent = speaker.name;
+    document.getElementById('speakerRole').textContent = speaker.role;
+  }
+  if (dialogue) document.getElementById('dialogueText').innerHTML = dialogue.replace(/\n/g,'<br>');
+  if (choices) renderChoices(choices);
+}
+
+/* ──────────── 초기화 ──────────── */
+document.getElementById('clueCount').textContent =
+  String(GAME_STATE.clues.cur).padStart(2,'0') + '/' +
+  String(GAME_STATE.clues.total).padStart(2,'0');
+document.getElementById('heartRate').textContent  = GAME_STATE.heartRate;
+document.getElementById('trustValue').textContent = GAME_STATE.trust + '%';
+renderChoices(CHOICES);
+createDrips();
+
+window.GameUI = { updateScene, renderChoices, setSceneImage };
+</script>
+</body>
+</html>
