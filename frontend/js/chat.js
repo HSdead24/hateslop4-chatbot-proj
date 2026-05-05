@@ -4,6 +4,8 @@
 //        치키 트리거 / 드로어 / 사망 연출
 // ═══════════════════════════════════════════════
 
+const BASE_URL = 'http://localhost:8000';
+
 // ─────────────────────────────────────────────
 //  NPC 데이터
 //  TODO: 백엔드 연동 시 GET /npc-data 로 교체
@@ -103,6 +105,27 @@ let clues             = [];      // 수집된 단서 목록
 let triggersLoaded    = false;   // 트리거 로드 완료 여부
 let isSending         = false;   // 중복 전송 방지
 let isSwitchingNPC    = false;   // NPC 전환 중 전송 차단
+let isDeadProcessing  = false;   // triggerDeath() 중복 실행 방지
+let lastLoopCount     = 0;       // /new-loop 루프당 1회 호출 보장
+
+// ─────────────────────────────────────────────
+//  공통 API 헬퍼 — POST, session_id 자동 주입
+// ─────────────────────────────────────────────
+async function fetchAPI(path, body = {}) {
+  const session_id = sessionStorage.getItem('session_id');
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ session_id, ...body }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error(`[fetchAPI] ${path}:`, err.message);
+    return null;
+  }
+}
 
 // ─────────────────────────────────────────────
 //  트리거 로드 (GET /chiki-triggers, GET /clue-triggers)
@@ -528,32 +551,47 @@ function closeChiki() {
 // ─────────────────────────────────────────────
 //  사망 연출
 // ─────────────────────────────────────────────
-function triggerDeath() {
+async function triggerDeath() {
+  if (isDeadProcessing) return;
+  isDeadProcessing = true;
+
   clearInterval(timerInterval);
   document.getElementById('death-overlay').classList.add('show');
 
-  setTimeout(async () => {
-    const nextLoop = loopNum + 1;
+  const nextLoop = loopNum + 1;
 
-    document.getElementById('loop-num').textContent   = nextLoop;
-    document.getElementById('loop-count').textContent = nextLoop;
-    totalSeconds = 47 * 60 + 12;
+  // 오버레이 연출 딜레이(3500ms)와 API 호출을 병렬 처리
+  const [, loopData] = await Promise.all([
+    new Promise(r => setTimeout(r, 3500)),
+    (async () => {
+      await fetchAPI('/player-dead');
+      if (lastLoopCount >= nextLoop) return null;
+      const data = await fetchAPI('/new-loop');
+      lastLoopCount = nextLoop;
+      return data;
+    })()
+  ]);
 
-    // 루프 변경 → 트리거 재로드 (loop_visible 필터 갱신)
-    await reloadTriggersForLoop(nextLoop);
+  const resolvedLoop = loopData?.loop_count ?? nextLoop;
 
-    setTimeout(() => {
-      document.getElementById('death-overlay').classList.remove('show');
-      timerInterval = setInterval(updateTimer, 1000);
+  if (loopData?.is_game_over) {
+    document.getElementById('death-overlay').classList.remove('show');
+    document.getElementById('game-over-overlay')?.classList.add('show');
+    isDeadProcessing = false;
+    return;
+  }
 
-      const _sid = sessionStorage.getItem('session_id');
-      if (_sid) fetch('/player-dead', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ session_id: _sid }),
-      }).catch(() => {});
-    }, 1200);
-  }, 3500);
+  document.getElementById('loop-num').textContent   = resolvedLoop;
+  document.getElementById('loop-count').textContent = resolvedLoop;
+  totalSeconds = 47 * 60 + 12;
+
+  await reloadTriggersForLoop(resolvedLoop);
+
+  setTimeout(() => {
+    document.getElementById('death-overlay').classList.remove('show');
+    timerInterval    = setInterval(updateTimer, 1000);
+    isDeadProcessing = false;
+  }, 1200);
 }
 
 // ─────────────────────────────────────────────
@@ -613,7 +651,7 @@ async function sendToBackend(text) {
     const session_id = sessionStorage.getItem('session_id');
     if (!session_id) throw new Error('no session_id');
 
-    const res = await fetch('/chat', {
+    const res = await fetch(`${BASE_URL}/chat`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -633,21 +671,22 @@ async function sendToBackend(text) {
 
     if (data.is_dead) {
       triggerDeath();
-      const sid = sessionStorage.getItem('session_id');
-      if (sid) fetch('/player-dead', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ session_id: sid }),
-      }).catch(() => {});
     } else if (data.is_loop_reset) {
       const nextLoop = loopNum + 1;
       await reloadTriggersForLoop(nextLoop);
-      const sid = sessionStorage.getItem('session_id');
-      if (sid) fetch('/new-loop', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ session_id: sid }),
-      }).catch(() => {});
+
+      if (lastLoopCount < nextLoop) {
+        const loopData = await fetchAPI('/new-loop');
+        lastLoopCount = nextLoop;
+
+        const resolvedLoop = loopData?.loop_count ?? nextLoop;
+        document.getElementById('loop-num').textContent   = resolvedLoop;
+        document.getElementById('loop-count').textContent = resolvedLoop;
+
+        if (loopData?.is_game_over) {
+          document.getElementById('game-over-overlay')?.classList.add('show');
+        }
+      }
     }
 
   } catch (err) {

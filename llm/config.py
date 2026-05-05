@@ -31,6 +31,9 @@ LLM_MODEL_HEAVY = "gpt-4o"
 # LLM 온도 설정 (0.0 = 일관성 최대 / 1.0 = 창의성 최대)
 LLM_TEMPERATURE = 0.7
 
+# NPC 응답 최대 토큰 수 — 대사는 2~4문장이면 충분
+LLM_MAX_TOKENS = 300
+
 
 # ────────────────────────────────────────────
 # 대화 기록 요약 설정
@@ -39,6 +42,10 @@ LLM_TEMPERATURE = 0.7
 # NPC별 대화가 이 횟수를 초과하면 오래된 기록을 요약 처리
 # (토큰 절약 + 맥락 유지)
 MESSAGE_SUMMARY_THRESHOLD = 10
+
+# LLM에 전달할 최근 대화 기록 윈도우 크기 (턴 단위)
+# 유저/NPC 발화 쌍이므로 실제 메시지 수 = MAX_HISTORY_TURNS * 2
+MAX_HISTORY_TURNS = 6
 
 
 # ────────────────────────────────────────────
@@ -134,7 +141,7 @@ SESSION_TIMEOUT = 1440
 import os as _os
 CHROMA_PATH = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "vector_store", "db")  # 절대경로
 STORY_COLLECTION = "story_chunks" #스토리 문서 청크를 저장하는 컬렉션 이름
-RAG_TOP_K = 3 #유저 발화와 유사한 문서를 몇개까지 가져올 것인가
+RAG_TOP_K = 3  # 유저 발화와 유사한 문서를 몇 개까지 가져올 것인가 (루프 3회 고정 → 루프별 문서 누락 방지)
 
 # ── Phase 4: 이미지 ───────────────────
 IMAGE_COLLECTION = "image_captions"#이미지 캡션을 저장하는 컬렉션 이름

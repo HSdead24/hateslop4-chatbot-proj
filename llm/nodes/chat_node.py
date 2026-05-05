@@ -17,8 +17,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from state import GameState, NPC_EXECUTOR, NPC_KIM, NPC_CHA, NPC_MOM, NPC_PARK, TOTAL_LOOPS
 from config import (
-    LLM_MODEL_DEFAULT, LLM_MODEL_HEAVY, LLM_TEMPERATURE,
-    MAX_CHAT_TURNS, MESSAGE_SUMMARY_THRESHOLD,
+    LLM_MODEL_DEFAULT, LLM_MODEL_HEAVY, LLM_TEMPERATURE, LLM_MAX_TOKENS,
+    MAX_CHAT_TURNS, MESSAGE_SUMMARY_THRESHOLD, MAX_HISTORY_TURNS,
 )
 from death_triggers import check_death_trigger, check_chiki_loop_reset
 
@@ -42,6 +42,10 @@ NPC_PROMPT_BUILDERS = {
     NPC_MOM  : build_umma_prompt,
     NPC_PARK : build_park_prompt,
 }
+
+# RAG 컨텍스트 캐시 — 동일 NPC × 루프 × 입력 앞 20자 조합 재사용
+# 프로세스 재시작 시 초기화되므로 영속성 불필요
+_rag_cache: dict = {}
 
 
 # ────────────────────────────────────────────
@@ -111,7 +115,7 @@ def get_llm(loop_count: int) -> ChatOpenAI:
     ChatOpenAI 인스턴스
     """
     model = LLM_MODEL_HEAVY if loop_count >= TOTAL_LOOPS else LLM_MODEL_DEFAULT
-    return ChatOpenAI(model=model, temperature=LLM_TEMPERATURE)
+    return ChatOpenAI(model=model, temperature=LLM_TEMPERATURE, max_tokens=LLM_MAX_TOKENS)
 
 
 # ────────────────────────────────────────────
@@ -164,17 +168,24 @@ def generate_npc_response(
             player_gender = player_gender,
         )
 
-    system_prompt = get_enriched_system_prompt(
-        system_prompt = system_prompt,
-        user_input    = user_input,
-        loop          = state["loop_count"],
-        first_button  = state["first_button"],
-        character     = npc_name,
-    )
+    # RAG 캐시 확인 — 동일 NPC × 루프 × 입력 앞 20자면 재사용
+    _cache_key = f"{npc_name}_{loop_count}_{user_input[:20]}"
+    if _cache_key in _rag_cache:
+        system_prompt = _rag_cache[_cache_key]
+    else:
+        system_prompt = get_enriched_system_prompt(
+            system_prompt = system_prompt,
+            user_input    = user_input,
+            loop          = state["loop_count"],
+            first_button  = state["first_button"],
+            character     = npc_name,
+        )
+        _rag_cache[_cache_key] = system_prompt
 
-    # 대화 기록 요약 처리
+    # 슬라이딩 윈도우 적용 후 요약 처리
     current_messages = state["messages"].get(npc_name, [])
-    summarized       = summarize_messages(current_messages, llm)
+    windowed         = current_messages[-MAX_HISTORY_TURNS * 2:]
+    summarized       = summarize_messages(windowed, llm)
 
     # 유저 입력을 대화 기록에 추가
     summarized_with_input = summarized + [{"role": "user", "content": user_input}]
