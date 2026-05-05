@@ -450,6 +450,25 @@ setInterval(() => {
 }, 1000);
 
 // ─────────────────────────────────────────────
+//  "▶ 계속" 버튼 표시 (씬 대사 읽은 후 선택지로 넘어가기)
+// ─────────────────────────────────────────────
+function showContinueBtn(nodeId) {
+  const sec = document.getElementById('choicesSection');
+  sec.innerHTML = '';
+
+  const btn = document.createElement('button');
+  btn.className = 'continue-btn';
+  btn.innerHTML = '<span>▶ &nbsp; 계속</span>';
+  btn.addEventListener('click', () => {
+    // before_ 씬으로 교체 (선택지 버튼과 함께 표시될 씬)
+    applyScene(nodeId, 'before_');
+    renderChoices(getChildButtons(nodeId));
+  });
+
+  sec.appendChild(btn);
+}
+
+// ─────────────────────────────────────────────
 //  선택지 렌더링
 // ─────────────────────────────────────────────
 function renderChoices(choices) {
@@ -494,9 +513,13 @@ async function onChoice(choice, btn) {
     return;
   }
 
-  // 3) 다음 단계 버튼 렌더링
+  // 3) after_ 씬 표시 (버튼 클릭 직후 반응 대사)
   GAME_STATE.currentNodeId = String(choice.id);
-  renderChoices(getChildButtons(choice.id));
+  applyScene(choice.id, 'after_');
+  document.getElementById('choicesSection').innerHTML = '';
+
+  // 4) 3초 후 "▶ 계속" 버튼 등장
+  setTimeout(() => showContinueBtn(choice.id), 3000);
 }
 
 // ─────────────────────────────────────────────
@@ -545,7 +568,7 @@ async function recordButton(buttonId) {
     await fetch('/record-button', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ session_id, last_button_id: buttonId }),
+      body:    JSON.stringify({ session_id, button_id: buttonId }),
     });
   } catch (e) {
     console.warn('[recordButton 실패]', e);
@@ -590,7 +613,7 @@ function setSceneImage(url) {
 // ─────────────────────────────────────────────
 //  씬 전체 업데이트 (외부에서 호출 가능)
 // ─────────────────────────────────────────────
-function updateScene({ imageUrl, speaker, dialogue, choices }) {
+function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) {
   if (imageUrl !== undefined) setSceneImage(imageUrl);
   if (speaker) {
     document.getElementById('speakerName').textContent = speaker.name;
@@ -599,17 +622,58 @@ function updateScene({ imageUrl, speaker, dialogue, choices }) {
   if (dialogue) {
     document.getElementById('dialogueText').innerHTML = dialogue.replace(/\n/g, '<br>');
   }
+  if (location) {
+    document.querySelector('.loc-name').textContent = location;
+  }
+  if (place) {
+    document.querySelector('.loc-place-name .name').textContent = place;
+  }
   if (choices) renderChoices(choices);
+}
+
+// scenes.json 데이터를 화면에 반영하는 헬퍼
+// prefix: 'after_' | 'before_'
+function applyScene(nodeId, prefix = 'after_') {
+  if (!window.SCENE_DATA) return;
+  const key   = prefix + String(nodeId);
+  const scene = window.SCENE_DATA[key];
+  if (!scene) return;
+  updateScene({
+    speaker:  { name: scene.speaker_name, role: scene.speaker_role },
+    dialogue: scene.dialogue,
+    location: scene.location,
+    place:    scene.place,
+  });
 }
 
 // ─────────────────────────────────────────────
 //  초기화
 // ─────────────────────────────────────────────
 (async () => {
-  await startNewGame();                      // session_id 발급 + 비활성화 버튼 조회
-  renderChoices(getChildButtons('root'));    // 선택1 버튼 렌더링 (집에 있는다 / 출근한다)
-  createDrips();                             // 피 방울 장식
+  // 1) scenes.json 로드 — 경로 후보 순서대로 시도
+  // scenes.json 로드 — FastAPI가 /frontend 정적 서빙 중일 때
+  try {
+    const res = await fetch('/frontend/data/scenes.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    window.SCENE_DATA = data.scenes;
+    console.log('[씬 데이터 로드 성공]', Object.keys(window.SCENE_DATA).length, '개');
+  } catch (e) {
+    console.error('[SCENE_DATA 로드 실패]', e.message);
+  }
+
+  // 2) 게임 시작 → session_id 발급
+  await startNewGame();
+
+  // 3) before_root 씬 표시 (집에 있는다/출근한다 버튼과 함께 보이는 씬)
+  applyScene('root', 'before_');
+
+  // 4) 선택1 버튼 렌더링 (집에 있는다 / 출근한다)
+  renderChoices(getChildButtons('root'));
+
+  // 5) 피 방울 장식
+  createDrips();
 })();
 
 // 전역 API
-window.GameUI = { updateScene, renderChoices, setSceneImage };
+window.GameUI = { updateScene, applyScene, renderChoices, setSceneImage };

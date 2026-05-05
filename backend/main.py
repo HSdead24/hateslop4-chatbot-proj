@@ -8,6 +8,9 @@ FastAPI 앱 진입점.
     # 또는 backend/ 폴더 안에서 실행
     cd backend && uvicorn main:app --reload --port 8000
 
+    # 브라우저에서 아래 주소로 접속
+    http://localhost:8000/frontend/buttonroom.html
+
 Swagger UI:
     http://localhost:8000/docs
 """
@@ -15,15 +18,16 @@ Swagger UI:
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from api.game import router as game_router
 from api.chat import router as chat_router
-
 from api.triggers import router as triggers_router
-app.include_router(triggers_router)
+
 
 # ────────────────────────────────────────────
-# 앱 생성
+# 앱 생성  ← 반드시 라우터 등록보다 먼저
 # ────────────────────────────────────────────
 
 app = FastAPI(
@@ -35,16 +39,25 @@ app = FastAPI(
 
 # ────────────────────────────────────────────
 # CORS 설정
-# 웹브라우저가 보안을 위해 자신의 도메인이 아닌 다른 서버로 요청을 보내는 것을 막는 정책
 # ────────────────────────────────────────────
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],       # 배포 시 프론트 도메인으로 교체.
+    allow_origins=["*"],       # 배포 시 프론트 도메인으로 교체
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ────────────────────────────────────────────
+# 정적 파일 서빙 (frontend/ 폴더 전체)
+# → http://localhost:8000/frontend/data/scenes.json 으로 접근 가능
+# ────────────────────────────────────────────
+
+_FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+if _FRONTEND_DIR.exists():
+    app.mount("/frontend", StaticFiles(directory=str(_FRONTEND_DIR)), name="frontend")
 
 
 # ────────────────────────────────────────────
@@ -67,11 +80,12 @@ async def value_error_handler(request: Request, exc: ValueError):
 
 
 # ────────────────────────────────────────────
-# 라우터 등록
+# 라우터 등록  ← app 생성 이후에 등록
 # ────────────────────────────────────────────
 
 app.include_router(game_router)
 app.include_router(chat_router)
+app.include_router(triggers_router)
 
 
 # ────────────────────────────────────────────
