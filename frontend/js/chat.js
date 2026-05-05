@@ -101,6 +101,8 @@ let chikiToastTimeout = null;
 let currentTab        = 'chat';  // 'chat' | 'clue'
 let clues             = [];      // 수집된 단서 목록
 let triggersLoaded    = false;   // 트리거 로드 완료 여부
+let isSending         = false;   // 중복 전송 방지
+let isSwitchingNPC    = false;   // NPC 전환 중 전송 차단
 
 // ─────────────────────────────────────────────
 //  트리거 로드 (GET /chiki-triggers, GET /clue-triggers)
@@ -264,6 +266,7 @@ function renderClues() {
 //  NPC 전환
 // ─────────────────────────────────────────────
 function switchNPC(idx) {
+  isSwitchingNPC = true;
   currentNPC  = idx;
   responseIdx = 0;
 
@@ -299,6 +302,7 @@ function switchNPC(idx) {
 
   renderChoices(npc.choices);
   scrollToBottom();
+  isSwitchingNPC = false;
 }
 
 // ─────────────────────────────────────────────
@@ -328,17 +332,15 @@ function selectChoice(text) {
 //  메시지 전송
 // ─────────────────────────────────────────────
 function sendMsg() {
+  if (isSending || isSwitchingNPC) return;
   const input = document.getElementById('msg-input');
   const text  = input.value.trim();
   if (!text) return;
   input.value = '';
 
-  checkChikiTrigger(text);   // 유저 입력 → 치키 트리거 체크
+  checkChikiTrigger(text);
   addPlayerMsg(text);
-  setTimeout(showTyping, 400);
-
-  // ── FUTURE: 백엔드 연동 시 아래로 교체 ──────────
-  // sendToBackend(text);
+  sendToBackend(text);
 }
 
 function addPlayerMsg(text) {
@@ -388,6 +390,28 @@ function showTyping() {
   }, 1400);
 }
 
+// typing-row만 삽입 (자동 제거 없음 — sendToBackend가 응답 후 직접 제거)
+function appendTypingRow() {
+  const npc = NPCs[currentNPC];
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.id = 'typing-row';
+  row.innerHTML = `
+    <div class="npc-avatar" style="${npc.avatarStyle}">
+      ${npc.name.slice(1, 3) || npc.name.slice(0, 2)}
+    </div>
+    <div class="msg-col">
+      <div class="msg-name">${npc.name}</div>
+      <div class="typing-bubble">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>`;
+  currentChatEl().appendChild(row);
+  scrollToBottom();
+}
+
 function addNPCMsg(overrideText = null) {
   const npc  = NPCs[currentNPC];
   const text = overrideText ?? npc.responses[responseIdx % npc.responses.length];
@@ -409,6 +433,21 @@ function addNPCMsg(overrideText = null) {
 
   // NPC 발화에 단서 트리거 감지
   checkClueTrigger(npc.name, text);
+}
+
+// image_url이 있을 때 마지막 NPC 말풍선 아래 이미지 삽입
+function renderNPCImage(url) {
+  const chat    = currentChatEl();
+  const lastRow = chat.querySelector('.msg-row:last-child');
+  if (!lastRow) return;
+  const bubble  = lastRow.querySelector('.bubble');
+  if (!bubble) return;
+  const img = document.createElement('img');
+  img.src   = url;
+  img.style.cssText = 'max-width:200px;border-radius:8px;margin-top:6px;display:block;';
+  img.onerror = () => img.remove();
+  bubble.insertAdjacentElement('afterend', img);
+  scrollToBottom();
 }
 
 // ─────────────────────────────────────────────
@@ -507,8 +546,12 @@ function triggerDeath() {
       document.getElementById('death-overlay').classList.remove('show');
       timerInterval = setInterval(updateTimer, 1000);
 
-      // ── FUTURE: 루프 리셋 백엔드 연동 ──────────
-      // fetch('/new-loop', { method: 'POST' });
+      const _sid = sessionStorage.getItem('session_id');
+      if (_sid) fetch('/player-dead', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ session_id: _sid }),
+      }).catch(() => {});
     }, 1200);
   }, 3500);
 }
@@ -556,16 +599,66 @@ document.getElementById('tab-clue').addEventListener('click', () => switchTab('c
   scrollToBottom();
 })();
 
-// ── FUTURE BACKEND INTEGRATION ───────────────────────────
-// async function sendToBackend(text) {
-//   const session_id = sessionStorage.getItem('session_id');
-//   const res = await fetch('/chat', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ session_id, npc: NPCs[currentNPC].name, text })
-//   });
-//   const data = await res.json();
-//   addNPCMsgFromBackend(data.response, data.image_url);
-//   if (data.is_dead)       triggerDeath();
-//   if (data.is_loop_reset) await reloadTriggersForLoop(loopNum);
-// }
+async function sendToBackend(text) {
+  const input   = document.getElementById('msg-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  isSending        = true;
+  input.disabled   = true;
+  sendBtn.disabled = true;
+
+  appendTypingRow();
+
+  try {
+    const session_id = sessionStorage.getItem('session_id');
+    if (!session_id) throw new Error('no session_id');
+
+    const res = await fetch('/chat', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id,
+        npc_name:   NPCs[currentNPC].name,
+        user_input: text,
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+
+    const tr = document.getElementById('typing-row');
+    if (tr) tr.remove();
+    addNPCMsg(data.response);
+    if (data.image_url) renderNPCImage(data.image_url);
+
+    if (data.is_dead) {
+      triggerDeath();
+      const sid = sessionStorage.getItem('session_id');
+      if (sid) fetch('/player-dead', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ session_id: sid }),
+      }).catch(() => {});
+    } else if (data.is_loop_reset) {
+      const nextLoop = loopNum + 1;
+      await reloadTriggersForLoop(nextLoop);
+      const sid = sessionStorage.getItem('session_id');
+      if (sid) fetch('/new-loop', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ session_id: sid }),
+      }).catch(() => {});
+    }
+
+  } catch (err) {
+    console.warn('[sendToBackend] 백엔드 미연결, 폴백 응답 사용:', err.message);
+    const tr = document.getElementById('typing-row');
+    if (tr) tr.remove();
+    addNPCMsg();
+  } finally {
+    isSending        = false;
+    input.disabled   = false;
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
