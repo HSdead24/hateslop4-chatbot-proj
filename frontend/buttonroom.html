@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>죽기 24시간 전에</title>
+    <!-- 구글 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- 외부 CSS 연결 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="atmo-layer"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+<div class="flash-overlay" id="flashOverlay"></div>
+
+<div class="game-wrapper">
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="loop-box">
+            <span class="loop-top">LOOP</span>
+            <span class="loop-num">1</span>
+            <span class="loop-inf">∞</span>
+            <span class="loop-bot">루프 정보</span>
+        </div>
+        <div class="game-title">죽기 <span class="red">24시간</span> 전에</div>
+        <div class="timer-block">
+            <div class="timer-digits" id="timerDisplay">00:47:12</div>
+            <div class="timer-label">남은 시간</div>
+        </div>
+        <div class="top-icons">
+            <div class="icon-btn">
+                <div class="red-dot"></div>
+                <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                <span>기록</span>
+            </div>
+            <div class="icon-btn">
+                <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <span>메뉴</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- LOCATION BAR -->
+    <div class="location-bar">
+        <div class="loc-left">
+            <span class="loc-pin">📍</span>
+            <div>
+                <div class="loc-name">현관 앞</div>
+                <div class="loc-sub">현재 위치</div>
+            </div>
+        </div>
+        <div class="loc-right">
+            <div class="loc-place-name">
+                <div class="name">안식 정신건강의학과</div>
+                <div class="sub">장소 정보</div>
+            </div>
+            <div class="loc-building">🏥</div>
+        </div>
+    </div>
+
+    <!-- SCENE -->
+    <div class="scene-container" id="sceneContainer">
+        <div class="scene-bg"></div>
+        <img class="scene-image" id="sceneImage" src="" alt="">
+        <div class="drip-container" id="dripContainer"></div>
+        
+        <!-- 플레이스홀더 인물 SVG -->
+        <svg class="scene-figure" id="sceneFigure" viewBox="0 0 320 380" preserveAspectRatio="xMidYMax meet">
+            <!-- (기존 SVG 내부 코드 생략 - 동일하게 유지) -->
+            <rect x="60" y="0" width="200" height="380" fill="#080c0f" rx="2" opacity="0.55"/>
+            <!-- ... 중략 ... -->
+            <ellipse cx="160" cy="374" rx="105" ry="10" fill="#020306" opacity="0.8"/>
+        </svg>
+
+        <div class="scene-left-mist"></div>
+        <div class="scene-top-fade"></div>
+        <div class="scene-fade"></div>
+
+        <!-- 스탯 패널 -->
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-label">단서</div>
+                <div class="stat-val" id="clueCount">02/07</div>
+            </div>
+            <div class="stat-card">
+                <svg class="hb-svg" viewBox="0 0 38 13"><polyline points="0,6.5 5,6.5 8,3 11,10.5 14.5,1 18,12 21,6.5 26,6.5 29,4 31.5,6.5 38,6.5" fill="none" stroke="#e8312a" stroke-width="1.6"/></svg>
+                <div class="stat-label">심박</div>
+                <div class="stat-val red" id="heartRate">72</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">신뢰도</div>
+                <div class="stat-val" id="trustValue">28%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DIALOGUE -->
+    <div class="dialogue-section">
+        <div class="speaker-row">
+            <span class="speaker-name" id="speakerName">박도원</span>
+            <div class="speaker-dot"></div>
+            <span class="speaker-role" id="speakerRole">택배 기사</span>
+        </div>
+        <div class="dialogue-text" id="dialogueText">선생님... 택배 왔습니다.<br>늦은 시간에 죄송합니다.</div>
+    </div>
+
+    <!-- CHOICES -->
+    <div class="choices-section" id="choicesSection"></div>
+
+    <!-- BOTTOM HINT -->
+    <div class="bottom-hint">
+        <span class="hint-arrow">▾</span>
+        <span class="hint-text">선택을 통해 스토리가 진행됩니다.</span>
+    </div>
+</div>
+
+<!-- 외부 JS 연결 -->
+<script src="script.js"></script>
+</body>
+</html>

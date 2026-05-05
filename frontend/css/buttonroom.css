@@ -1,0 +1,74 @@
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    background: #05070d;
+    color: #cdd8d4;
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+}
+
+.game-wrapper {
+    width: 100%;
+    max-width: 460px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #05070d;
+    overflow: hidden;
+}
+
+/* --- 효과 레이어 --- */
+.atmo-layer {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: 
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(140,10,10,0.1) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 30% at 80% 100%, rgba(10,30,50,0.1) 0%, transparent 60%);
+}
+
+.scanlines {
+    position: fixed; inset: 0; pointer-events: none; z-index: 200;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px);
+}
+
+.vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+
+.flash-overlay {
+    position: fixed; inset: 0; pointer-events: none; opacity: 0; z-index: 300;
+    background: rgba(0,180,160,0.05); transition: opacity 0.06s;
+}
+.flash-overlay.on { opacity: 1; }
+
+/* --- 상단 바 & 타이틀 --- */
+.top-bar {
+    position: relative; z-index: 10; display: flex; align-items: center;
+    padding: 8px 13px; gap: 8px; min-height: 56px;
+    background: rgba(5,7,13,0.95); border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.game-title {
+    flex: 1; font-family: 'Nanum Myeongjo', serif; font-size: 18px; font-weight: 800;
+    color: #c8c0b4; text-shadow: 0 0 15px rgba(160,20,10,0.3);
+}
+
+.game-title .red { color: #8B0000; font-style: italic; text-shadow: 0 0 10px rgba(210,32,24,0.5); }
+
+/* --- 선택지 버튼 스타일 (고급화) --- */
+.choice-btn {
+    display:flex; align-items:center; gap:12px; padding:12px 15px;
+    border-radius:4px; cursor:pointer; text-align:left; width:100%;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+    color: #b8d4cc; transition: all 0.3s; margin-bottom: 6px;
+}
+
+.choice-btn:hover {
+    background: rgba(255,255,255,0.07); border-color: rgba(0,200,170,0.3);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+/* (기타 나머지 디자인 요소들... 동일하게 유지) */
