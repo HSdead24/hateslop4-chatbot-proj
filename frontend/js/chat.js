@@ -149,8 +149,6 @@ function updateTimer() {
     d.classList.remove('critical');
   }
 
-  const st = document.getElementById('sys-timer');
-  if (st) st.textContent = `${Math.ceil(mins)}분`;
 }
 
 function pad(n) { return String(n).padStart(2, '0'); }
@@ -170,11 +168,15 @@ function switchTab(tab) {
   const tabChat     = document.getElementById('tab-chat');
   const tabClue     = document.getElementById('tab-clue');
   const badge       = document.getElementById('tab-clue-badge');
+  const npcTabs     = document.getElementById('npc-tabs');
+  const header      = document.getElementById('header');
 
   if (tab === 'chat') {
     chatScroll.style.display  = '';
     choicesArea.style.display = '';
     inputArea.style.display   = '';
+    npcTabs.style.display     = '';
+    header.style.display      = '';
     cluePanel.classList.remove('active');
     tabChat.classList.add('active');
     tabClue.classList.remove('active');
@@ -182,6 +184,8 @@ function switchTab(tab) {
     chatScroll.style.display  = 'none';
     choicesArea.style.display = 'none';
     inputArea.style.display   = 'none';
+    npcTabs.style.display     = 'none';
+    header.style.display      = 'none';
     cluePanel.classList.add('active');
     tabChat.classList.remove('active');
     tabClue.classList.add('active');
@@ -223,7 +227,6 @@ function renderClues() {
     <div class="clue-item">
       <div class="clue-item-top">
         <span class="clue-item-badge">단서 #${String(i + 1).padStart(2, '0')}</span>
-        <span class="clue-item-time">${c.time}</span>
       </div>
       <div class="clue-item-main">
         <div class="clue-item-icon">${c.icon}</div>

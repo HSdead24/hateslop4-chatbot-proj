@@ -67,7 +67,7 @@ html, body {
 }
 .header-npc { display:flex; align-items:center; gap:9px; flex:1; min-width:0; }
 .header-avatar {
-  width:42px; height:42px; border-radius:3px; flex-shrink:0;
+  width:42px; height:42px; border-radius:50%; flex-shrink:0;
   background:var(--bg-surface2); border:1px solid var(--border-accent);
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:700; color:var(--text-secondary);
@@ -157,7 +157,7 @@ html, body {
 .npc-tab:active          { background:rgba(192,57,43,.05); }
 .npc-tab.active          { border-bottom-color:var(--accent); background:rgba(192,57,43,.04); }
 .npc-tab-avatar {
-  width:26px; height:26px; border-radius:2px;
+  width:26px; height:26px; border-radius:50%;
   background:var(--bg-surface2); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
   font-size:9px; font-weight:700; color:#7a7470;
@@ -226,13 +226,13 @@ html, body {
 .msg-row        { display:flex; align-items:flex-start; gap:7px; margin-bottom:9px; }
 .msg-row.player { flex-direction:row-reverse; }
 .npc-avatar {
-  width:32px; height:32px; border-radius:3px; flex-shrink:0;
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
   background:var(--bg-surface2); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
   font-size:10px; font-weight:700;
 }
 .player-avatar {
-  width:32px; height:32px; border-radius:3px; flex-shrink:0;
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
   background:var(--bg-surface2); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
   color:var(--text-secondary);
@@ -451,43 +451,58 @@ html, body {
   background:rgba(0,0,0,.72); opacity:0; pointer-events:none; transition:opacity .3s;
 }
 #drawer-overlay.show { opacity:1; pointer-events:all; }
+
 #chiki-drawer {
-  position:absolute; bottom:0; left:0; right:0; z-index:50;
-  background:#100a07; border-top:1px solid rgba(192,57,43,.22);
-  border-radius:12px 12px 0 0; padding:13px 15px 28px;
-  transform:translateY(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 -8px 32px rgba(192,57,43,.1);
+  position:absolute; inset:0; z-index:50;
+  display:flex; flex-direction:column;
+  transform:translateY(100%); transition:transform .4s cubic-bezier(.4,0,.2,1);
+  background:#000;
 }
-#chiki-drawer.open  { transform:translateY(0); }
-.drawer-handle      { width:30px; height:3px; border-radius:2px; background:var(--bg-surface3); margin:0 auto 13px; }
-.chiki-header       { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-.chiki-avatar-lg {
-  width:48px; height:48px; border-radius:50%;
-  background:#1e1008; border:2px solid var(--accent);
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px; box-shadow:0 0 12px rgba(192,57,43,.4);
+#chiki-drawer.open { transform:translateY(0); }
+
+/* 치키 이미지 배경 */
+.chiki-bg {
+  position:absolute; inset:0;
 }
-.chiki-name  { font-size:14px; font-weight:700; color:var(--text-primary); }
-.chiki-desc  { font-size:10px; color:var(--text-secondary); margin-top:1px; }
-.chiki-bubble {
-  background:#ece8e2; border-radius:2px var(--radius-md) var(--radius-md) var(--radius-md);
-  padding:11px 13px; margin-bottom:10px;
-  font-size:14px; line-height:1.7; color:#1a100a; position:relative;
+.chiki-bg-img {
+  width:100%; height:100%; object-fit:cover; object-position:center top;
+  opacity:.85;
 }
-.chiki-bubble::before {
-  content:''; position:absolute; top:-5px; left:12px;
-  width:0; height:0;
-  border-left:5px solid transparent; border-right:5px solid transparent;
-  border-bottom:5px solid #ece8e2;
+
+/* 콘텐츠 — 이미지 위에 올라오는 레이어 */
+.chiki-content {
+  position:relative; z-index:2;
+  display:flex; flex-direction:column;
+  justify-content:center;
+  height:100%; padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+  gap:12px;
 }
+
+.chiki-title {
+  text-align:center;
+  font-family:var(--font-mono); font-size:13px; letter-spacing:2px;
+  color:rgba(255,255,255,.7);
+}
+
+/* 말풍선 카드 */
+.chiki-card {
+  background:rgba(10,8,6,.72); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1); border-radius:var(--radius-md);
+  padding:16px;
+}
+.chiki-card-text {
+  font-size:15px; line-height:1.75; color:#ece8e2;
+}
+
 #chiki-close {
-  width:100%; margin-top:9px;
-  background:var(--bg-surface2); border:1px solid var(--border-warm);
-  border-radius:3px; padding:10px;
-  color:var(--text-secondary); font-size:13px;
+  width:100%;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--radius-sm); padding:12px;
+  color:rgba(255,255,255,.6); font-size:13px;
   font-family:var(--font-main); cursor:pointer;
+  backdrop-filter:blur(4px);
 }
-#chiki-close:active { border-color:var(--border-accent); color:var(--accent); }
+#chiki-close:active { background:rgba(192,57,43,.2); border-color:var(--border-accent); color:var(--accent); }
 
 /* ── 사망 오버레이 ── */
 #death-overlay {
