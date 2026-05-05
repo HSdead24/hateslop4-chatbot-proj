@@ -546,7 +546,7 @@ async function recordButton(buttonId) {
     await fetch('/record-button', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ session_id, last_button_id: buttonId }),
+      body:    JSON.stringify({ session_id, button_id: buttonId }),
     });
   } catch (e) {
     console.warn('[recordButton 실패]', e);
