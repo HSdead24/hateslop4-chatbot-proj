@@ -64,27 +64,52 @@ const CHIKI_TRIGGERS = [
   {
     words: ['김하윤', '하윤'],
     toast: '🐰 …그 이름은 잠금 처리된 이름인데.',
-    msg:   '김… 하… 윤? 어라라, 이상하다! 그 이름은 잠금 처리된 이름인데? 누가 열쇠를 주웠지? 🗝️🐰'
+    msg:   '김… 하… 윤? 어라라, 이상하다! 그 이름은 잠금 처리된 이름인데? 누가 열쇠를 주웠지? 🗝️🐰',
+    clue: {
+      icon:  '🗝️',
+      title: '잠긴 이름 — 김하윤',
+      desc:  '치키가 반응했다. 이 이름은 시스템에서 잠금 처리된 이름이다. 누군가가 숨기고 싶었던 것.',
+    }
   },
   {
     words: ['금고', '거울'],
     toast: '🐰 그 문은 열면 안 돼…',
-    msg:   '어라라? 그 문을 열려고? 음… 열면 이제 피해자인 척하기 조금 어려워질 텐데? 그래도 괜찮아? 🐰🔒'
+    msg:   '어라라? 그 문을 열려고? 음… 열면 이제 피해자인 척하기 조금 어려워질 텐데? 그래도 괜찮아? 🐰🔒',
+    clue: {
+      icon:  '🔒',
+      title: '금고 / 거울',
+      desc:  '치키가 접근을 막았다. 열면 피해자인 척하기 어려워진다고 했다. 진실이 숨겨져 있다.',
+    }
   },
   {
     words: ['죽었', '죽어', '살인', '범인'],
     toast: '🐰 누가 죽였냐고? 히히…',
-    msg:   '누가 널 죽였냐고? 그건 직접 찾아야 해! 그래야 재밌… 아니, 그래야 안전하니까! 🐰🔍'
+    msg:   '누가 널 죽였냐고? 그건 직접 찾아야 해! 그래야 재밌… 아니, 그래야 안전하니까! 🐰🔍',
+    clue: {
+      icon:  '🔍',
+      title: '사망의 진실',
+      desc:  '치키는 범인을 알고 있지만 직접 말하지 않는다. "직접 찾아야 한다"고 했다.',
+    }
   },
   {
     words: ['루프', '반복', '다시'],
     toast: '🐰 반복하면 익숙해지거든. 히히.',
-    msg:   '반복하면 익숙해져! 죽는 것도, 울지 않는 것도, 모르는 척하는 것도! 히히 🥕'
+    msg:   '반복하면 익숙해져! 죽는 것도, 울지 않는 것도, 모르는 척하는 것도! 히히 🥕',
+    clue: {
+      icon:  '⏰',
+      title: '루프의 의미',
+      desc:  '"모르는 척하는 것도 익숙해진다"고 했다. 주인공이 무언가를 알면서도 모른 척하고 있다.',
+    }
   },
   {
     words: ['치키', '토끼'],
     toast: '🐰 불렀어? 나 여기 있었는데!',
-    msg:   '히히, 불렀어? 나는 항상 여기 있었는데! 네가 죽는 순간까지 곁에 있어주는 친구잖아? 🐰💛'
+    msg:   '히히, 불렀어? 나는 항상 여기 있었는데! 네가 죽는 순간까지 곁에 있어주는 친구잖아? 🐰💛',
+    clue: {
+      icon:  '🐰',
+      title: '치키의 정체',
+      desc:  '"네가 죽는 순간까지 곁에 있어준다"고 했다. 수호 요정이 아닐 수도 있다.',
+    }
   },
 ];
 
@@ -98,6 +123,8 @@ let loopCount        = 1;
 let responseIdx      = 0;
 let timerInterval    = null;
 let chikiToastTimeout= null;
+let currentTab       = 'chat';  // 'chat' | 'clue'
+let clues            = [];      // 치키가 알려준 단서 목록
 
 // ─────────────────────────────────────────────
 //  타이머
@@ -111,28 +138,106 @@ function updateTimer() {
   const s   = totalSeconds % 60;
   const str = `${pad(h)}:${pad(m)}:${pad(s)}`;
 
-  document.getElementById('timer').textContent        = str;
   document.getElementById('timer-display').textContent= str;
 
   const mins = totalSeconds / 60;
-  const t    = document.getElementById('timer');
   const d    = document.getElementById('timer-display');
 
   if (mins < 3) {
-    t.classList.add('warning');
     d.classList.add('critical');
   } else {
-    t.classList.remove('warning');
     d.classList.remove('critical');
   }
 
-  const st = document.getElementById('sys-timer');
-  if (st) st.textContent = `${Math.ceil(mins)}분`;
 }
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
 timerInterval = setInterval(updateTimer, 1000);
+
+// ─────────────────────────────────────────────
+//  하단 탭 전환
+// ─────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+
+  const chatScroll  = document.getElementById('chat-scroll');
+  const choicesArea = document.getElementById('choices-area');
+  const inputArea   = document.getElementById('input-area');
+  const cluePanel   = document.getElementById('clue-panel');
+  const tabChat     = document.getElementById('tab-chat');
+  const tabClue     = document.getElementById('tab-clue');
+  const badge       = document.getElementById('tab-clue-badge');
+  const npcTabs     = document.getElementById('npc-tabs');
+  const header      = document.getElementById('header');
+
+  if (tab === 'chat') {
+    chatScroll.style.display  = '';
+    choicesArea.style.display = '';
+    inputArea.style.display   = '';
+    npcTabs.style.display     = '';
+    header.style.display      = '';
+    cluePanel.classList.remove('active');
+    tabChat.classList.add('active');
+    tabClue.classList.remove('active');
+  } else {
+    chatScroll.style.display  = 'none';
+    choicesArea.style.display = 'none';
+    inputArea.style.display   = 'none';
+    npcTabs.style.display     = 'none';
+    header.style.display      = 'none';
+    cluePanel.classList.add('active');
+    tabChat.classList.remove('active');
+    tabClue.classList.add('active');
+    badge.style.display = 'none';
+    renderClues();
+  }
+}
+
+// ─────────────────────────────────────────────
+//  단서 추가 & 렌더링
+// ─────────────────────────────────────────────
+function addClue(clue) {
+  // 같은 제목의 단서 중복 방지
+  if (clues.some(c => c.title === clue.title)) return;
+
+  clues.push({ ...clue, time: nowTime() });
+
+  if (currentTab !== 'clue') {
+    document.getElementById('tab-clue-badge').style.display = '';
+  }
+  if (currentTab === 'clue') renderClues();
+}
+
+function renderClues() {
+  const list  = document.getElementById('clue-list');
+  const count = document.getElementById('clue-count');
+  count.textContent = clues.length;
+
+  if (clues.length === 0) {
+    list.innerHTML = `
+      <div class="clue-empty">
+        <div class="clue-empty-icon">🐰</div>
+        <div class="clue-empty-text">치키가 알려준 단서가<br>여기에 기록됩니다.</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = clues.map((c, i) => `
+    <div class="clue-item">
+      <div class="clue-item-top">
+        <span class="clue-item-badge">단서 #${String(i + 1).padStart(2, '0')}</span>
+      </div>
+      <div class="clue-item-main">
+        <div class="clue-item-icon">${c.icon}</div>
+        <div class="clue-item-text">
+          <div class="clue-item-title">${esc(c.title)}</div>
+          <div class="clue-item-desc">${esc(c.desc)}</div>
+        </div>
+      </div>
+      <div class="clue-item-from">치키의 힌트</div>
+    </div>`).join('');
+}
 
 // ─────────────────────────────────────────────
 //  NPC 전환
@@ -164,11 +269,10 @@ function switchNPC(idx) {
   ht.style.borderColor  = npc.tagColor + '44';
   ht.style.background   = npc.tagColor + '14';
 
-  // 헤더 스탯
-  document.getElementById('header-stat-label').textContent  = npc.statLabel;
-  document.getElementById('header-stat-bar').style.width    = npc.statVal + '%';
-  document.getElementById('header-stat-bar').style.background = npc.statColor;
-  document.getElementById('header-stat-val').textContent    = npc.statVal;
+  // 헤더 스탯 (제거됨)
+  // document.getElementById('header-stat-label')
+  // document.getElementById('header-stat-bar')
+  // document.getElementById('header-stat-val')
 
   // 채팅창 전환
   for (let i = 0; i < NPCs.length; i++) {
@@ -297,6 +401,7 @@ function checkChikiTrigger(text) {
       setTimeout(() => {
         document.getElementById('chiki-bubble-text').textContent = trigger.msg;
         openChiki();
+        if (trigger.clue) addClue(trigger.clue);  // 단서 객체만 저장
       }, 1300);
       return;
     }
@@ -336,7 +441,6 @@ function triggerDeath() {
     loopCount++;
     document.getElementById('loop-num').textContent     = loopNum;
     document.getElementById('loop-count').textContent   = loopCount;
-    document.getElementById('loop-display').textContent = `LOOP #${pad(loopNum)}`;
     totalSeconds = 47 * 60 + 12;
 
     setTimeout(() => {
@@ -379,6 +483,9 @@ function esc(s) {
 document.getElementById('msg-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendMsg();
 });
+
+document.getElementById('tab-chat').addEventListener('click', () => switchTab('chat'));
+document.getElementById('tab-clue').addEventListener('click', () => switchTab('clue'));
 
 // ─────────────────────────────────────────────
 //  초기화

@@ -67,7 +67,7 @@ html, body {
 }
 .header-npc { display:flex; align-items:center; gap:9px; flex:1; min-width:0; }
 .header-avatar {
-  width:42px; height:42px; border-radius:3px; flex-shrink:0;
+  width:42px; height:42px; border-radius:50%; flex-shrink:0;
   background:var(--bg-surface2); border:1px solid var(--border-accent);
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:700; color:var(--text-secondary);
@@ -157,7 +157,7 @@ html, body {
 .npc-tab:active          { background:rgba(192,57,43,.05); }
 .npc-tab.active          { border-bottom-color:var(--accent); background:rgba(192,57,43,.04); }
 .npc-tab-avatar {
-  width:26px; height:26px; border-radius:2px;
+  width:26px; height:26px; border-radius:50%;
   background:var(--bg-surface2); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
   font-size:9px; font-weight:700; color:#7a7470;
@@ -166,10 +166,16 @@ html, body {
 .npc-tab-name            { font-size:10px; color:#b0aaa4; font-weight:500; }
 .npc-tab.active .npc-tab-name { color:var(--accent); font-weight:700; }
 
+/* ── 콘텐츠 영역 래퍼 ── */
+#content-area {
+  flex:1; display:flex; flex-direction:column;
+  overflow:hidden; position:relative; z-index:1;
+}
+
 /* ── 채팅 스크롤 ── */
 #chat-scroll {
   flex:1; overflow-y:auto; overflow-x:hidden;
-  padding:10px 0 6px; position:relative; z-index:1;
+  padding:10px 0 6px;
   scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
 }
 #chat-scroll::-webkit-scrollbar       { width:2px; }
@@ -220,13 +226,13 @@ html, body {
 .msg-row        { display:flex; align-items:flex-start; gap:7px; margin-bottom:9px; }
 .msg-row.player { flex-direction:row-reverse; }
 .npc-avatar {
-  width:32px; height:32px; border-radius:3px; flex-shrink:0;
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
   background:var(--bg-surface2); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
   font-size:10px; font-weight:700;
 }
 .player-avatar {
-  width:32px; height:32px; border-radius:3px; flex-shrink:0;
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
   background:var(--bg-surface2); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
   color:var(--text-secondary);
@@ -329,11 +335,105 @@ html, body {
   align-items:center; justify-content:center;
   padding:9px 0 7px; gap:3px; border:none; background:none;
   font-family:var(--font-main); cursor:pointer; min-height:44px;
+  position:relative;
 }
 .tab-item svg          { width:20px; height:20px; }
 .tab-item span         { font-size:9px; font-weight:500; }
 .tab-item.active       { color:var(--accent); }
 .tab-item:not(.active) { color:var(--text-dim); }
+
+/* 탭 뱃지 (새 단서 알림) */
+.tab-badge {
+  position:absolute; top:7px; right:calc(50% - 14px);
+  width:6px; height:6px; border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 5px rgba(192,57,43,.8);
+  animation:dotPulse 2s ease-in-out infinite;
+}
+
+/* ── 단서 패널 ── */
+#clue-panel {
+  display:none; flex:1; overflow-y:auto; overflow-x:hidden;
+  background:var(--bg-base);
+  flex-direction:column;
+}
+#clue-panel.active { display:flex; }
+#clue-panel::-webkit-scrollbar       { width:2px; }
+#clue-panel::-webkit-scrollbar-thumb { background:var(--bg-surface3); border-radius:2px; }
+
+.clue-panel-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 14px 10px; border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.clue-panel-title {
+  display:flex; align-items:center; gap:6px;
+  font-size:12px; font-weight:700; color:var(--text-secondary);
+  font-family:var(--font-mono); letter-spacing:.5px; text-transform:uppercase;
+}
+.clue-panel-title svg { width:14px; height:14px; }
+.clue-panel-count {
+  font-size:11px; color:var(--text-dim);
+  font-family:var(--font-mono);
+}
+
+#clue-list { padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+
+/* 빈 상태 */
+.clue-empty {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; padding:48px 20px;
+  color:var(--text-dim);
+}
+.clue-empty-icon { font-size:32px; opacity:.4; }
+.clue-empty-text { font-size:12px; text-align:center; line-height:1.7; color:var(--text-dim); }
+
+/* 단서 아이템 카드 */
+.clue-item {
+  background:var(--bg-surface2);
+  border:1px solid rgba(192,57,43,.14); border-left:2px solid var(--accent);
+  border-radius:var(--radius-sm); padding:10px 12px;
+  display:flex; flex-direction:column; gap:8px;
+  animation:clueIn .3s ease;
+}
+@keyframes clueIn {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.clue-item-top {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.clue-item-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  background:var(--accent); color:#f0e0d8;
+  font-size:7px; font-weight:700; padding:1px 5px; border-radius:1px;
+  font-family:var(--font-mono); letter-spacing:1px; flex-shrink:0;
+}
+.clue-item-time {
+  font-size:9px; color:var(--text-dim); font-family:var(--font-mono);
+}
+.clue-item-main {
+  display:flex; align-items:flex-start; gap:10px;
+}
+.clue-item-icon {
+  font-size:28px; flex-shrink:0; line-height:1;
+  width:40px; height:40px;
+  background:var(--bg-surface3); border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  display:flex; align-items:center; justify-content:center;
+}
+.clue-item-text { display:flex; flex-direction:column; gap:4px; flex:1; }
+.clue-item-title {
+  font-size:13px; font-weight:700; color:var(--text-primary); line-height:1.3;
+}
+.clue-item-desc {
+  font-size:11px; color:var(--text-secondary); line-height:1.6;
+}
+.clue-item-from {
+  font-size:10px; color:var(--text-secondary);
+  display:flex; align-items:center; gap:4px;
+}
+.clue-item-from::before { content:'🐰'; font-size:10px; }
 
 /* ── 치키 토스트 ── */
 #chiki-toast {
@@ -351,43 +451,58 @@ html, body {
   background:rgba(0,0,0,.72); opacity:0; pointer-events:none; transition:opacity .3s;
 }
 #drawer-overlay.show { opacity:1; pointer-events:all; }
+
 #chiki-drawer {
-  position:absolute; bottom:0; left:0; right:0; z-index:50;
-  background:#100a07; border-top:1px solid rgba(192,57,43,.22);
-  border-radius:12px 12px 0 0; padding:13px 15px 28px;
-  transform:translateY(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 -8px 32px rgba(192,57,43,.1);
+  position:absolute; inset:0; z-index:50;
+  display:flex; flex-direction:column;
+  transform:translateY(100%); transition:transform .4s cubic-bezier(.4,0,.2,1);
+  background:#000;
 }
-#chiki-drawer.open  { transform:translateY(0); }
-.drawer-handle      { width:30px; height:3px; border-radius:2px; background:var(--bg-surface3); margin:0 auto 13px; }
-.chiki-header       { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-.chiki-avatar-lg {
-  width:48px; height:48px; border-radius:50%;
-  background:#1e1008; border:2px solid var(--accent);
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px; box-shadow:0 0 12px rgba(192,57,43,.4);
+#chiki-drawer.open { transform:translateY(0); }
+
+/* 치키 이미지 배경 */
+.chiki-bg {
+  position:absolute; inset:0;
 }
-.chiki-name  { font-size:14px; font-weight:700; color:var(--text-primary); }
-.chiki-desc  { font-size:10px; color:var(--text-secondary); margin-top:1px; }
-.chiki-bubble {
-  background:#ece8e2; border-radius:2px var(--radius-md) var(--radius-md) var(--radius-md);
-  padding:11px 13px; margin-bottom:10px;
-  font-size:14px; line-height:1.7; color:#1a100a; position:relative;
+.chiki-bg-img {
+  width:100%; height:100%; object-fit:cover; object-position:center top;
+  opacity:.85;
 }
-.chiki-bubble::before {
-  content:''; position:absolute; top:-5px; left:12px;
-  width:0; height:0;
-  border-left:5px solid transparent; border-right:5px solid transparent;
-  border-bottom:5px solid #ece8e2;
+
+/* 콘텐츠 — 이미지 위에 올라오는 레이어 */
+.chiki-content {
+  position:relative; z-index:2;
+  display:flex; flex-direction:column;
+  justify-content:center;
+  height:100%; padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+  gap:12px;
 }
+
+.chiki-title {
+  text-align:center;
+  font-family:var(--font-mono); font-size:13px; letter-spacing:2px;
+  color:rgba(255,255,255,.7);
+}
+
+/* 말풍선 카드 */
+.chiki-card {
+  background:rgba(10,8,6,.72); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1); border-radius:var(--radius-md);
+  padding:16px;
+}
+.chiki-card-text {
+  font-size:15px; line-height:1.75; color:#ece8e2;
+}
+
 #chiki-close {
-  width:100%; margin-top:9px;
-  background:var(--bg-surface2); border:1px solid var(--border-warm);
-  border-radius:3px; padding:10px;
-  color:var(--text-secondary); font-size:13px;
+  width:100%;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--radius-sm); padding:12px;
+  color:rgba(255,255,255,.6); font-size:13px;
   font-family:var(--font-main); cursor:pointer;
+  backdrop-filter:blur(4px);
 }
-#chiki-close:active { border-color:var(--border-accent); color:var(--accent); }
+#chiki-close:active { background:rgba(192,57,43,.2); border-color:var(--border-accent); color:var(--accent); }
 
 /* ── 사망 오버레이 ── */
 #death-overlay {
