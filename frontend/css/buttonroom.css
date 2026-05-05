@@ -91,6 +91,8 @@ body {
 }
 .loop-top { font-size:8px;   color:rgba(205,216,212,0.45); letter-spacing:.12em; line-height:1.2; }
 .loop-num { font-size:14px;  font-weight:700; color:rgba(205,216,212,0.8); line-height:1.1; }
+.loop-inf { font-size:14px;  color:rgba(205,216,212,0.6); line-height:1.1; }
+.loop-bot { font-size:7.5px; color:rgba(205,216,212,0.3); letter-spacing:.06em; line-height:1.2; }
 
 /* 제목 — 미세 깜박임 */
 .game-title {
@@ -355,6 +357,48 @@ body {
 
 /* 신뢰도 수치 숨김 */
 .trust-badge { display:none; }
+
+/* ══════════════════════════════════
+   계속 버튼
+══════════════════════════════════ */
+.continue-btn {
+  width:100%;
+  padding:13px 0;
+  border-radius:6px;
+  cursor:pointer;
+  font-family:'Noto Sans KR', sans-serif;
+  font-size:14px; font-weight:500;
+  color:#b8d4cc;
+  letter-spacing:.08em;
+  background:
+    linear-gradient(105deg,
+      rgba(0,60,55,0.28) 0%,
+      rgba(0,40,50,0.18) 100%
+    );
+  border:1px solid rgba(0,200,170,0.25);
+  backdrop-filter:blur(6px);
+  box-shadow:
+    inset 0 1px 0 rgba(0,220,180,0.08),
+    0 2px 8px rgba(0,0,0,0.3);
+  transition:background 0.2s, border-color 0.2s;
+  /* 페이드인 애니메이션 */
+  animation: fadeInUp 0.4s ease forwards;
+}
+.continue-btn:hover {
+  background:
+    linear-gradient(105deg,
+      rgba(0,80,70,0.45) 0%,
+      rgba(0,55,65,0.32) 100%
+    );
+  border-color:rgba(0,220,185,0.40);
+}
+.continue-btn:active {
+  transform:scale(0.995);
+}
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
 
 /* ══════════════════════════════════
    BOTTOM HINT

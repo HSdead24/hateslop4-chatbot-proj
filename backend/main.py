@@ -8,6 +8,9 @@ FastAPI 앱 진입점.
     # 또는 backend/ 폴더 안에서 실행
     cd backend && uvicorn main:app --reload --port 8000
 
+    # 브라우저에서 아래 주소로 접속
+    http://localhost:8000/frontend/buttonroom.html
+
 Swagger UI:
     http://localhost:8000/docs
 """

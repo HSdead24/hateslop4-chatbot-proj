@@ -450,6 +450,25 @@ setInterval(() => {
 }, 1000);
 
 // ─────────────────────────────────────────────
+//  "▶ 계속" 버튼 표시 (씬 대사 읽은 후 선택지로 넘어가기)
+// ─────────────────────────────────────────────
+function showContinueBtn(nodeId) {
+  const sec = document.getElementById('choicesSection');
+  sec.innerHTML = '';
+
+  const btn = document.createElement('button');
+  btn.className = 'continue-btn';
+  btn.innerHTML = '<span>▶ &nbsp; 계속</span>';
+  btn.addEventListener('click', () => {
+    // before_ 씬으로 교체 (선택지 버튼과 함께 표시될 씬)
+    applyScene(nodeId, 'before_');
+    renderChoices(getChildButtons(nodeId));
+  });
+
+  sec.appendChild(btn);
+}
+
+// ─────────────────────────────────────────────
 //  선택지 렌더링
 // ─────────────────────────────────────────────
 function renderChoices(choices) {
@@ -494,10 +513,13 @@ async function onChoice(choice, btn) {
     return;
   }
 
-  // 3) 다음 단계 씬 표시 + 버튼 렌더링
+  // 3) after_ 씬 표시 (버튼 클릭 직후 반응 대사)
   GAME_STATE.currentNodeId = String(choice.id);
-  applyScene(choice.id);
-  renderChoices(getChildButtons(choice.id));
+  applyScene(choice.id, 'after_');
+  document.getElementById('choicesSection').innerHTML = '';
+
+  // 4) 3초 후 "▶ 계속" 버튼 등장
+  setTimeout(() => showContinueBtn(choice.id), 3000);
 }
 
 // ─────────────────────────────────────────────
@@ -610,9 +632,11 @@ function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) 
 }
 
 // scenes.json 데이터를 화면에 반영하는 헬퍼
-function applyScene(nodeId) {
+// prefix: 'after_' | 'before_'
+function applyScene(nodeId, prefix = 'after_') {
   if (!window.SCENE_DATA) return;
-  const scene = window.SCENE_DATA[String(nodeId)];
+  const key   = prefix + String(nodeId);
+  const scene = window.SCENE_DATA[key];
   if (!scene) return;
   updateScene({
     speaker:  { name: scene.speaker_name, role: scene.speaker_role },
@@ -641,8 +665,8 @@ function applyScene(nodeId) {
   // 2) 게임 시작 → session_id 발급
   await startNewGame();
 
-  // 3) root 씬 표시
-  applyScene('root');
+  // 3) before_root 씬 표시 (집에 있는다/출근한다 버튼과 함께 보이는 씬)
+  applyScene('root', 'before_');
 
   // 4) 선택1 버튼 렌더링 (집에 있는다 / 출근한다)
   renderChoices(getChildButtons('root'));

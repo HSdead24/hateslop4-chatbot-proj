@@ -1,1329 +1,2078 @@
 {
   "scenes": {
-    "root": {
+    "after_root": {
       "location": "주인공의 방",
       "place": "주인공의 집",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
-      "dialogue": "또 하루가 시작됐어. 오늘은 네가 살해당하기 딱 24시간 전이야. 밖으로 나갈래, 아니면 그 방에 숨어있을래? 뭐든 네 자유지만... 끝은 정해져 있을지도 몰라."
+      "dialogue": "또 하루가 시작됐어. 오늘은 네가 살해당하기 딱 24시간 전이야. 밖으로 나갈래, 아니면 그 방에 숨어있을래? 과연 피할 수 있을까?"
     },
-    "100": {
+    "before_root": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "자, 시간이 없어. 출근할래, 아니면 집에 숨어있을래?"
+    },
+    "after_100": {
       "location": "현관 앞",
       "place": "주인공의 집",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "집에 있기로 했구나? 밖에는 누가 기다릴지 모르는데... 탁월한 선택일까?"
     },
-    "101": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "출근을 하겠다고? 좋아. 네 발로 호랑이 굴에 들어가는 걸지도 모르지만."
-    },
-    "200": {
+    "before_100": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "[전화] 선생님, 오늘 출근 안 하세요? 김도현 환자분이 밖에서 계속 기다리고 있어요."
     },
-    "201": {
+    "after_101": {
       "location": "현관 앞",
       "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "출근을 하겠다고? 좋아. 네 발로 호랑이 굴에 들어가는 걸지도 모르지만."
     },
-    "202": {
+    "before_101": {
       "location": "휴게실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "커피 드시겠어요? 오늘따라 유독 피곤해 보이시네요."
     },
-    "203": {
-      "location": "휴게실",
-      "place": "안식 정신건강의학과",
+    "after_200": {
+      "location": "거실",
+      "place": "주인공의 집",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
-      "dialogue": "커피는 안 드신다고요? 알겠어요. 곧 첫 상담인 거 아시죠?"
+      "dialogue": "[전화] 선생님, 오늘 출근 안 하세요? 김도현 환자분이 밖에서 계속 기다리고 있어요."
     },
-    "300": {
+    "before_200": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
     },
-    "301": {
-      "location": "거실",
+    "after_201": {
+      "location": "현관 앞",
       "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "끼니는 거르지 말아야지. 밥 좀 먹어라, 응?"
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
     },
-    "302": {
+    "before_201": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "선생님이시네요. 병원 건물 청소하다가 자주 뵀는데, 여기서 또 뵙습니다."
     },
-    "303": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+    "after_202": {
+      "location": "휴게실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "커피 드시겠어요? 오늘따라 유독 피곤해 보이시네요."
     },
-    "304": {
+    "before_202": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "305": {
-      "location": "진료실",
+    "after_203": {
+      "location": "휴게실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+      "dialogue": "커피는 안 드신다고요? 알겠어요. 곧 첫 상담인 거 아시죠?"
     },
-    "306": {
+    "before_203": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "선생님, 오셨네요. 창문이 깨져 있어서 제가 와봤어요."
     },
-    "307": {
+    "after_300": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "하윤이를 그렇게 만든 게 당신이잖아! 아직도 숨길 수 있다고 생각하나?"
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
     },
-    "400": {
+    "before_300": {
       "location": "진료실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "선생님, 방금 들어왔는데 책상이 엉망이네요. 무슨 일 있었나요?"
     },
-    "401": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
-    },
-    "402": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
-    },
-    "403": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "하루 종일 멍하네. 병원 일이 많이 힘든 거니?"
-    },
-    "404": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "여기 찍힌 거 접니다. 왜 제가 선생님 멱살을 잡으려고 했는지, 정말 기억 안 납니까!"
-    },
-    "405": {
+    "after_301": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "엄마",
       "speaker_role": "주인공의 어머니",
       "dialogue": "끼니는 거르지 말아야지. 밥 좀 먹어라, 응?"
     },
-    "406": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "왜 그렇게 안절부절못해? 밖에서 무슨 일 있었어?"
-    },
-    "407": {
+    "before_301": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "엄마",
       "speaker_role": "주인공의 어머니",
       "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
     },
-    "408": {
+    "after_302": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님이시네요. 병원 건물 청소하다가 자주 뵀는데, 여기서 또 뵙습니다."
+    },
+    "before_302": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "김하윤이 누군지 모른다고요? 진짜 제정신입니까!"
+      "dialogue": "여기 찍힌 거 접니다. 왜 제가 선생님 멱살을 잡으려고 했는지, 정말 기억 안 납니까!"
     },
-    "409": {
+    "after_303": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+    },
+    "before_303": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "왜 그렇게 안절부절못해? 밖에서 무슨 일 있었어?"
+    },
+    "after_304": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "410": {
+    "before_304": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "김하윤이 누군지 모른다고요? 진짜 제정신입니까!"
+    },
+    "after_305": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "before_305": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "김하윤, 내 동생 김하윤이요! 정말 모르는 척 할 겁니까?"
     },
-    "411": {
-      "location": "상담실",
+    "after_306": {
+      "location": "원장실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오셨네요. 창문이 깨져 있어서 제가 와봤어요."
     },
-    "412": {
+    "before_306": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
     },
-    "413": {
-      "location": "원장실",
+    "after_307": {
+      "location": "상담실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 우선 환자분과 대화부터 나누세요. 여긴 제가 정리해볼게요."
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "하윤이를 그렇게 만든 게 당신이잖아! 아직도 숨길 수 있다고 생각하나?"
     },
-    "414": {
+    "before_307": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "끝까지 모르는 척하겠다 이거지? 네가 그러고도 의사야!"
     },
-    "415": {
-      "location": "상담실",
+    "after_400": {
+      "location": "진료실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "발뺌한다고 네 죄가 덮어질 것 같아? 뻔뻔한 새끼..."
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 방금 들어왔는데 책상이 엉망이네요. 무슨 일 있었나요?"
     },
-    "500": {
+    "before_400": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
     },
-    "501": {
-      "location": "진료실",
+    "after_401": {
+      "location": "상담실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
     },
-    "502": {
+    "before_401": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "503": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    "after_402": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
     },
-    "504": {
+    "before_402": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "엄마",
       "speaker_role": "주인공의 어머니",
       "dialogue": "자꾸 눈치를 보네. 누가 널 괴롭히기라도 하는 거야?"
     },
-    "505": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "너 요즘 너무 예민해 보여. 도대체 무슨 일 있는 거니?"
-    },
-    "506": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "왜 그렇게 안절부절못해? 밖에서 무슨 일 있었어?"
-    },
-    "507": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
-    },
-    "508": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "???",
-      "speaker_role": "발신자 표시 제한",
-      "dialogue": "...오늘 밤 12시야. 00으로 혼자 나와라. 경찰은 부르지 말고."
-    },
-    "509": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "???",
-      "speaker_role": "발신자 표시 제한",
-      "dialogue": "...도망칠 생각 마. 자정까지 00으로 와라."
-    },
-    "510": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
-    },
-    "512": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
-    },
-    "513": {
+    "after_403": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "엄마",
       "speaker_role": "주인공의 어머니",
       "dialogue": "하루 종일 멍하네. 병원 일이 많이 힘든 거니?"
     },
-    "514": {
+    "before_403": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "왜 그렇게 안절부절못해? 밖에서 무슨 일 있었어?"
+    },
+    "after_404": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "여기 찍힌 거 접니다. 왜 제가 선생님 멱살을 잡으려고 했는지, 정말 기억 안 납니까!"
+    },
+    "before_404": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "???",
+      "speaker_role": "발신자 표시 제한",
+      "dialogue": "...오늘 밤 12시야. 00으로 혼자 나와라. 경찰은 부르지 말고."
+    },
+    "after_405": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "끼니는 거르지 말아야지. 밥 좀 먹어라, 응?"
+    },
+    "before_405": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
+    },
+    "after_406": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "왜 그렇게 안절부절못해? 밖에서 무슨 일 있었어?"
+    },
+    "before_406": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
+    },
+    "after_407": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
+    },
+    "before_407": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "엄마",
       "speaker_role": "주인공의 어머니",
       "dialogue": "자꾸 눈치를 보네. 누가 널 괴롭히기라도 하는 거야?"
     },
-    "515": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "너 요즘 너무 예민해 보여. 도대체 무슨 일 있는 거니?"
+    "after_408": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "김하윤이 누군지 모른다고요? 진짜 제정신입니까!"
     },
-    "516": {
+    "before_408": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
     },
-    "517": {
+    "after_409": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "518": {
+    "before_409": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "김하윤, 내 동생 김하윤이요! 정말 모르는 척 할 겁니까?"
     },
-    "519": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    "after_410": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "김하윤, 내 동생 김하윤이요! 정말 모르는 척 할 겁니까?"
     },
-    "520": {
+    "before_410": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "521": {
+    "after_411": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
     },
-    "522": {
+    "before_411": {
       "location": "진료실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
     },
-    "523": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    "after_412": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
     },
-    "524": {
+    "before_412": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
     },
-    "525": {
-      "location": "진료실",
+    "after_413": {
+      "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+      "dialogue": "선생님, 우선 환자분과 대화부터 나누세요. 여긴 제가 정리해볼게요."
     },
-    "526": {
+    "before_413": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "527": {
+    "after_414": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+      "dialogue": "끝까지 모르는 척하겠다 이거지? 네가 그러고도 의사야!"
     },
-    "528": {
+    "before_414": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "나를 내쫓는다고 다 끝날 것 같아? 또 올 거야. 끝까지!"
     },
-    "529": {
+    "after_415": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "두고 봐... 오늘 자정까지 네 죗값을 묻고야 말 테니까."
+      "dialogue": "발뺌한다고 네 죄가 덮어질 것 같아? 뻔뻔한 새끼..."
     },
-    "530": {
+    "before_415": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "선생님, 그렇게 도망만 쳐서는 아무것도 해결 안 됩니다."
     },
-    "531": {
+    "after_500": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "나를 내쫓는다고 다 끝날 것 같아? 또 올 거야. 끝까지!"
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
     },
-    "600": {
+    "before_500": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "김하윤이 누군지 모른다고요? 진짜 제정신입니까!"
     },
-    "601": {
-      "location": "상담실",
+    "after_501": {
+      "location": "진료실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
     },
-    "602": {
+    "before_501": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "김하윤, 내 동생 김하윤이요! 정말 모르는 척 할 겁니까?"
     },
-    "603": {
+    "after_502": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "604": {
+    "before_502": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "하윤이를 기억 못 한다는 게 말이 됩니까? 어떻게 그 이름을 잊어요!"
     },
-    "605": {
-      "location": "상담실",
+    "after_503": {
+      "location": "진료실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
     },
-    "606": {
+    "before_503": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "김하윤이 누군지 모른다고요? 진짜 제정신입니까!"
     },
-    "607": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    "after_504": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "자꾸 눈치를 보네. 누가 널 괴롭히기라도 하는 거야?"
     },
-    "608": {
+    "before_504": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "[문자] 선생님, 김도현 환자분이 한참 기다리다가 화내며 가셨어요. 괜찮으신 건가요?"
     },
-    "609": {
+    "after_505": {
       "location": "거실",
       "place": "주인공의 집",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "[문자] 오늘 안 오시나요? 김도현 환자분이 밖에서 소란을 피우다 돌아가셨어요."
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "너 요즘 너무 예민해 보여. 도대체 무슨 일 있는 거니?"
     },
-    "610": {
+    "before_505": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "[문자] 연락 좀 주세요 선생님. 김도현 환자분 상태가 꽤 안 좋아 보였는데 그냥 가셨습니다."
     },
-    "611": {
+    "after_506": {
       "location": "거실",
       "place": "주인공의 집",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "[문자] 김도현 환자분이 화를 내고 가셨어요. 무슨 일 있는 건 아니시죠? 걱정되네요."
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "왜 그렇게 안절부절못해? 밖에서 무슨 일 있었어?"
     },
-    "612": {
+    "before_506": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "[문자] 선생님, 김도현 환자분이 한참 기다리다가 화내며 가셨어요. 괜찮으신 건가요?"
     },
-    "613": {
+    "after_507": {
       "location": "거실",
       "place": "주인공의 집",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "[문자] 오늘 안 오시나요? 김도현 환자분이 밖에서 소란을 피우다 돌아가셨어요."
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
     },
-    "614": {
+    "before_507": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "[문자] 연락 좀 주세요 선생님. 김도현 환자분 상태가 꽤 안 좋아 보였는데 그냥 가셨습니다."
     },
-    "615": {
-      "location": "거실",
+    "after_508": {
+      "location": "주인공의 방",
       "place": "주인공의 집",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "[문자] 김도현 환자분이 화를 내고 가셨어요. 무슨 일 있는 건 아니시죠? 걱정되네요."
+      "speaker_name": "???",
+      "speaker_role": "발신자 표시 제한",
+      "dialogue": "...오늘 밤 12시야. 00으로 혼자 나와라. 경찰은 부르지 말고."
     },
-    "616": {
+    "before_508": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "이 CCTV 캡처본 좀 보시죠. 제가 왜 이토록 흥분해서 달려들었는지 기억 안 납니까?"
     },
-    "617": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+    "after_509": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "???",
+      "speaker_role": "발신자 표시 제한",
+      "dialogue": "...도망칠 생각 마. 자정까지 00으로 와라."
     },
-    "618": {
+    "before_509": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "이 사진 보셨어요? 제가 왜 선생님한테 달려들고 있는지... 설명해 보시죠."
     },
-    "619": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    "after_510": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
     },
-    "620": {
+    "before_510": {
       "location": "거실",
       "place": "주인공의 집",
       "speaker_name": "엄마",
       "speaker_role": "주인공의 어머니",
       "dialogue": "주원이는 왜... 아니야, 이만 방에 들어가렴."
     },
-    "621": {
+    "after_511": {
       "location": "현관 앞",
       "place": "주인공의 집",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
     },
-    "622": {
+    "after_512": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "얼굴이 하얗게 질렸네... 엄마한테 털어놓아 보렴."
+    },
+    "before_512": {
       "location": "현관 앞",
       "place": "주인공의 집",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
     },
-    "623": {
-      "location": "현관 앞",
+    "after_513": {
+      "location": "거실",
       "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "하루 종일 멍하네. 병원 일이 많이 힘든 거니?"
     },
-    "624": {
+    "before_513": {
       "location": "현관 앞",
       "place": "주인공의 집",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "선생님, 여기 서명 하나 부탁드립니다. 날이 많이 춥죠?"
     },
-    "625": {
-      "location": "현관 앞",
+    "after_514": {
+      "location": "거실",
       "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "자꾸 눈치를 보네. 누가 널 괴롭히기라도 하는 거야?"
     },
-    "626": {
+    "before_514": {
       "location": "현관 앞",
       "place": "주인공의 집",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
     },
-    "627": {
-      "location": "현관 앞",
+    "after_515": {
+      "location": "거실",
       "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "너 요즘 너무 예민해 보여. 도대체 무슨 일 있는 거니?"
     },
-    "628": {
+    "before_515": {
       "location": "현관 앞",
       "place": "주인공의 집",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
     },
-    "629": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님, 여기 서명 하나 부탁드립니다. 날이 많이 춥죠?"
+    "after_516": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
     },
-    "630": {
+    "before_516": {
       "location": "진료실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
     },
-    "631": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
-    },
-    "632": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
-    },
-    "633": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
-    },
-    "634": {
+    "after_517": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "635": {
+    "before_517": {
       "location": "진료실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
     },
-    "636": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
-    },
-    "637": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
-    },
-    "638": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
-    },
-    "639": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
-    },
-    "640": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
-    },
-    "641": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
-    },
-    "642": {
+    "after_518": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+      "dialogue": "김하윤, 내 동생 김하윤이요! 정말 모르는 척 할 겁니까?"
     },
-    "643": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
-    },
-    "644": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
-    },
-    "645": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
-    },
-    "646": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님, 유리는 제가 치우겠습니다. 그런데 방이 많이 어수선하네요."
-    },
-    "647": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "제가 금방 치우겠습니다. 참, 이 USB 선생님 것 같아서 가져왔습니다."
-    },
-    "648": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "아이고, 선생님 방에 무슨 일이 있었던 겁니까? 다치신 덴 없고요?"
-    },
-    "649": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "치우는 건 제 일이니까 걱정 마십쇼. 그런데 저 창문... 밖에서 깬 것 같네요."
-    },
-    "650": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님, 병원 복도에서 이걸 주웠는데... 선생님 것 맞죠?"
-    },
-    "651": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님, 유리는 제가 치우겠습니다. 그런데 방이 많이 어수선하네요."
-    },
-    "652": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "제가 금방 치우겠습니다. 참, 이 USB 선생님 것 같아서 가져왔습니다."
-    },
-    "653": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "아이고, 선생님 방에 무슨 일이 있었던 겁니까? 다치신 덴 없고요?"
-    },
-    "654": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "제 말을 무시하시는 건가요? 그래봤자 진실은 피할 수 없어요."
-    },
-    "655": {
+    "before_518": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
-      "dialogue": "이제 와서 미안하다고요? 사람을 그 지경으로 만들어 놓고!"
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
     },
-    "656": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
-    },
-    "657": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "무슨 일이시죠?"
-    },
-    "658": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "대답을 회피하시는군요. 선생님도 뭔가 켕기는 게 있으신 모양이죠?"
-    },
-    "659": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "당신 사과 따위 필요 없어! 내가 원하는 건 당신의 파멸이야."
-    },
-    "660": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
-    },
-    "661": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "무슨 일이시죠?"
-    },
-    "700": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
-    },
-    "701": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
-    },
-    "702": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
-    },
-    "703": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
-    },
-    "704": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
-    },
-    "705": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
-    },
-    "706": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
-    },
-    "707": {
-      "location": "진료실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
-    },
-    "708": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
-    },
-    "709": {
-      "location": "거실",
+    "after_519": {
+      "location": "주인공의 방",
       "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "내일 동생 제사인 건 알고 있니? ...너 정말 왜 그렇게 놀라는 거니?"
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
     },
-    "710": {
+    "before_519": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "after_520": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "before_520": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "after_521": {
       "location": "상담실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
     },
-    "711": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "내일이 네 동생 기일인 거 잊지 않았지? ...왜 그런 눈으로 쳐다보는 거야."
-    },
-    "712": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
-    },
-    "713": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "네 동생 기일이 내일이다. 혹시 잊고 있었던 건 아니겠지...?"
-    },
-    "714": {
-      "location": "상담실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "김도현",
-      "speaker_role": "내담자",
-      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
-    },
-    "715": {
-      "location": "거실",
-      "place": "주인공의 집",
-      "speaker_name": "엄마",
-      "speaker_role": "주인공의 어머니",
-      "dialogue": "내일 동생 제사인 건 알고 있니? ...너 정말 왜 그렇게 놀라는 거니?"
-    },
-    "716": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
-    },
-    "717": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
-    },
-    "718": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
-    },
-    "719": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님, 여기 서명 하나 부탁드립니다. 날이 많이 춥죠?"
-    },
-    "720": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
-    },
-    "721": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
-    },
-    "722": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
-    },
-    "723": {
-      "location": "현관 앞",
-      "place": "주인공의 집",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
-    },
-    "724": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
-    },
-    "725": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
-    },
-    "726": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
-    },
-    "727": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
-    },
-    "728": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
-    },
-    "729": {
-      "location": "주인공의 방",
-      "place": "주인공의 집",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
-    },
-    "730": {
+    "before_521": {
       "location": "진료실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
     },
-    "731": {
+    "after_522": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "before_522": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+    },
+    "after_523": {
       "location": "주인공의 방",
       "place": "주인공의 집",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
     },
-    "732": {
+    "before_523": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "after_524": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+    },
+    "before_524": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님, 유리는 제가 치우겠습니다. 그런데 방이 많이 어수선하네요."
+    },
+    "after_525": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "before_525": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아이고, 선생님 방에 무슨 일이 있었던 겁니까? 다치신 덴 없고요?"
+    },
+    "after_526": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "before_526": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님, 병원 복도에서 이걸 주웠는데... 선생님 것 맞죠?"
+    },
+    "after_527": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+    },
+    "before_527": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "제가 금방 치우겠습니다. 참, 이 USB 선생님 것 같아서 가져왔습니다."
+    },
+    "after_528": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "나를 내쫓는다고 다 끝날 것 같아? 또 올 거야. 끝까지!"
+    },
+    "before_528": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "제 말을 무시하시는 건가요? 그래봤자 진실은 피할 수 없어요."
+    },
+    "after_529": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "두고 봐... 오늘 자정까지 네 죗값을 묻고야 말 테니까."
+    },
+    "before_529": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
+    },
+    "after_530": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님, 그렇게 도망만 쳐서는 아무것도 해결 안 됩니다."
+    },
+    "before_530": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "대답을 회피하시는군요. 선생님도 뭔가 켕기는 게 있으신 모양이죠?"
+    },
+    "after_531": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "나를 내쫓는다고 다 끝날 것 같아? 또 올 거야. 끝까지!"
+    },
+    "before_531": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
+    },
+    "after_600": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "김하윤이 누군지 모른다고요? 진짜 제정신입니까!"
+    },
+    "after_601": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "before_601": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "after_602": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "김하윤, 내 동생 김하윤이요! 정말 모르는 척 할 겁니까?"
+    },
+    "after_603": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+    },
+    "before_603": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "after_604": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "하윤이를 기억 못 한다는 게 말이 됩니까? 어떻게 그 이름을 잊어요!"
+    },
+    "after_605": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+    },
+    "before_605": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "after_606": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "김하윤이 누군지 모른다고요? 진짜 제정신입니까!"
+    },
+    "after_607": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "before_607": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "after_608": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 선생님, 김도현 환자분이 한참 기다리다가 화내며 가셨어요. 괜찮으신 건가요?"
+    },
+    "after_609": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 오늘 안 오시나요? 김도현 환자분이 밖에서 소란을 피우다 돌아가셨어요."
+    },
+    "after_610": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 연락 좀 주세요 선생님. 김도현 환자분 상태가 꽤 안 좋아 보였는데 그냥 가셨습니다."
+    },
+    "after_611": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 김도현 환자분이 화를 내고 가셨어요. 무슨 일 있는 건 아니시죠? 걱정되네요."
+    },
+    "after_612": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 선생님, 김도현 환자분이 한참 기다리다가 화내며 가셨어요. 괜찮으신 건가요?"
+    },
+    "after_613": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 오늘 안 오시나요? 김도현 환자분이 밖에서 소란을 피우다 돌아가셨어요."
+    },
+    "after_614": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 연락 좀 주세요 선생님. 김도현 환자분 상태가 꽤 안 좋아 보였는데 그냥 가셨습니다."
+    },
+    "after_615": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "[문자] 김도현 환자분이 화를 내고 가셨어요. 무슨 일 있는 건 아니시죠? 걱정되네요."
+    },
+    "after_616": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "이 CCTV 캡처본 좀 보시죠. 제가 왜 이토록 흥분해서 달려들었는지 기억 안 납니까?"
+    },
+    "before_616": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+    },
+    "after_617": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+    },
+    "before_617": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+    },
+    "after_618": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "이 사진 보셨어요? 제가 왜 선생님한테 달려들고 있는지... 설명해 보시죠."
+    },
+    "before_618": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "after_619": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "before_619": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+    },
+    "after_620": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "주원이는 왜... 아니야, 이만 방에 들어가렴."
+    },
+    "after_621": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
+    },
+    "after_622": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
+    },
+    "after_623": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+    },
+    "before_623": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
+    },
+    "after_624": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님, 여기 서명 하나 부탁드립니다. 날이 많이 춥죠?"
+    },
+    "after_625": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
+    },
+    "before_625": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+    },
+    "after_626": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
+    },
+    "after_627": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
+    },
+    "before_627": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
+    },
+    "after_628": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+    },
+    "after_629": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님, 여기 서명 하나 부탁드립니다. 날이 많이 춥죠?"
+    },
+    "before_629": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
+    },
+    "after_630": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "before_630": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_631": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "before_631": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_632": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "before_632": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_633": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "before_633": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_634": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "before_634": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_635": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "before_635": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_636": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "before_636": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "after_637": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "before_637": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_638": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "before_638": {
       "location": "병원 1층 로비",
       "place": "안식 정신건강의학과",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "어디로 갈래? 1층으로 도망쳐볼까, 아니면 그냥 남아있을까?"
     },
-    "733": {
+    "after_639": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "before_639": {
       "location": "병원 1층 로비",
       "place": "안식 정신건강의학과",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "지금 도망치면 안전할 것 같아? 밖에서 누가 기다리고 있을지 모르잖아."
     },
-    "734": {
+    "after_640": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "before_640": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "이런 일들이 자꾸 생기니까 저도 불안하네요. 선생님은 괜찮으세요?"
     },
-    "735": {
+    "after_641": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "before_641": {
       "location": "병원 1층 로비",
       "place": "안식 정신건강의학과",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "선택의 시간이야. 네 발로 나갈래, 아니면 방 안에서 끝을 기다릴래?"
     },
-    "736": {
+    "after_642": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+    },
+    "before_642": {
       "location": "병원 1층 로비",
       "place": "안식 정신건강의학과",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "어디로 갈래? 1층으로 도망쳐볼까, 아니면 그냥 남아있을까?"
     },
-    "737": {
+    "after_643": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "before_643": {
       "location": "병원 1층 로비",
       "place": "안식 정신건강의학과",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "지금 도망치면 안전할 것 같아? 밖에서 누가 기다리고 있을지 모르잖아."
     },
-    "738": {
+    "after_644": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "before_644": {
       "location": "병원 1층 로비",
       "place": "안식 정신건강의학과",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "숨고 싶은 마음은 알겠지만, 과연 숨을 수 있을까?"
     },
-    "739": {
+    "after_645": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "before_645": {
       "location": "병원 1층 로비",
       "place": "안식 정신건강의학과",
       "speaker_name": "치키",
       "speaker_role": "루프 관리자",
       "dialogue": "선택의 시간이야. 네 발로 나갈래, 아니면 방 안에서 끝을 기다릴래?"
     },
-    "740": {
+    "after_646": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님, 유리는 제가 치우겠습니다. 그런데 방이 많이 어수선하네요."
+    },
+    "before_646": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
     },
-    "741": {
+    "after_647": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "제가 금방 치우겠습니다. 참, 이 USB 선생님 것 같아서 가져왔습니다."
+    },
+    "before_647": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "정말 모르는 얼굴입니까? 제가 보기엔... 아주 익숙하실 것 같은데요."
     },
-    "742": {
-      "location": "복도",
+    "after_648": {
+      "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "아닙니다, 선생님. 바쁘신데 제가 괜한 걸 물었나 보네요. 쉬십시오."
+      "dialogue": "아이고, 선생님 방에 무슨 일이 있었던 겁니까? 다치신 덴 없고요?"
     },
-    "743": {
+    "before_648": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
     },
-    "744": {
+    "after_649": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "치우는 건 제 일이니까 걱정 마십쇼. 그런데 저 창문... 밖에서 깬 것 같네요."
+    },
+    "before_649": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "기억이 잘 안 나십니까? 하긴, 선생님에겐 수많은 사람 중 하나였을 테니까요."
     },
-    "745": {
-      "location": "복도",
+    "after_650": {
+      "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "정말 모르는 얼굴입니까? 제가 보기엔... 아주 익숙하실 것 같은데요."
+      "dialogue": "선생님, 병원 복도에서 이걸 주웠는데... 선생님 것 맞죠?"
     },
-    "746": {
+    "before_650": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
     },
-    "747": {
+    "after_651": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님, 유리는 제가 치우겠습니다. 그런데 방이 많이 어수선하네요."
+    },
+    "before_651": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "사람은 원래 보고 싶은 것만 본다지요. 선생님도 그런 편이신가 봅니다."
     },
-    "748": {
-      "location": "복도",
+    "after_652": {
+      "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "기억이 잘 안 나십니까? 하긴, 선생님에겐 수많은 사람 중 하나였을 테니까요."
+      "dialogue": "제가 금방 치우겠습니다. 참, 이 USB 선생님 것 같아서 가져왔습니다."
     },
-    "749": {
+    "before_652": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "김도현",
       "speaker_role": "내담자",
       "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
     },
-    "750": {
+    "after_653": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아이고, 선생님 방에 무슨 일이 있었던 겁니까? 다치신 덴 없고요?"
+    },
+    "before_653": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "아닙니다, 선생님. 바쁘신데 제가 괜한 걸 물었나 보네요. 쉬십시오."
     },
-    "751": {
-      "location": "복도",
+    "after_654": {
+      "location": "원장실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "박도원",
-      "speaker_role": "건물 청소부 / 택배 기사",
-      "dialogue": "사람은 원래 보고 싶은 것만 본다지요. 선생님도 그런 편이신가 봅니다."
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "제 말을 무시하시는 건가요? 그래봤자 진실은 피할 수 없어요."
     },
-    "752": {
+    "before_654": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "기억이 잘 안 나십니까? 하긴, 선생님에겐 수많은 사람 중 하나였을 테니까요."
     },
-    "753": {
-      "location": "원장실",
+    "after_655": {
+      "location": "상담실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "이제 와서 미안하다고요? 사람을 그 지경으로 만들어 놓고!"
     },
-    "754": {
+    "before_655": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "아닙니다, 선생님. 바쁘신데 제가 괜한 걸 물었나 보네요. 쉬십시오."
     },
-    "755": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
-    },
-    "756": {
+    "after_656": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
     },
-    "757": {
+    "before_656": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
+    },
+    "after_657": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "무슨 일이시죠?"
+    },
+    "before_657": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "선생님은 기억나는 게 없으신가요? 과거의 일들이라던지..."
     },
-    "758": {
+    "after_658": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
-      "dialogue": "이런 일들이 자꾸 생기니까 저도 불안하네요. 선생님은 괜찮으세요?"
+      "dialogue": "대답을 회피하시는군요. 선생님도 뭔가 켕기는 게 있으신 모양이죠?"
     },
-    "759": {
+    "before_658": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "사람은 원래 보고 싶은 것만 본다지요. 선생님도 그런 편이신가 봅니다."
     },
-    "760": {
-      "location": "원장실",
+    "after_659": {
+      "location": "상담실",
       "place": "안식 정신건강의학과",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "당신 사과 따위 필요 없어! 내가 원하는 건 당신의 파멸이야."
     },
-    "761": {
+    "before_659": {
       "location": "복도",
       "place": "안식 정신건강의학과",
       "speaker_name": "박도원",
       "speaker_role": "건물 청소부 / 택배 기사",
       "dialogue": "정말 모르는 얼굴입니까? 제가 보기엔... 아주 익숙하실 것 같은데요."
     },
-    "762": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "치키",
-      "speaker_role": "루프 관리자",
-      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
-    },
-    "763": {
-      "location": "원장실",
-      "place": "안식 정신건강의학과",
-      "speaker_name": "차서연",
-      "speaker_role": "신경과 동료 의사",
-      "dialogue": "기억이 안 난다고 하시면 그만일까요? 그 사람들은 잊지 못할 텐데요."
-    },
-    "764": {
+    "after_660": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
       "speaker_role": "신경과 동료 의사",
       "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
     },
-    "765": {
+    "before_660": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "기억이 안 난다고 하시면 그만일까요? 그 사람들은 잊지 못할 텐데요."
+    },
+    "after_661": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "무슨 일이시죠?"
+    },
+    "before_661": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
+    },
+    "after_700": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "after_701": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "after_702": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "after_703": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "after_704": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "after_705": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님, 오늘 안색이 좀 안 좋으시네요. 커피라도 한 잔 드시겠어요?"
+    },
+    "after_706": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "after_707": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "오늘따라 기운이 없어 보이시네요. 잠은 좀 주무셨어요?"
+    },
+    "after_708": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+    },
+    "after_709": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "내일 동생 제사인 건 알고 있니? ...너 정말 왜 그렇게 놀라는 거니?"
+    },
+    "after_710": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님 눈빛, 뭔가를 숨기고 있는 사람의 눈빛이네요. 다 보입니다."
+    },
+    "after_711": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "내일이 네 동생 기일인 거 잊지 않았지? ...왜 그런 눈으로 쳐다보는 거야."
+    },
+    "after_712": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "다 알면서 왜 모르는 척 합니까? 제가 바보로 보여요?"
+    },
+    "after_713": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "네 동생 기일이 내일이다. 혹시 잊고 있었던 건 아니겠지...?"
+    },
+    "after_714": {
+      "location": "상담실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "선생님은 아무것도 모르는 척 하시네요. 제 속이 다 타들어 가는 것도 모르면서."
+    },
+    "after_715": {
+      "location": "거실",
+      "place": "주인공의 집",
+      "speaker_name": "엄마",
+      "speaker_role": "주인공의 어머니",
+      "dialogue": "내일 동생 제사인 건 알고 있니? ...너 정말 왜 그렇게 놀라는 거니?"
+    },
+    "after_716": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
+    },
+    "after_717": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
+    },
+    "after_718": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+    },
+    "after_719": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님, 여기 서명 하나 부탁드립니다. 날이 많이 춥죠?"
+    },
+    "after_720": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "선생님... 택배 왔습니다. 집에 계시죠?"
+    },
+    "after_721": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배입니다 선생님. 늦은 시간에 방해해서 죄송합니다."
+    },
+    "after_722": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아, 선생님 계셨네요. 택배 놓고 가려다 마주쳤습니다."
+    },
+    "after_723": {
+      "location": "현관 앞",
+      "place": "주인공의 집",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "택배 왔습니다. 선생님은 항상 바쁘신가 보네요."
+    },
+    "after_724": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_725": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_726": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_727": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_728": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_729": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_730": {
+      "location": "진료실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "안색이 창백하시네요. 혹시 무슨 일 있으셨어요?"
+    },
+    "after_731": {
+      "location": "주인공의 방",
+      "place": "주인공의 집",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈까? 너의 선택이 곧 너의 운명이야."
+    },
+    "after_732": {
+      "location": "병원 1층 로비",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈래? 1층으로 도망쳐볼까, 아니면 그냥 남아있을까?"
+    },
+    "after_733": {
+      "location": "병원 1층 로비",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "지금 도망치면 안전할 것 같아? 밖에서 누가 기다리고 있을지 모르잖아."
+    },
+    "after_734": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "이런 일들이 자꾸 생기니까 저도 불안하네요. 선생님은 괜찮으세요?"
+    },
+    "after_735": {
+      "location": "병원 1층 로비",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "선택의 시간이야. 네 발로 나갈래, 아니면 방 안에서 끝을 기다릴래?"
+    },
+    "after_736": {
+      "location": "병원 1층 로비",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어디로 갈래? 1층으로 도망쳐볼까, 아니면 그냥 남아있을까?"
+    },
+    "after_737": {
+      "location": "병원 1층 로비",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "지금 도망치면 안전할 것 같아? 밖에서 누가 기다리고 있을지 모르잖아."
+    },
+    "after_738": {
+      "location": "병원 1층 로비",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "숨고 싶은 마음은 알겠지만, 과연 숨을 수 있을까?"
+    },
+    "after_739": {
+      "location": "병원 1층 로비",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "선택의 시간이야. 네 발로 나갈래, 아니면 방 안에서 끝을 기다릴래?"
+    },
+    "after_740": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
+    },
+    "after_741": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "정말 모르는 얼굴입니까? 제가 보기엔... 아주 익숙하실 것 같은데요."
+    },
+    "after_742": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아닙니다, 선생님. 바쁘신데 제가 괜한 걸 물었나 보네요. 쉬십시오."
+    },
+    "after_743": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
+    },
+    "after_744": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "기억이 잘 안 나십니까? 하긴, 선생님에겐 수많은 사람 중 하나였을 테니까요."
+    },
+    "after_745": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "정말 모르는 얼굴입니까? 제가 보기엔... 아주 익숙하실 것 같은데요."
+    },
+    "after_746": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
+    },
+    "after_747": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "사람은 원래 보고 싶은 것만 본다지요. 선생님도 그런 편이신가 봅니다."
+    },
+    "after_748": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "기억이 잘 안 나십니까? 하긴, 선생님에겐 수많은 사람 중 하나였을 테니까요."
+    },
+    "after_749": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "김도현",
+      "speaker_role": "내담자",
+      "dialogue": "거기 찍힌 제 모습을 보고도 모른 척할 겁니까? 똑똑히 기억해내요!"
+    },
+    "after_750": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아닙니다, 선생님. 바쁘신데 제가 괜한 걸 물었나 보네요. 쉬십시오."
+    },
+    "after_751": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "사람은 원래 보고 싶은 것만 본다지요. 선생님도 그런 편이신가 봅니다."
+    },
+    "after_752": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "기억이 잘 안 나십니까? 하긴, 선생님에겐 수많은 사람 중 하나였을 테니까요."
+    },
+    "after_753": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
+    },
+    "after_754": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "아닙니다, 선생님. 바쁘신데 제가 괜한 걸 물었나 보네요. 쉬십시오."
+    },
+    "after_755": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
+    },
+    "after_756": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
+    },
+    "after_757": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "선생님은 기억나는 게 없으신가요? 과거의 일들이라던지..."
+    },
+    "after_758": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "이런 일들이 자꾸 생기니까 저도 불안하네요. 선생님은 괜찮으세요?"
+    },
+    "after_759": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "사람은 원래 보고 싶은 것만 본다지요. 선생님도 그런 편이신가 봅니다."
+    },
+    "after_760": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
+    },
+    "after_761": {
+      "location": "복도",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "박도원",
+      "speaker_role": "건물 청소부 / 택배 기사",
+      "dialogue": "정말 모르는 얼굴입니까? 제가 보기엔... 아주 익숙하실 것 같은데요."
+    },
+    "after_762": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "치키",
+      "speaker_role": "루프 관리자",
+      "dialogue": "어라? 네 방이 왜 이렇게 엉망진창이지? 어제 분명 네가 다 치웠던 거 아니었어?"
+    },
+    "after_763": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "기억이 안 난다고 하시면 그만일까요? 그 사람들은 잊지 못할 텐데요."
+    },
+    "after_764": {
+      "location": "원장실",
+      "place": "안식 정신건강의학과",
+      "speaker_name": "차서연",
+      "speaker_role": "신경과 동료 의사",
+      "dialogue": "요즘 세상이 참 무섭죠. 남의 마음을 아프게 한 사람들은 벌을 받아야 하는데 말이에요."
+    },
+    "after_765": {
       "location": "원장실",
       "place": "안식 정신건강의학과",
       "speaker_name": "차서연",
