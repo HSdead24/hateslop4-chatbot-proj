@@ -393,7 +393,7 @@ html, body {
   background:var(--bg-surface2);
   border:1px solid rgba(192,57,43,.14); border-left:2px solid var(--accent);
   border-radius:var(--radius-sm); padding:10px 12px;
-  display:flex; flex-direction:column; gap:5px;
+  display:flex; flex-direction:column; gap:8px;
   animation:clueIn .3s ease;
 }
 @keyframes clueIn {
@@ -412,16 +412,28 @@ html, body {
 .clue-item-time {
   font-size:9px; color:var(--text-dim); font-family:var(--font-mono);
 }
-.clue-item-body {
-  font-size:13px; line-height:1.6; color:var(--text-primary);
+.clue-item-main {
+  display:flex; align-items:flex-start; gap:10px;
+}
+.clue-item-icon {
+  font-size:28px; flex-shrink:0; line-height:1;
+  width:40px; height:40px;
+  background:var(--bg-surface3); border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  display:flex; align-items:center; justify-content:center;
+}
+.clue-item-text { display:flex; flex-direction:column; gap:4px; flex:1; }
+.clue-item-title {
+  font-size:13px; font-weight:700; color:var(--text-primary); line-height:1.3;
+}
+.clue-item-desc {
+  font-size:11px; color:var(--text-secondary); line-height:1.6;
 }
 .clue-item-from {
   font-size:10px; color:var(--text-secondary);
   display:flex; align-items:center; gap:4px;
 }
-.clue-item-from::before {
-  content:'🐰'; font-size:10px;
-}
+.clue-item-from::before { content:'🐰'; font-size:10px; }
 
 /* ── 치키 토스트 ── */
 #chiki-toast {

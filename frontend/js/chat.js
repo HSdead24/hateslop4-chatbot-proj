@@ -64,27 +64,52 @@ const CHIKI_TRIGGERS = [
   {
     words: ['김하윤', '하윤'],
     toast: '🐰 …그 이름은 잠금 처리된 이름인데.',
-    msg:   '김… 하… 윤? 어라라, 이상하다! 그 이름은 잠금 처리된 이름인데? 누가 열쇠를 주웠지? 🗝️🐰'
+    msg:   '김… 하… 윤? 어라라, 이상하다! 그 이름은 잠금 처리된 이름인데? 누가 열쇠를 주웠지? 🗝️🐰',
+    clue: {
+      icon:  '🗝️',
+      title: '잠긴 이름 — 김하윤',
+      desc:  '치키가 반응했다. 이 이름은 시스템에서 잠금 처리된 이름이다. 누군가가 숨기고 싶었던 것.',
+    }
   },
   {
     words: ['금고', '거울'],
     toast: '🐰 그 문은 열면 안 돼…',
-    msg:   '어라라? 그 문을 열려고? 음… 열면 이제 피해자인 척하기 조금 어려워질 텐데? 그래도 괜찮아? 🐰🔒'
+    msg:   '어라라? 그 문을 열려고? 음… 열면 이제 피해자인 척하기 조금 어려워질 텐데? 그래도 괜찮아? 🐰🔒',
+    clue: {
+      icon:  '🔒',
+      title: '금고 / 거울',
+      desc:  '치키가 접근을 막았다. 열면 피해자인 척하기 어려워진다고 했다. 진실이 숨겨져 있다.',
+    }
   },
   {
     words: ['죽었', '죽어', '살인', '범인'],
     toast: '🐰 누가 죽였냐고? 히히…',
-    msg:   '누가 널 죽였냐고? 그건 직접 찾아야 해! 그래야 재밌… 아니, 그래야 안전하니까! 🐰🔍'
+    msg:   '누가 널 죽였냐고? 그건 직접 찾아야 해! 그래야 재밌… 아니, 그래야 안전하니까! 🐰🔍',
+    clue: {
+      icon:  '🔍',
+      title: '사망의 진실',
+      desc:  '치키는 범인을 알고 있지만 직접 말하지 않는다. "직접 찾아야 한다"고 했다.',
+    }
   },
   {
     words: ['루프', '반복', '다시'],
     toast: '🐰 반복하면 익숙해지거든. 히히.',
-    msg:   '반복하면 익숙해져! 죽는 것도, 울지 않는 것도, 모르는 척하는 것도! 히히 🥕'
+    msg:   '반복하면 익숙해져! 죽는 것도, 울지 않는 것도, 모르는 척하는 것도! 히히 🥕',
+    clue: {
+      icon:  '⏰',
+      title: '루프의 의미',
+      desc:  '"모르는 척하는 것도 익숙해진다"고 했다. 주인공이 무언가를 알면서도 모른 척하고 있다.',
+    }
   },
   {
     words: ['치키', '토끼'],
     toast: '🐰 불렀어? 나 여기 있었는데!',
-    msg:   '히히, 불렀어? 나는 항상 여기 있었는데! 네가 죽는 순간까지 곁에 있어주는 친구잖아? 🐰💛'
+    msg:   '히히, 불렀어? 나는 항상 여기 있었는데! 네가 죽는 순간까지 곁에 있어주는 친구잖아? 🐰💛',
+    clue: {
+      icon:  '🐰',
+      title: '치키의 정체',
+      desc:  '"네가 죽는 순간까지 곁에 있어준다"고 했다. 수호 요정이 아닐 수도 있다.',
+    }
   },
 ];
 
@@ -172,15 +197,15 @@ function switchTab(tab) {
 // ─────────────────────────────────────────────
 //  단서 추가 & 렌더링
 // ─────────────────────────────────────────────
-function addClue(msg) {
-  clues.push({ text: msg, time: nowTime() });
+function addClue(clue) {
+  // 같은 제목의 단서 중복 방지
+  if (clues.some(c => c.title === clue.title)) return;
 
-  // 단서탭이 닫혀있을 때만 뱃지 표시
+  clues.push({ ...clue, time: nowTime() });
+
   if (currentTab !== 'clue') {
-    const badge = document.getElementById('tab-clue-badge');
-    badge.style.display = '';
+    document.getElementById('tab-clue-badge').style.display = '';
   }
-  // 단서탭이 열려있으면 즉시 리렌더
   if (currentTab === 'clue') renderClues();
 }
 
@@ -204,7 +229,13 @@ function renderClues() {
         <span class="clue-item-badge">단서 #${String(i + 1).padStart(2, '0')}</span>
         <span class="clue-item-time">${c.time}</span>
       </div>
-      <div class="clue-item-body">${esc(c.text)}</div>
+      <div class="clue-item-main">
+        <div class="clue-item-icon">${c.icon}</div>
+        <div class="clue-item-text">
+          <div class="clue-item-title">${esc(c.title)}</div>
+          <div class="clue-item-desc">${esc(c.desc)}</div>
+        </div>
+      </div>
       <div class="clue-item-from">치키의 힌트</div>
     </div>`).join('');
 }
@@ -372,7 +403,7 @@ function checkChikiTrigger(text) {
       setTimeout(() => {
         document.getElementById('chiki-bubble-text').textContent = trigger.msg;
         openChiki();
-        addClue(trigger.msg);  // 치키 메시지를 단서로 자동 수집
+        if (trigger.clue) addClue(trigger.clue);  // 단서 객체만 저장
       }, 1300);
       return;
     }
