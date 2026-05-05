@@ -626,14 +626,16 @@ function applyScene(nodeId) {
 //  초기화
 // ─────────────────────────────────────────────
 (async () => {
-  // 1) scenes.json 로드
+  // 1) scenes.json 로드 — 경로 후보 순서대로 시도
+  // scenes.json 로드 — FastAPI가 /frontend 정적 서빙 중일 때
   try {
-    const res = await fetch('data/scenes.json');
+    const res = await fetch('/frontend/data/scenes.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     window.SCENE_DATA = data.scenes;
-    console.log('[씬 데이터 로드]', Object.keys(window.SCENE_DATA).length, '개');
+    console.log('[씬 데이터 로드 성공]', Object.keys(window.SCENE_DATA).length, '개');
   } catch (e) {
-    console.warn('[scenes.json 로드 실패]', e);
+    console.error('[SCENE_DATA 로드 실패]', e.message);
   }
 
   // 2) 게임 시작 → session_id 발급
