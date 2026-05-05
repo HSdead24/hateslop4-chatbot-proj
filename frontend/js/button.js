@@ -8,13 +8,14 @@
 //  게임 상태
 // ─────────────────────────────────────────────
 const GAME_STATE = {
-  timer:          { h:0, m:24, s:0 },  // 24분 제한
-  currentNodeId:  'root',              // 현재 위치한 트리 노드
-  buttonHistory:  [],                  // 클릭한 버튼 ID 누적 → 백엔드 전달용
-  contextHistory: [],                  // 클릭한 버튼 텍스트 누적 → 챗봇 맥락용
-  lastButtonId:   null,                // 가장 마지막 선택 ID
-  disabledIds:    [],                  // 백엔드에서 수신한 비활성화 버튼 ID 목록
-  sessionId:      null,                // POST /new-game 에서 수신
+  timer:           { h:0, m:24, s:0 },  // 24분 제한
+  currentNodeId:   'root',              // 현재 위치한 트리 노드
+  buttonHistory:   [],                  // 클릭한 버튼 ID 누적 → 백엔드 전달용
+  contextHistory:  [],                  // 클릭한 버튼 텍스트 누적 → 챗봇 맥락용
+  lastButtonId:    null,                // 가장 마지막 선택 ID
+  disabledIds:     [],                  // 백엔드에서 수신한 비활성화 버튼 ID 목록
+  sessionId:       null,                // POST /new-game 에서 수신
+  currentLocation: null,                // 현재 location (변경 감지용)
 };
 
 // ─────────────────────────────────────────────
@@ -461,7 +462,7 @@ function showContinueBtn(nodeId) {
   btn.innerHTML = '<span>▶ &nbsp; 계속</span>';
   btn.addEventListener('click', () => {
     // before_ 씬으로 교체 (선택지 버튼과 함께 표시될 씬)
-    applyScene(nodeId, 'before_');
+    applyScene(nodeId, 'start_');
     renderChoices(getChildButtons(nodeId));
   });
 
@@ -515,7 +516,7 @@ async function onChoice(choice, btn) {
 
   // 3) after_ 씬 표시 (버튼 클릭 직후 반응 대사)
   GAME_STATE.currentNodeId = String(choice.id);
-  applyScene(choice.id, 'after_');
+  applyScene(choice.id, 'select_');
   document.getElementById('choicesSection').innerHTML = '';
 
   // 4) 3초 후 "▶ 계속" 버튼 등장
@@ -632,18 +633,88 @@ function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) 
 }
 
 // scenes.json 데이터를 화면에 반영하는 헬퍼
-// prefix: 'after_' | 'before_'
-function applyScene(nodeId, prefix = 'after_') {
+// prefix: 'select_' | 'start_'
+function applyScene(nodeId, prefix = 'select_') {
   if (!window.SCENE_DATA) return;
   const key   = prefix + String(nodeId);
   const scene = window.SCENE_DATA[key];
   if (!scene) return;
-  updateScene({
-    speaker:  { name: scene.speaker_name, role: scene.speaker_role },
-    dialogue: scene.dialogue,
-    location: scene.location,
-    place:    scene.place,
-  });
+
+  const applyUpdate = () => {
+    updateScene({
+      speaker:  { name: scene.speaker_name, role: scene.speaker_role },
+      dialogue: scene.dialogue,
+      location: scene.location,
+      place:    scene.place,
+    });
+  };
+
+  // 팝업 큐: location 변경 팝업 → 이벤트 팝업 → 씬 적용 순서로 실행
+  const popupQueue = [];
+
+  // 1) location 변경 감지 팝업
+  if (scene.location && scene.location !== GAME_STATE.currentLocation) {
+    if (GAME_STATE.currentLocation !== null) {
+      // 처음 로드가 아닐 때만 팝업
+      popupQueue.push((callback) => showPopup({
+        type:     'location',
+        icon:     '📍',
+        label:    scene.location,
+        sublabel: scene.place,
+        duration: 1800,
+      }, callback));
+    }
+    GAME_STATE.currentLocation = scene.location;
+  }
+
+  // 2) 이벤트 팝업 (전화 / 문자 / 초인종 등)
+  if (scene.event) {
+    popupQueue.push((callback) => showPopup({
+      type:     'event',
+      icon:     scene.event_icon || '🔔',
+      label:    scene.event,
+      duration: 1500,
+    }, callback));
+  }
+
+  // 큐 실행: 팝업들을 순서대로 실행하고, 마지막에 씬 적용
+  runQueue(popupQueue, applyUpdate);
+}
+
+// 팝업 큐 실행기
+function runQueue(queue, finalCallback) {
+  if (queue.length === 0) {
+    finalCallback();
+    return;
+  }
+  const next = queue.shift();
+  next(() => runQueue(queue, finalCallback));
+}
+
+// 통합 팝업 표시
+// opts: { type, icon, label, sublabel?, duration, callback? }
+function showPopup(opts, callback) {
+  const popup   = document.getElementById('eventPopup');
+  const iconEl  = document.getElementById('eventIcon');
+  const labelEl = document.getElementById('eventLabel');
+  const subEl   = document.getElementById('eventSublabel');
+
+  iconEl.textContent  = opts.icon;
+  labelEl.textContent = opts.label;
+
+  if (subEl) {
+    subEl.textContent    = opts.sublabel || '';
+    subEl.style.display  = opts.sublabel ? 'block' : 'none';
+  }
+
+  // location 타입이면 다른 스타일 적용
+  popup.dataset.type = opts.type || 'event';
+  popup.classList.add('show');
+
+  setTimeout(() => {
+    popup.classList.remove('show');
+    if (callback) setTimeout(callback, 250); // 팝업 사라지는 트랜지션 후 콜백
+  }, opts.duration || 1500);
 }
 
 // ─────────────────────────────────────────────
@@ -665,11 +736,11 @@ function applyScene(nodeId, prefix = 'after_') {
   // 2) 게임 시작 → session_id 발급
   await startNewGame();
 
-  // 3) before_root 씬 표시 (집에 있는다/출근한다 버튼과 함께 보이는 씬)
-  applyScene('root', 'before_');
+  // 3) select_root 씬 표시 (치키 오프닝 대사)
+  applyScene('root', 'select_');
 
-  // 4) 선택1 버튼 렌더링 (집에 있는다 / 출근한다)
-  renderChoices(getChildButtons('root'));
+  // 4) 3초 후 계속 버튼 → 클릭하면 start_root 씬 + 선택지 버튼 렌더링
+  setTimeout(() => showContinueBtn('root'), 3000);
 
   // 5) 피 방울 장식
   createDrips();
