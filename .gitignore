@@ -4,6 +4,9 @@ dead24/
 # 환경변수 파일 (API 키 유출 방지)
 .env
 
+# Vector DB 로컬 데이터 폴더 (예: ChromaDB)
+chroma_db/
+
 # 파이썬 캐시 파일
 __pycache__/
 *.pyc
