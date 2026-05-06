@@ -309,6 +309,7 @@ html, body {
 .death-img {
   width: 100%; height: 100%;
   object-fit: cover;
+  position: absolute; inset: 0;
 }
 
 .death-fallback {
@@ -316,6 +317,23 @@ html, body {
   display: flex; align-items: center; justify-content: center;
   flex-direction: column; gap: 20px;
   background: #000;
+  position: absolute; inset: 0;
+}
+
+/* 이미지 위에 뜨는 텍스트 오버레이 */
+.death-text-overlay {
+  position: absolute; inset: 0;
+  z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px;
+  background: rgba(0,0,0,0.45);
+  animation: death-overlay-in 1s ease forwards;
+}
+
+@keyframes death-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .death-label {

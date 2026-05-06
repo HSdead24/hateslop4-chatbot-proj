@@ -82,15 +82,26 @@ function fadeToScene(id, delay = 0) {
 //  이미지 로드 헬퍼 (없으면 fallback 표시)
 // ─────────────────────────────────────────────
 function loadImg(imgEl, src, fallbackEl) {
-  if (!src) { if (fallbackEl) fallbackEl.style.display = 'flex'; return; }
-  imgEl.src = src;
+  if (!src) {
+    imgEl.style.display = 'none';
+    if (fallbackEl) fallbackEl.style.display = 'flex';
+    return;
+  }
+
+  // 한글·공백 포함 파일명 URL 인코딩
+  // 'images/사망_피 토 하는 사람.png' → 'images/%EC%82%AC%EB%A7%9D_...'
+  const parts    = src.split('/');
+  const filename = parts.pop();
+  const encoded  = parts.join('/') + '/' + encodeURIComponent(filename);
+
+  // 일단 즉시 보여주고, 로드 실패 시 fallback으로 교체
+  imgEl.style.display = 'block';
+  if (fallbackEl) fallbackEl.style.display = 'none';
+  imgEl.src = encoded;
+
   imgEl.onerror = () => {
     imgEl.style.display = 'none';
     if (fallbackEl) fallbackEl.style.display = 'flex';
-  };
-  imgEl.onload = () => {
-    imgEl.style.display = 'block';
-    if (fallbackEl) fallbackEl.style.display = 'none';
   };
 }
 
