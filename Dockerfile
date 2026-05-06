@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # PYTHONPATH 환경변수 설정
-ENV PYTHONPATH=/app/llm:/app/llm/nodes
+ENV PYTHONPATH=/app/llm:/app/llm/nodes:/app/backend
 
 # 포트 노출 (Render 환경변수)
 EXPOSE 8000
