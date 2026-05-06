@@ -416,11 +416,6 @@ function addPlayerMsg(text) {
   const row = document.createElement('div');
   row.className = 'msg-row player';
   row.innerHTML = `
-    <div class="player-avatar">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;">
-        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-      </svg>
-    </div>
     <div class="msg-col">
       <div class="bubble">${esc(text)}</div>
       <div class="msg-meta" style="justify-content:flex-end;">
