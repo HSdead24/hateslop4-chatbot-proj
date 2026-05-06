@@ -339,10 +339,10 @@ function switchNPC(idx) {
 
   const npc = NPCs[idx];
 
-  const av = document.getElementById('header-npc-avatar');
-  if (av) {
-    av.style.cssText = npc.avatarStyle;
-    av.textContent = npc.name.slice(1, 3) || npc.name.slice(0, 2);
+  const headerImg = document.getElementById('header-profile-img');
+  if (headerImg) {
+    headerImg.src = `${BASE_URL}/static/${npc.profile}`;
+    headerImg.alt = npc.initials;
   }
 
   document.getElementById('header-npc-name').textContent = npc.name;
