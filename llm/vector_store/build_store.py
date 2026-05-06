@@ -239,7 +239,7 @@ def build(reset: bool = False) -> None:
     print("\n[build_store] 이미지 임베딩 구축 시작...")
     image_dir = os.path.join(data_dir, "images")
     if os.path.isdir(image_dir):
-        build_image_store(image_dir)
+        build_image_store(image_dir, reset=reset)
     else:
         print(f"[build_store] 이미지 폴더 없음 (건너뜀): {image_dir}")
 

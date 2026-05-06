@@ -31,7 +31,7 @@ def _get_collection() -> chromadb.Collection:
     )
 
 
-def build_image_store(image_dir: str) -> None:
+def build_image_store(image_dir: str, reset: bool = False) -> None:
     """
     image_dir 하위 {캐릭터명}/ 폴더를 순회하며 파일명에서 캡션을 자동 추출해 Chroma DB에 저장한다.
 
@@ -43,6 +43,14 @@ def build_image_store(image_dir: str) -> None:
     Args:
         image_dir: 캐릭터별 하위 폴더가 있는 images/ 디렉토리 경로
     """
+    if reset:
+        client = chromadb.PersistentClient(path=CHROMA_PATH)
+        try:
+            client.delete_collection(IMAGE_COLLECTION)
+            print(f"[build_image_store] 기존 컬렉션 '{IMAGE_COLLECTION}' 삭제 완료")
+        except Exception:
+            pass
+    
     collection = _get_collection()
     ids, embeddings, metadatas, documents = [], [], [], []
 
