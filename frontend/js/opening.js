@@ -97,12 +97,11 @@ function selectGender(g) {
 function goOpening() {
   STATE.name = document.getElementById('playerName').value.trim();
   curtainTransition(() => {
-    showPhase('ph-opening');
-    // 1번 수정: 버튼 클릭 시점에 영상 재생 시작
+    showPhase('ph-video');
     const video = document.getElementById('opVideo');
     video.play().catch(() => {
-      // 재생 실패 시 바로 타이머로 fallback
-      runTimer();
+      // 재생 실패 시 타이머 페이즈로 바로 이동
+      goTimer();
     });
     startOpeningSequence();
   });
@@ -110,19 +109,22 @@ function goOpening() {
 
 function startOpeningSequence() {
   const video = document.getElementById('opVideo');
+  video.addEventListener('ended', () => goTimer());
+  video.addEventListener('error', () => goTimer());
+}
 
-  // 2번 수정: 영상 종료 후 타이머 시작 (동시 실행 방지)
-  video.addEventListener('ended', () => runTimer());
-
-  // 영상 로드 실패 대비 fallback
-  video.addEventListener('error', () => runTimer());
+function goTimer() {
+  curtainTransition(() => {
+    showPhase('ph-opening');
+    // 1초 후 타이머 시작
+    setTimeout(() => runTimer(), 1000);
+  });
 }
 
 function runTimer() {
   let secs   = 24 * 60;
   const clockEl = document.getElementById('opClock');
 
-  // 빠른 카운트다운 효과 (디스플레이용)
   const tick = setInterval(() => {
     secs = Math.max(0, secs - 37);
     const h = Math.floor(secs / 3600);
@@ -142,7 +144,9 @@ function runTimer() {
 }
 
 function skipOpening() {
-  goRoom();
+  const video = document.getElementById('opVideo');
+  video.pause();
+  goTimer();
 }
 
 // ────────────────────────────────────────────
