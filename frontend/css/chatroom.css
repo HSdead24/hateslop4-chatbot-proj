@@ -74,6 +74,11 @@ html, body {
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:700; color:var(--text-secondary);
   position:relative;
+  overflow:hidden;
+}
+.header-avatar img {
+  width:100%; height:100%; object-fit:cover; object-position:center top;
+  display:block;
 }
 .header-status-dot {
   width:8px; height:8px; border-radius:50%;

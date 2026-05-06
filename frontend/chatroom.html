@@ -24,7 +24,7 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
         남은시간
       </div>
-      <div id="timer-display">00:47:12</div>
+      <div id="timer-display">--:--:--</div>
     </div>
     <div class="info-cell">
       <div class="info-label">
@@ -55,11 +55,14 @@
   <!-- ── 헤더 — 채팅 상대 프로필바 ── -->
   <div id="header">
     <div class="header-npc">
-      <!-- TODO: replace with actual NPC profile image from producer -->
       <div class="header-avatar" id="header-avatar">
-        <span id="header-initial">도현</span>
+        <img id="header-profile-img"
+        src="https://hateslop4-dead24.onrender.com/static/images/김도현/김도현_프로필.png"
+        alt="도현"
+        onerror="this.style.display='none'">
         <div class="header-status-dot"></div>
       </div>
+      
       <div class="header-npc-info">
         <div class="header-npc-name" id="header-npc-name">김도현</div>
         <div class="header-npc-row2">
