@@ -776,6 +776,31 @@ function runQueue(queue, finalCallback) {
   next(() => runQueue(queue, finalCallback));
 }
 
+// ============= [음향 매핑 및 재생 함수] =============
+const EVENT_SOUND_BASE = '/frontend/audio/';
+const EVENT_SOUND_MAP = {
+  '전화': '전화벨.mp3',
+  '문자': '문자알림.mp3',
+  '유리': '유리깨짐.mp3',
+  '초인종': '초인종.mp3',
+  '노크': '노크.mp3'
+};
+
+function playEventSound(eventText) {
+  if (!eventText) return;
+  let soundFile = null;
+  for (const [keyword, filename] of Object.entries(EVENT_SOUND_MAP)) {
+    if (eventText.includes(keyword)) {
+      soundFile = filename;
+      break;
+    }
+  }
+  if (soundFile) {
+    const audio = new Audio(EVENT_SOUND_BASE + soundFile);
+    audio.play().catch(e => console.warn('[오디오 재생 실패]:', e));
+  }
+}
+
 function showPopup(opts, callback) {
   const popup = document.getElementById('eventPopup');
   const iconEl = document.getElementById('eventIcon');
@@ -784,7 +809,12 @@ function showPopup(opts, callback) {
 
   iconEl.textContent = opts.icon;
   labelEl.textContent = opts.label;
-
+  
+  // ============= [팝업 뜰 때 소리 재생] =============
+  if (opts.type === 'event') {
+    playEventSound(opts.label);
+  }
+  
   if (subEl) {
     subEl.textContent = opts.sublabel || '';
     subEl.style.display = opts.sublabel ? 'block' : 'none';
