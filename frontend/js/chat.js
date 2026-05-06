@@ -618,15 +618,30 @@ async function sendToBackend(text) {
     if (data.image_url) renderNPCImage(data.image_url, npcIndexAtSend);
 
     if (data.is_dead) {
-      // 대화 중 사망 → 범인별 이미지 처리 위해 suspect.html로
+      // 대화 중 사망 → 치키 등장 후 suspect.html로 (death-overlay 없이)
       sessionStorage.setItem('death_cause', 'chat');
       sessionStorage.setItem('loop_num', String(loopNum));
       clearInterval(timerInterval);
-      document.getElementById('death-overlay').classList.add('show');
-      setTimeout(() => {
-        document.getElementById('death-overlay').classList.remove('show');
-        window.location.href = 'suspect.html';
-      }, 3500);
+      if (!isMsgLimitReached) {
+        isMsgLimitReached = true;
+        const input = document.getElementById('msg-input');
+        const sendBtn = document.getElementById('send-btn');
+        if (input) input.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+
+        showChikiToast('🐰 이제 범인을 골라볼 시간이야~!');
+        setTimeout(() => {
+          document.getElementById('chiki-bubble-text').textContent =
+            '대화를 충분히 나눴지? 이제 범인을 골라볼 차례야! 치키가 도와줄게~ 🐰✨';
+          openChiki();
+        }, 1300);
+        setTimeout(() => {
+          closeChiki();
+          setTimeout(() => {
+            window.location.href = 'suspect.html';
+          }, 800);
+        }, 4000);
+      }
 
     } else if (data.is_loop_reset) {
       const nextLoop = loopNum + 1;
