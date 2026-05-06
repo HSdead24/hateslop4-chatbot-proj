@@ -110,12 +110,6 @@ let msgCount = 0;
 const MSG_LIMIT = 20;
 let isMsgLimitReached = false;   // 중복 실행 방지
 
-// BGM 관련 상태 변수
-let bgmAudio = new Audio('/frontend/audio/배경음악1.mp3'); // 재생할 파일명으로 수정하세요!
-bgmAudio.loop = true; // 무한 반복 설정
-let isSoundOn = false; // 브라우저 정책상 기본은 꺼진 상태로 시작
-let hasInteracted = false; // 사용자 첫 상호작용 여부
-
 // ─────────────────────────────────────────────
 //  공통 API 헬퍼
 // ─────────────────────────────────────────────
@@ -718,8 +712,32 @@ document.getElementById('tab-clue').addEventListener('click', () => switchTab('c
 
 
 // ─────────────────────────────────────────────
-//  BGM 제어 로직
+//  BGM 제어 로직 (여러 곡 번갈아 무한 재생)
 // ─────────────────────────────────────────────
+const bgmList = [
+  '/frontend/audio/atlasaudio-horror-ambience-512255.mp3',
+  '/frontend/audio/konstantinpazuzustudio-horror-piano-488124.mp3'
+];
+
+let currentBgmIdx = 0; 
+let bgmAudio = new Audio(bgmList[currentBgmIdx]); 
+// 주의: loop = true 를 설정하지 않습니다. (곡이 끝나야 다음 곡으로 넘어가기 때문)
+
+let isSoundOn = false;
+let hasInteracted = false;
+
+// 한 곡이 완전히 끝났을 때 다음 곡으로 넘어가는 이벤트 리스너
+bgmAudio.addEventListener('ended', () => {
+  // 다음 곡 인덱스 계산 (0 -> 1 -> 0 -> 1 반복)
+  currentBgmIdx = (currentBgmIdx + 1) % bgmList.length;
+  
+  // 오디오 소스 변경 및 재생
+  bgmAudio.src = bgmList[currentBgmIdx];
+  if (isSoundOn) {
+      bgmAudio.play().catch(e => console.warn('다음 BGM 재생 실패:', e));
+  }
+});
+
 function toggleSound() {
   const iconOn = document.getElementById('sound-icon-on');
   const iconOff = document.getElementById('sound-icon-off');
@@ -737,7 +755,7 @@ function toggleSound() {
   }
 }
 
-// 화면 아무 곳이나 처음 클릭했을 때 BGM 켜기 (브라우저 자동재생 정책 우회)
+// 화면 아무 곳이나 처음 클릭했을 때 BGM 켜기
 document.body.addEventListener('click', () => {
   if (!hasInteracted) {
     hasInteracted = true;
@@ -746,10 +764,11 @@ document.body.addEventListener('click', () => {
 }, { once: true });
 
 document.getElementById('sound-toggle').addEventListener('click', (e) => {
-  e.stopPropagation(); // body 클릭 이벤트와 겹치지 않게 방지
-  hasInteracted = true; // 버튼을 직접 눌렀으므로 상호작용 인정
+  e.stopPropagation(); 
+  hasInteracted = true; 
   toggleSound();
 });
+
 
 // ─────────────────────────────────────────────
 //  초기화
