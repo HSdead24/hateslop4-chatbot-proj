@@ -17,7 +17,7 @@ Swagger UI:
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
@@ -99,4 +99,4 @@ def health():
 
 @app.get("/", tags=["system"])
 def root():
-    return {"message": "Hateslop4 Game API. /docs 에서 API 문서 확인."}
+    return FileResponse(str(_FRONTEND_DIR / "buttonroom.html"))
