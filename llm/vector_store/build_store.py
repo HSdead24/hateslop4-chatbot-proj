@@ -1,5 +1,5 @@
 """
-build_store.py — Phase 3 RAG 파이프라인 1단계
+build_store.py — Phase 3 RAG 파이프라인 1단계, Phase 4 이미지 임베딩 구축
 
 역할: 프로듀서가 미리 청킹해서 제공한 .md 파일을 읽어
       OpenAI 임베딩으로 변환한 뒤 Chroma DB에 저장한다.
@@ -49,6 +49,7 @@ from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 
 from config import CHROMA_PATH, STORY_COLLECTION, EMBEDDING_MODEL
+from vector_store.image_retriever import build_image_store
 
 load_dotenv()
 
@@ -180,7 +181,7 @@ def _read_docs(data_dir: str) -> tuple[list[str], list[dict], list[str]]:
 
 def build(reset: bool = False) -> None:
     """
-    Chroma DB를 구축한다.
+    Chroma DB를 구축한다. RAG 텍스트 문서와 이미지 임베딩을 함께 구축한다.
 
     Args:
         reset: True면 기존 컬렉션을 삭제 후 재생성한다.
@@ -189,60 +190,66 @@ def build(reset: bool = False) -> None:
     print(f"[build_store] 컬렉션: {STORY_COLLECTION}")
     print(f"[build_store] 임베딩 모델: {EMBEDDING_MODEL}")
 
+    data_dir = os.path.join(os.path.dirname(__file__), "data")
+
     # ── 1. 파일 읽기 ─────────────────────────
-    data_dir          = os.path.join(os.path.dirname(__file__), "data")
     texts, metadatas, ids = _read_docs(data_dir)
 
     if not texts:
         print("[build_store] 문서가 없습니다. data/ 폴더에 .md 파일을 추가하세요.")
-        return
+    else:
+        print(f"[build_store] 문서 {len(texts)}개 로드 완료")
 
-    print(f"[build_store] 문서 {len(texts)}개 로드 완료")
+        # ── 2. Chroma 클라이언트 & 컬렉션 ────────
+        client = chromadb.PersistentClient(path=CHROMA_PATH)
+        ef     = _get_openai_ef()
 
-    # ── 2. Chroma 클라이언트 & 컬렉션 ────────
-    client = chromadb.PersistentClient(path=CHROMA_PATH)
-    ef     = _get_openai_ef()
+        if reset:
+            try:
+                client.delete_collection(STORY_COLLECTION)
+                print(f"[build_store] 기존 컬렉션 '{STORY_COLLECTION}' 삭제 완료")
+            except Exception:
+                pass  # 컬렉션이 없었으면 무시
 
-    if reset:
-        try:
-            client.delete_collection(STORY_COLLECTION)
-            print(f"[build_store] 기존 컬렉션 '{STORY_COLLECTION}' 삭제 완료")
-        except Exception:
-            pass  # 컬렉션이 없었으면 무시
-
-    collection = client.get_or_create_collection(
-        name               = STORY_COLLECTION,
-        embedding_function = ef,
-        metadata           = {"hnsw:space": "cosine"},
-    )
-
-    # ── 3. 배치 단위로 upsert ─────────────────
-    # Chroma 권장 배치 크기: 100개 이하
-    BATCH_SIZE = 100
-
-    for batch_start in range(0, len(texts), BATCH_SIZE):
-        batch_end = batch_start + BATCH_SIZE
-        collection.upsert(
-            ids       = ids[batch_start:batch_end],
-            documents = texts[batch_start:batch_end],
-            metadatas = metadatas[batch_start:batch_end],
-        )
-        print(
-            f"[build_store] upsert {batch_start + 1}"
-            f"~{min(batch_end, len(texts))} / {len(texts)}"
+        collection = client.get_or_create_collection(
+            name               = STORY_COLLECTION,
+            embedding_function = ef,
+            metadata           = {"hnsw:space": "cosine"},
         )
 
-    final_count = collection.count()
-    print(f"[build_store] 완료 — DB 내 총 {final_count}개 문서 저장됨")
+        # ── 3. 배치 단위로 upsert ─────────────────
+        BATCH_SIZE = 100
+
+        for batch_start in range(0, len(texts), BATCH_SIZE):
+            batch_end = batch_start + BATCH_SIZE
+            collection.upsert(
+                ids       = ids[batch_start:batch_end],
+                documents = texts[batch_start:batch_end],
+                metadatas = metadatas[batch_start:batch_end],
+            )
+            print(
+                f"[build_store] upsert {batch_start + 1}"
+                f"~{min(batch_end, len(texts))} / {len(texts)}"
+            )
+
+        final_count = collection.count()
+        print(f"[build_store] RAG 완료 — DB 내 총 {final_count}개 문서 저장됨")
+
+    # ── 4. 이미지 임베딩 구축 ─────────────────
+    print("\n[build_store] 이미지 임베딩 구축 시작...")
+    image_dir = os.path.join(data_dir, "images")
+    if os.path.isdir(image_dir):
+        build_image_store(image_dir)
+    else:
+        print(f"[build_store] 이미지 폴더 없음 (건너뜀): {image_dir}")
 
 
 # ──────────────────────────────────────────────
 # CLI 진입점
 # ──────────────────────────────────────────────
-#터미널에서 실행
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Chroma DB 구축 스크립트 (Phase 3)")
+    parser = argparse.ArgumentParser(description="Chroma DB 구축 스크립트 (Phase 3 + Phase 4)")
     parser.add_argument(
         "--reset",
         action  = "store_true",
