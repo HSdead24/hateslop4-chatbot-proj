@@ -7,10 +7,10 @@
 // ─────────────────────────────────────────────
 //  세션 데이터 로드
 // ─────────────────────────────────────────────
-const SESSION_ID    = sessionStorage.getItem('session_id');
-const LAST_BTN_ID   = parseInt(sessionStorage.getItem('last_button_id') || '0', 10);
-const LOOP_NUM      = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
-const BASE_URL      = 'http://localhost:8000';
+const SESSION_ID = sessionStorage.getItem('session_id');
+const LAST_BTN_ID = parseInt(sessionStorage.getItem('last_button_id') || '0', 10);
+const LOOP_NUM = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
+const BASE_URL = 'https://hateslop4-dead24.onrender.com';
 
 // ─────────────────────────────────────────────
 //  범인 NPC → 사망 이미지 매핑
@@ -48,15 +48,15 @@ const DEATH_IMAGE_MAP = {
   '김도현': 'images/사망_루프.png',
   '차서연': 'images/사망_피 토 하는 사람.png',
   '박도원': 'images/사망2_칼.png',
-  '엄마':   'images/사망_방.png',
+  '엄마': 'images/사망_방.png',
 };
 
 // NPC 정보 (아바타 색상, 역할)
 const NPC_INFO = {
-  '김도현': { color: '#6a7f99', role: '내담자',    initials: '도현', profile: 'images/kim_profile.png' },
+  '김도현': { color: '#6a7f99', role: '내담자', initials: '도현', profile: 'images/kim_profile.png' },
   '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연', profile: 'images/cha_profile.png' },
-  '박도원': { color: '#7a6a5a', role: '청소부',    initials: '도원', profile: 'images/park_profile.png' },
-  '엄마':   { color: '#8a7040', role: '가족',      initials: '엄마', profile: 'images/umma_profile.png' },
+  '박도원': { color: '#7a6a5a', role: '청소부', initials: '도원', profile: 'images/park_profile.png' },
+  '엄마': { color: '#8a7040', role: '가족', initials: '엄마', profile: 'images/umma_profile.png' },
 };
 
 // ─────────────────────────────────────────────
@@ -90,9 +90,9 @@ function loadImg(imgEl, src, fallbackEl) {
 
   // 한글·공백 포함 파일명 URL 인코딩
   // 'images/사망_피 토 하는 사람.png' → 'images/%EC%82%AC%EB%A7%9D_...'
-  const parts    = src.split('/');
+  const parts = src.split('/');
   const filename = parts.pop();
-  const encoded  = parts.join('/') + '/' + encodeURIComponent(filename);
+  const encoded = parts.join('/') + '/' + encodeURIComponent(filename);
 
   // 일단 즉시 보여주고, 로드 실패 시 fallback으로 교체
   imgEl.style.display = 'block';
