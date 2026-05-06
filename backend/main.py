@@ -61,6 +61,19 @@ if _FRONTEND_DIR.exists():
 
 
 # ────────────────────────────────────────────
+# 정적 파일 서빙 (llm/vector_store/data/images 폴더)
+# → http://localhost:8000/static/images/김도현/김도현_행복초기단계.png 로 접근 가능
+# ────────────────────────────────────────────
+_IMAGES_DIR = Path(__file__).parent.parent / "llm" / "vector_store" / "data" / "images"
+if _IMAGES_DIR.exists():
+    app.mount(
+        "/static/images",
+        StaticFiles(directory=str(_IMAGES_DIR)),
+        name="images",
+    )
+
+
+# ────────────────────────────────────────────
 # 전역 예외 핸들러
 # ────────────────────────────────────────────
 

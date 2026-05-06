@@ -1,12 +1,10 @@
 # image_retriever.py - Phase 4
 # LLM 응답 텍스트를 이미지 캡션 벡터 DB와 대조해 관련 이미지 URL을 반환하는 모듈.
-# build_image_store: 이미지 캡션 JSON을 읽어 Chroma DB에 임베딩 저장 (1회성)
+# build_image_store: 캐릭터 폴더를 순회하며 파일명에서 캡션을 자동 추출해 Chroma DB에 저장 (1회성)
 # retrieve_image: 응답 텍스트와 코사인 유사도가 가장 높은 이미지 URL을 반환
 
-import json
 import os
 import sys
-import uuid
 import chromadb
 from openai import OpenAI
 
@@ -33,60 +31,78 @@ def _get_collection() -> chromadb.Collection:
     )
 
 
-def build_image_store(image_dir: str) -> None:
+def build_image_store(image_dir: str, reset: bool = False) -> None:
     """
-    image_dir 안의 image_captions.json을 읽어 Chroma DB에 임베딩 저장한다.
+    image_dir 하위 {캐릭터명}/ 폴더를 순회하며 파일명에서 캡션을 자동 추출해 Chroma DB에 저장한다.
 
-    각 항목의 caption을 EMBEDDING_MODEL로 임베딩하고,
-    image_url을 메타데이터로 포함해 IMAGE_COLLECTION 컬렉션에 저장한다.
+    파일명 규칙: {캐릭터명}_{감정/상황설명}.png
+    캡션 자동 생성: "{캐릭터명}이 {감정/상황설명} 상태이다."
+    _프로필.png 파일은 감정 매칭 대상에서 제외한다.
     DB가 없을 때 최초 1회만 실행하면 된다.
 
     Args:
-        image_dir: image_captions.json이 위치한 디렉토리 경로
+        image_dir: 캐릭터별 하위 폴더가 있는 images/ 디렉토리 경로
     """
-    json_path = os.path.join(image_dir, "image_captions.json")
-    with open(json_path, "r", encoding="utf-8") as f:
-        items = json.load(f)
-
+    if reset:
+        client = chromadb.PersistentClient(path=CHROMA_PATH)
+        try:
+            client.delete_collection(IMAGE_COLLECTION)
+            print(f"[build_image_store] 기존 컬렉션 '{IMAGE_COLLECTION}' 삭제 완료")
+        except Exception:
+            pass
+    
     collection = _get_collection()
-
     ids, embeddings, metadatas, documents = [], [], [], []
 
-    for item in items:
-        caption = item["caption"]
-        embedding = _get_embedding(caption)
+    for char_entry in sorted(os.scandir(image_dir), key=lambda e: e.name):
+        if not char_entry.is_dir():
+            continue
+        character = char_entry.name  # "김도현", "차서연" 등
 
-        ids.append(item["image_url"])
-        embeddings.append(embedding)
-        metadatas.append({
-            "image_url": item["image_url"],
-            "character": item.get("character", ""),
-        })
-        documents.append(caption)
+        for img_entry in sorted(os.scandir(char_entry.path), key=lambda e: e.name):
+            if not img_entry.name.lower().endswith(".png"):
+                continue
 
-    collection.upsert(
-        ids=ids,
-        embeddings=embeddings,
-        metadatas=metadatas,
-        documents=documents,
-    )
+            stem = os.path.splitext(img_entry.name)[0]  # "김도현_짜증초기단계"
 
-    print(f"[build_image_store] {len(items)}개 이미지 캡션 저장 완료 → {CHROMA_PATH}/{IMAGE_COLLECTION}")
+            # 프로필 이미지는 감정 매칭 대상에서 제외
+            if stem.endswith("_프로필"):
+                continue
+
+            # "{캐릭터명}_" 접두어 제거 → 감정/상황 텍스트 추출
+            situation = stem.removeprefix(f"{character}_")
+            caption = f"{character}이 {situation} 상태이다."
+
+            # image_url: images/ 기준 상대경로 (백엔드 static 서빙 경로와 일치)
+            rel_path = f"images/{character}/{img_entry.name}"
+
+            ids.append(rel_path)
+            embeddings.append(_get_embedding(caption))
+            metadatas.append({"image_url": rel_path, "character": character})
+            documents.append(caption)
+
+            print(f"  [+] {rel_path} → \"{caption}\"")
+
+    collection.upsert(ids=ids, embeddings=embeddings, metadatas=metadatas, documents=documents)
+    print(f"\n[build_image_store] {len(ids)}개 이미지 저장 완료 → {CHROMA_PATH}/{IMAGE_COLLECTION}")
 
 
-def retrieve_image(response_text: str) -> str | None:
+def retrieve_image(response_text: str, character: str) -> str:
     """
     response_text를 임베딩해 Chroma DB에서 코사인 유사도 Top-1 이미지를 검색한다.
 
-    유사도(1 - cosine_distance)가 IMAGE_THRESHOLD 이상이면 image_url을 반환하고,
-    미만이면 None을 반환한다.
+    유사도가 IMAGE_THRESHOLD 이상이면 해당 image_url을 반환하고,
+    미만이거나 결과가 없으면 해당 캐릭터의 프로필 이미지 경로를 반환한다.
 
     Args:
         response_text: LLM이 생성한 NPC 응답 텍스트
+        character: 현재 대화 중인 NPC 이름 (예: "김도현")
 
     Returns:
-        유사도 조건을 만족하는 이미지 URL 문자열, 또는 None
+        image_url 문자열 (항상 반환, None 없음)
     """
+    default_image = f"images/{character}/{character}_프로필.png"
+
     embedding = _get_embedding(response_text)
     collection = _get_collection()
 
@@ -97,14 +113,13 @@ def retrieve_image(response_text: str) -> str | None:
     )
 
     if not results["metadatas"] or not results["metadatas"][0]:
-        return None
+        return default_image
 
-    # ChromaDB cosine distance = 1 - cosine_similarity (값이 작을수록 유사)
     distance = results["distances"][0][0]
     similarity = 1.0 - distance
-    # print(f"[DEBUG] similarity: {similarity}") # 유사도 값을 출력
+    # print(f"[DEBUG] similarity: {similarity}")
 
     if similarity >= IMAGE_THRESHOLD:
         return results["metadatas"][0][0]["image_url"]
 
-    return None
+    return default_image

@@ -438,8 +438,10 @@ function appendTypingRow() {
   row.className = 'msg-row';
   row.id = 'typing-row';
   row.innerHTML = `
-    <div class="npc-avatar" style="${npc.avatarStyle}">
-      ${npc.name.slice(1, 3) || npc.name.slice(0, 2)}
+    <div class="npc-avatar">
+      <img src="${BASE_URL}/static/${npc.profile}"
+           alt="${npc.initials}"
+           onerror="this.src='/frontend/${npc.profile}'">
     </div>
     <div class="msg-col">
       <div class="msg-name">${npc.name}</div>
@@ -461,8 +463,10 @@ function addNPCMsg(overrideText = null) {
   const row = document.createElement('div');
   row.className = 'msg-row';
   row.innerHTML = `
-    <div class="npc-avatar" style="${npc.avatarStyle}">
-      ${npc.name.slice(1, 3) || npc.name.slice(0, 2)}
+    <div class="npc-avatar" id="npc-avatar-${Date.now()}">
+      <img src="${BASE_URL}/static/${npc.profile}"
+           alt="${npc.initials}"
+           onerror="this.src='/frontend/${npc.profile}'">
     </div>
     <div class="msg-col">
       <div class="msg-name">${npc.name}</div>
@@ -477,16 +481,19 @@ function addNPCMsg(overrideText = null) {
 
 function renderNPCImage(url) {
   const chat = currentChatEl();
-  const lastRow = chat.querySelector('.msg-row:last-child');
+  // 가장 마지막 NPC 말풍선 행의 아바타 이미지를 교체
+  const rows = chat.querySelectorAll('.msg-row:not(.player)');
+  const lastRow = rows[rows.length - 1];
   if (!lastRow) return;
-  const bubble = lastRow.querySelector('.bubble');
-  if (!bubble) return;
-  const img = document.createElement('img');
-  img.src = url;
-  img.style.cssText = 'max-width:200px;border-radius:8px;margin-top:6px;display:block;';
-  img.onerror = () => img.remove();
-  bubble.insertAdjacentElement('afterend', img);
-  scrollToBottom();
+  const avatarImg = lastRow.querySelector('.npc-avatar img');
+  if (!avatarImg) return;
+  const fullUrl = url.startsWith('http') ? url : `${BASE_URL}/static/${url}`;
+  avatarImg.style.opacity = '0';
+  setTimeout(() => {
+    avatarImg.src = fullUrl;
+    avatarImg.onload = () => { avatarImg.style.opacity = '1'; };
+    avatarImg.onerror = () => { avatarImg.style.opacity = '1'; }; // 실패해도 원복
+  }, 150);
 }
 
 // ─────────────────────────────────────────────

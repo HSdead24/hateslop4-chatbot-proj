@@ -236,7 +236,7 @@ def update_messages(
 # LangGraph 노드 함수
 # ────────────────────────────────────────────
 
-def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str | None]:
+def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str]:
     """
     LangGraph에서 chat_phase 노드로 등록되는 함수.
     유저 입력을 받아 NPC 응답을 생성하고 GameState를 업데이트한다.
@@ -286,6 +286,6 @@ def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str | 
     updated_state["is_loop_reset"] = is_loop_reset
 
     # 6. 이미지 검색
-    image_url = retrieve_image(response)
+    image_url = retrieve_image(response, npc_name)
 
     return GameState(**updated_state), response, image_url

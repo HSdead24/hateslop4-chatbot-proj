@@ -6,7 +6,6 @@ state.py의 실제 GameState 필드를 기반으로 작성됨.
 #클라이언트와 서버가 어떤 형식으로 데이터를 주고 받을 지 약속하는 명세서
 
 from pydantic import BaseModel
-from typing import Optional
 
 
 # ────────────────────────────────────────────
@@ -68,9 +67,9 @@ class FinalizeResponse(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
-    image_url: Optional[str]    # 유사도 threshold 미만이면 None
-    is_dead: bool               # 사망 트리거 감지 여부
-    is_loop_reset: bool         # 치키 __ALL__ 트리거 → 루프 강제 리셋
+    image_url: str              # 유사도 미달 시 프로필 이미지 경로 반환
+    is_dead: bool
+    is_loop_reset: bool
 
 
 class LoopResetResponse(BaseModel):
