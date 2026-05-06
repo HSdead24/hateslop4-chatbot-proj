@@ -105,10 +105,16 @@ let isSwitchingNPC = false;
 let isDeadProcessing = false;
 let lastLoopCount = 0;
 
-// ★ 추가: 대화 횟수 카운터
+// 대화 횟수 카운터
 let msgCount = 0;
 const MSG_LIMIT = 20;
 let isMsgLimitReached = false;   // 중복 실행 방지
+
+// BGM 관련 상태 변수
+let bgmAudio = new Audio('/frontend/audio/배경음악1.mp3'); // 재생할 파일명으로 수정하세요!
+bgmAudio.loop = true; // 무한 반복 설정
+let isSoundOn = false; // 브라우저 정책상 기본은 꺼진 상태로 시작
+let hasInteracted = false; // 사용자 첫 상호작용 여부
 
 // ─────────────────────────────────────────────
 //  공통 API 헬퍼
@@ -709,6 +715,41 @@ document.getElementById('msg-input').addEventListener('keydown', e => {
 
 document.getElementById('tab-chat').addEventListener('click', () => switchTab('chat'));
 document.getElementById('tab-clue').addEventListener('click', () => switchTab('clue'));
+
+
+// ─────────────────────────────────────────────
+//  BGM 제어 로직
+// ─────────────────────────────────────────────
+function toggleSound() {
+  const iconOn = document.getElementById('sound-icon-on');
+  const iconOff = document.getElementById('sound-icon-off');
+  
+  if (isSoundOn) {
+    bgmAudio.pause();
+    iconOn.style.display = 'none';
+    iconOff.style.display = 'block';
+    isSoundOn = false;
+  } else {
+    bgmAudio.play().catch(e => console.warn('BGM 재생 실패:', e));
+    iconOn.style.display = 'block';
+    iconOff.style.display = 'none';
+    isSoundOn = true;
+  }
+}
+
+// 화면 아무 곳이나 처음 클릭했을 때 BGM 켜기 (브라우저 자동재생 정책 우회)
+document.body.addEventListener('click', () => {
+  if (!hasInteracted) {
+    hasInteracted = true;
+    toggleSound(); 
+  }
+}, { once: true });
+
+document.getElementById('sound-toggle').addEventListener('click', (e) => {
+  e.stopPropagation(); // body 클릭 이벤트와 겹치지 않게 방지
+  hasInteracted = true; // 버튼을 직접 눌렀으므로 상호작용 인정
+  toggleSound();
+});
 
 // ─────────────────────────────────────────────
 //  초기화
