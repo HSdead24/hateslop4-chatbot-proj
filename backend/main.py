@@ -99,4 +99,4 @@ def health():
 
 @app.get("/", tags=["system"])
 def root():
-    return FileResponse(str(_FRONTEND_DIR / "buttonroom.html"))
+    return FileResponse(str(_FRONTEND_DIR / "opening.html"))

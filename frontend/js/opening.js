@@ -213,7 +213,7 @@ async function goGame() {
   }
 
   curtainTransition(() => {
-    window.location.href = 'buttonroom.html';
+    window.location.href = '/frontend/buttonroom.html';
   });
 }
 
