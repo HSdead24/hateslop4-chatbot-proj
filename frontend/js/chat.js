@@ -14,6 +14,7 @@ const NPCs = [
   {
     id:0, name:'김도현', sub:'34세 · 남성', tag:'내담자',
     tagColor:'#6a7f99', avatarStyle:'color:#6a7f99;',
+    profile:'images/kim_profile.png', initials:'도현',
     statLabel:'경계심', statVal:72, statColor:'#c0392b',
     choices:['그 이름을 왜 묻습니까?','이틀 전 일이요?','기억하고 있습니다','왜 화났어요?'],
     responses:[
@@ -25,6 +26,7 @@ const NPCs = [
   {
     id:1, name:'차서연', sub:'32세 · 여성', tag:'신경과 의사',
     tagColor:'#5a8870', avatarStyle:'color:#5a8870;',
+    profile:'images/cha_profile.png', initials:'서연',
     statLabel:'의심도', statVal:58, statColor:'#b07030',
     choices:['커피 안 마실게요','박주원 알아요?','사무실 뒤진 거예요?','패턴이 뭔가요?'],
     responses:[
@@ -36,6 +38,7 @@ const NPCs = [
   {
     id:2, name:'엄마', sub:'61세 · 여성', tag:'가족',
     tagColor:'#8a7040', avatarStyle:'color:#8a7040;',
+    profile:'images/umma_profile.png', initials:'엄마',
     statLabel:'집착도', statVal:89, statColor:'#b07030',
     choices:['밥 먹었어요','내일이 기일이에요?','동생 기억해요','엄마 미안해요'],
     responses:[
@@ -47,6 +50,7 @@ const NPCs = [
   {
     id:3, name:'박도원', sub:'60세 · 남성', tag:'청소부',
     tagColor:'#7a6a5a', avatarStyle:'color:#7a6a5a;',
+    profile:'images/park_profile.png', initials:'도원',
     statLabel:'수상함', statVal:45, statColor:'#7a6a5a',
     choices:['누구세요?','문 앞에 두세요','딸이 있으세요?','여기서 일한 지 얼마나 됐어요?'],
     responses:[
@@ -88,7 +92,6 @@ const FALLBACK_CHIKI_TRIGGERS = [
 //  상태 변수
 // ─────────────────────────────────────────────
 let currentNPC        = 0;
-let totalSeconds      = 24 * 60;    // ★ 24분 고정
 let loopNum           = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
 let loopCount         = loopNum;
 let responseIdx       = 0;
@@ -159,23 +162,25 @@ async function reloadTriggersForLoop(newLoop) {
 }
 
 // ─────────────────────────────────────────────
-//  타이머
+//  타이머 — buttonroom에서 시작한 timer_start 이어받기
 // ─────────────────────────────────────────────
 function updateTimer() {
-  if (totalSeconds <= 0) { triggerDeath('timer'); return; }
-  totalSeconds--;
+  const timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
+  const TOTAL_SECONDS = 24 * 60;
+  const remaining = timerStart
+    ? Math.max(0, TOTAL_SECONDS - Math.floor((Date.now() - timerStart) / 1000))
+    : 0;
 
-  const h   = Math.floor(totalSeconds / 3600);
-  const m   = Math.floor((totalSeconds % 3600) / 60);
-  const s   = totalSeconds % 60;
+  const h = Math.floor(remaining / 3600);
+  const m = Math.floor((remaining % 3600) / 60);
+  const s = remaining % 60;
   document.getElementById('timer-display').textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
 
-  const mins = totalSeconds / 60;
-  const d    = document.getElementById('timer-display');
-  if (mins < 3) d.classList.add('critical');
-  else          d.classList.remove('critical');
+  const d = document.getElementById('timer-display');
+  if (remaining < 180) d.classList.add('critical');
+  else                 d.classList.remove('critical');
 
-  if (totalSeconds === 30 * 60) fireEventTrigger('timer_30min');
+  if (remaining <= 0) { triggerDeath('timer'); return; }
 }
 
 function pad(n) { return String(n).padStart(2, '0'); }
@@ -316,9 +321,21 @@ function switchNPC(idx) {
   currentNPC  = idx;
   responseIdx = 0;
 
-  document.querySelectorAll('.npc-tab').forEach((t, i) =>
-    t.classList.toggle('active', i === idx)
-  );
+  document.querySelectorAll('.npc-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+
+    // ★ NPC 탭 아바타 이미지 교체
+    const npcData  = NPCs[i];
+    const avatarEl = t.querySelector('.npc-tab-avatar');
+    if (avatarEl) {
+      avatarEl.innerHTML = `
+        <img src="${npcData.profile}" alt="${npcData.initials}"
+             style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+             onerror="this.style.display='none';this.insertAdjacentText('afterend','${npcData.initials}')">
+      `;
+      avatarEl.style.cssText = '';  // 기존 텍스트 색상 인라인 스타일 제거
+    }
+  });
 
   const npc = NPCs[idx];
 
@@ -548,22 +565,12 @@ async function triggerDeath(cause = 'timer') {
 
   clearInterval(timerInterval);
 
-  // death_cause 저장 → suspect.js에서 타이머 사망 분기 처리
   sessionStorage.setItem('death_cause', cause);
   sessionStorage.setItem('loop_num', String(loopNum));
 
-  document.getElementById('death-overlay').classList.add('show');
-
-  // 백엔드 사망 처리 (병렬)
-  await Promise.all([
-    new Promise(r => setTimeout(r, 3500)),
-    fetchAPI('/player-dead'),
-  ]);
-
-  setTimeout(() => {
-    document.getElementById('death-overlay').classList.remove('show');
-    window.location.href = 'suspect.html';
-  }, 1200);
+  // 백엔드 사망 처리 후 바로 suspect.html 이동
+  await fetchAPI('/player-dead');
+  window.location.href = 'suspect.html';
 }
 
 // ─────────────────────────────────────────────
@@ -683,11 +690,19 @@ document.getElementById('tab-clue').addEventListener('click', () => switchTab('c
 //  초기화
 // ─────────────────────────────────────────────
 (async () => {
-  // loop_num 세션 저장 (suspect.js에서 읽기 위해)
+  // ★ sessionStorage에서 루프 번호 읽어서 UI 반영
+  const storedLoop = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
+  loopNum   = storedLoop;
+  loopCount = storedLoop;
   sessionStorage.setItem('loop_num', String(loopNum));
+
+  const loopNumEl   = document.getElementById('loop-num');
+  const loopCountEl = document.getElementById('loop-count');
+  if (loopNumEl)   loopNumEl.textContent   = loopNum;
+  if (loopCountEl) loopCountEl.textContent = loopNum;
 
   await loadTriggers();
   switchNPC(0);
-  updateMsgCounter();   // 카운터 초기 표시 (20회 남음)
+  updateMsgCounter();
   scrollToBottom();
 })();

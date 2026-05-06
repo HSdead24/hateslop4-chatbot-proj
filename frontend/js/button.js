@@ -433,23 +433,51 @@ function createDrips() {
 }
 
 // ─────────────────────────────────────────────
-//  타이머 (24분)
+//  타이머 (24분) — chatroom과 공유
+//  sessionStorage 'timer_start'에 시작 epoch(ms) 저장
+//  페이지 전환 후에도 남은 시간 이어받음
 // ─────────────────────────────────────────────
-const timerEl = document.getElementById('timerDisplay');
-let total = GAME_STATE.timer.h * 3600 + GAME_STATE.timer.m * 60 + GAME_STATE.timer.s;
+const timerEl       = document.getElementById('timerDisplay');
+const TOTAL_SECONDS = 24 * 60;  // 24분 고정
 
-setInterval(() => {
-  if (total <= 0) return;
-  total--;
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
+// 이미 시작된 타이머가 있으면 이어받고, 없으면 새로 시작
+let timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
+if (!timerStart) {
+  timerStart = Date.now();
+  sessionStorage.setItem('timer_start', String(timerStart));
+}
+
+function getRemainingSeconds() {
+  const elapsed = Math.floor((Date.now() - timerStart) / 1000);
+  return Math.max(0, TOTAL_SECONDS - elapsed);
+}
+
+function updateButtonTimer() {
+  const remaining = getRemainingSeconds();
+
+  const h = Math.floor(remaining / 3600);
+  const m = Math.floor((remaining % 3600) / 60);
+  const s = remaining % 60;
   timerEl.textContent =
     String(h).padStart(2,'0') + ':' +
     String(m).padStart(2,'0') + ':' +
     String(s).padStart(2,'0');
-  if (total < 300) timerEl.classList.add('urgent');
-}, 1000);
+
+  if (remaining < 300) timerEl.classList.add('urgent');
+
+  // 타이머 만료 → suspect.html로 이동 (타이머 사망)
+  if (remaining <= 0) {
+    clearInterval(btnTimerInterval);
+    sessionStorage.setItem('death_cause', 'timer');
+    // 루프 횟수는 suspect.js goToMorning()에서 증가시키므로 여기선 현재값만 저장
+    const currentLoop = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
+    sessionStorage.setItem('loop_num', String(currentLoop));
+    window.location.href = 'suspect.html';
+  }
+}
+
+const btnTimerInterval = setInterval(updateButtonTimer, 1000);
+updateButtonTimer();  // 즉시 한 번 표시
 
 // ─────────────────────────────────────────────
 //  "▶ 계속" 버튼 표시 (씬 대사 읽은 후 선택지로 넘어가기)
@@ -734,6 +762,11 @@ function showPopup(opts, callback) {
 //  초기화
 // ─────────────────────────────────────────────
 (async () => {
+  // ★ sessionStorage에서 루프 번호 읽어서 UI 반영
+  const loopNum = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
+  const loopNumEl = document.querySelector('.loop-num');
+  if (loopNumEl) loopNumEl.textContent = loopNum;
+
   try {
     const res = await fetch('/frontend/data/scenes.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

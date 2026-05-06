@@ -47,16 +47,16 @@ const VILLAIN_MAP = {
 const DEATH_IMAGE_MAP = {
   '김도현': 'images/사망_루프.png',
   '차서연': 'images/사망_피 토 하는 사람.png',
-  '박도원': 'images/사망_칼.png',
+  '박도원': 'images/사망2_칼.png',
   '엄마':   'images/사망_방.png',
 };
 
 // NPC 정보 (아바타 색상, 역할)
 const NPC_INFO = {
-  '김도현': { color: '#6a7f99', role: '내담자', initials: '도현' },
-  '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연' },
-  '박도원': { color: '#7a6a5a', role: '청소부', initials: '도원' },
-  '엄마':   { color: '#8a7040', role: '가족', initials: '엄마' },
+  '김도현': { color: '#6a7f99', role: '내담자',    initials: '도현', profile: 'images/kim_profile.png' },
+  '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연', profile: 'images/cha_profile.png' },
+  '박도원': { color: '#7a6a5a', role: '청소부',    initials: '도원', profile: 'images/park_profile.png' },
+  '엄마':   { color: '#8a7040', role: '가족',      initials: '엄마', profile: 'images/umma_profile.png' },
 };
 
 // ─────────────────────────────────────────────
@@ -82,15 +82,26 @@ function fadeToScene(id, delay = 0) {
 //  이미지 로드 헬퍼 (없으면 fallback 표시)
 // ─────────────────────────────────────────────
 function loadImg(imgEl, src, fallbackEl) {
-  if (!src) { if (fallbackEl) fallbackEl.style.display = 'flex'; return; }
-  imgEl.src = src;
+  if (!src) {
+    imgEl.style.display = 'none';
+    if (fallbackEl) fallbackEl.style.display = 'flex';
+    return;
+  }
+
+  // 한글·공백 포함 파일명 URL 인코딩
+  // 'images/사망_피 토 하는 사람.png' → 'images/%EC%82%AC%EB%A7%9D_...'
+  const parts    = src.split('/');
+  const filename = parts.pop();
+  const encoded  = parts.join('/') + '/' + encodeURIComponent(filename);
+
+  // 일단 즉시 보여주고, 로드 실패 시 fallback으로 교체
+  imgEl.style.display = 'block';
+  if (fallbackEl) fallbackEl.style.display = 'none';
+  imgEl.src = encoded;
+
   imgEl.onerror = () => {
     imgEl.style.display = 'none';
     if (fallbackEl) fallbackEl.style.display = 'flex';
-  };
-  imgEl.onload = () => {
-    imgEl.style.display = 'block';
-    if (fallbackEl) fallbackEl.style.display = 'none';
   };
 }
 
@@ -106,7 +117,9 @@ function renderSuspectCards() {
     return `
       <div class="suspect-card" data-name="${name}" onclick="selectSuspect('${name}', this)">
         <div class="suspect-avatar" style="border-color:${info.color}33;">
-          <span class="avatar-initials" style="color:${info.color};">${info.initials}</span>
+          <img src="${info.profile}" alt="${info.initials}"
+               style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+               onerror="this.style.display='none';this.parentElement.innerHTML+='<span class=\\'avatar-initials\\' style=\\'color:${info.color};position:absolute;\\'>${info.initials}</span>'">
         </div>
         <div class="suspect-name">${name}</div>
         <div class="suspect-role">${info.role}</div>
@@ -194,8 +207,10 @@ function goToMorning() {
     document.getElementById('morning-fallback')
   );
 
-  // sessionStorage 루프 업데이트
+  // ★ 다음 루프 sessionStorage 업데이트
   sessionStorage.setItem('loop_num', String(nextLoop));
+  // ★ 타이머 리셋 — 유저가 화면 탭해서 buttonroom 진입할 때 새 24분 시작
+  sessionStorage.removeItem('timer_start');
 }
 
 // 아침 씬 탭 → 버튼룸으로
