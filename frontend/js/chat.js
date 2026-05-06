@@ -59,16 +59,10 @@ const NPCs = [
 
 // ─────────────────────────────────────────────
 //  트리거 데이터
-//  GET /chiki-triggers  — 서버에서 loop별로 받아옴
-//  GET /clue-triggers   — NPC 발화 감지용
-//
-//  백엔드 미연결 시 FALLBACK_TRIGGERS로 동작 (오프라인 모드)
 // ─────────────────────────────────────────────
-let CHIKI_TRIGGERS = [];  // loadTriggers() 이후 채워짐
-let CLUE_TRIGGERS  = [];  // loadTriggers() 이후 채워짐
+let CHIKI_TRIGGERS = [];
+let CLUE_TRIGGERS  = [];
 
-// 백엔드 연결 실패 시 사용할 최소 폴백
-// (triggers.json의 loop_visible=1 항목 중 핵심만 포함)
 const FALLBACK_CHIKI_TRIGGERS = [
   {
     id: 'hayun', words: ['김하윤', '하윤'],
@@ -94,22 +88,27 @@ const FALLBACK_CHIKI_TRIGGERS = [
 //  상태 변수
 // ─────────────────────────────────────────────
 let currentNPC        = 0;
-let totalSeconds      = 47 * 60 + 12;
-let loopNum           = 1;
-let loopCount         = 1;
+let totalSeconds      = 24 * 60;    // ★ 24분 고정
+let loopNum           = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
+let loopCount         = loopNum;
 let responseIdx       = 0;
 let timerInterval     = null;
 let chikiToastTimeout = null;
-let currentTab        = 'chat';  // 'chat' | 'clue'
-let clues             = [];      // 수집된 단서 목록
-let triggersLoaded    = false;   // 트리거 로드 완료 여부
-let isSending         = false;   // 중복 전송 방지
-let isSwitchingNPC    = false;   // NPC 전환 중 전송 차단
-let isDeadProcessing  = false;   // triggerDeath() 중복 실행 방지
-let lastLoopCount     = 0;       // /new-loop 루프당 1회 호출 보장
+let currentTab        = 'chat';
+let clues             = [];
+let triggersLoaded    = false;
+let isSending         = false;
+let isSwitchingNPC    = false;
+let isDeadProcessing  = false;
+let lastLoopCount     = 0;
+
+// ★ 추가: 대화 횟수 카운터
+let msgCount          = 0;
+const MSG_LIMIT       = 20;
+let isMsgLimitReached = false;   // 중복 실행 방지
 
 // ─────────────────────────────────────────────
-//  공통 API 헬퍼 — POST, session_id 자동 주입
+//  공통 API 헬퍼
 // ─────────────────────────────────────────────
 async function fetchAPI(path, body = {}) {
   const session_id = sessionStorage.getItem('session_id');
@@ -128,30 +127,23 @@ async function fetchAPI(path, body = {}) {
 }
 
 // ─────────────────────────────────────────────
-//  트리거 로드 (GET /chiki-triggers, GET /clue-triggers)
+//  트리거 로드
 // ─────────────────────────────────────────────
 async function loadTriggers() {
-  const loop = loopNum;  // 현재 루프 회차를 쿼리로 전달
-
+  const loop = loopNum;
   try {
     const [chikiRes, clueRes] = await Promise.all([
       fetch(`/chiki-triggers?loop=${loop}`),
       fetch(`/clue-triggers?loop=${loop}`)
     ]);
-
     if (!chikiRes.ok || !clueRes.ok) throw new Error('trigger fetch failed');
-
     const chikiData = await chikiRes.json();
     const clueData  = await clueRes.json();
-
     CHIKI_TRIGGERS = chikiData.chiki_triggers ?? [];
     CLUE_TRIGGERS  = clueData.clue_triggers   ?? [];
     triggersLoaded = true;
-
     console.log(`[triggers] 치키 ${CHIKI_TRIGGERS.length}개, 단서 ${CLUE_TRIGGERS.length}개 로드 (loop ${loop})`);
-
   } catch (err) {
-    // 백엔드 미연결 → 폴백으로 동작
     console.warn('[triggers] 백엔드 미연결, 폴백 트리거 사용:', err.message);
     CHIKI_TRIGGERS = FALLBACK_CHIKI_TRIGGERS;
     CLUE_TRIGGERS  = [];
@@ -159,10 +151,6 @@ async function loadTriggers() {
   }
 }
 
-// ─────────────────────────────────────────────
-//  루프 변경 시 트리거 갱신
-//  루프가 바뀌면 공개 범위가 달라지므로 재요청
-// ─────────────────────────────────────────────
 async function reloadTriggersForLoop(newLoop) {
   loopNum   = newLoop;
   loopCount = newLoop;
@@ -174,34 +162,70 @@ async function reloadTriggersForLoop(newLoop) {
 //  타이머
 // ─────────────────────────────────────────────
 function updateTimer() {
-  if (totalSeconds <= 0) { triggerDeath(); return; }
+  if (totalSeconds <= 0) { triggerDeath('timer'); return; }
   totalSeconds--;
 
   const h   = Math.floor(totalSeconds / 3600);
   const m   = Math.floor((totalSeconds % 3600) / 60);
   const s   = totalSeconds % 60;
-  const str = `${pad(h)}:${pad(m)}:${pad(s)}`;
-
-  document.getElementById('timer-display').textContent = str;
+  document.getElementById('timer-display').textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
 
   const mins = totalSeconds / 60;
   const d    = document.getElementById('timer-display');
+  if (mins < 3) d.classList.add('critical');
+  else          d.classList.remove('critical');
 
-  if (mins < 3) {
-    d.classList.add('critical');
-  } else {
-    d.classList.remove('critical');
-  }
-
-  // 30분 이하 진입 시 단서 이벤트 트리거
-  if (totalSeconds === 30 * 60) {
-    fireEventTrigger('timer_30min');
-  }
+  if (totalSeconds === 30 * 60) fireEventTrigger('timer_30min');
 }
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
 timerInterval = setInterval(updateTimer, 1000);
+
+// ─────────────────────────────────────────────
+//  ★ 대화 횟수 카운터 UI
+// ─────────────────────────────────────────────
+function updateMsgCounter() {
+  const el = document.getElementById('msg-counter');
+  if (!el) return;
+  const remaining = Math.max(0, MSG_LIMIT - msgCount);
+  el.textContent = `${remaining}회 남음`;
+  if (remaining <= 5) el.style.color = '#c0392b';
+  else                el.style.color = '';
+}
+
+// ─────────────────────────────────────────────
+//  ★ 20회 소진 → 치키 등장 후 suspect.html 이동
+// ─────────────────────────────────────────────
+function triggerMsgLimit() {
+  if (isMsgLimitReached) return;
+  isMsgLimitReached = true;
+
+  // 입력창 비활성화
+  const input   = document.getElementById('msg-input');
+  const sendBtn = document.getElementById('send-btn');
+  if (input)   input.disabled   = true;
+  if (sendBtn) sendBtn.disabled = true;
+
+  // 치키 토스트
+  showChikiToast('🐰 이제 범인을 골라볼 시간이야~!');
+
+  // 1.3초 후 치키 드로어 열기
+  setTimeout(() => {
+    document.getElementById('chiki-bubble-text').textContent =
+      '대화를 충분히 나눴지? 이제 범인을 골라볼 차례야! 치키가 도와줄게~ 🐰✨';
+    openChiki();
+  }, 1300);
+
+  // 4초 후 드로어 닫고 suspect.html 이동
+  setTimeout(() => {
+    closeChiki();
+    setTimeout(() => {
+      sessionStorage.setItem('loop_num', String(loopNum));
+      window.location.href = 'suspect.html';
+    }, 800);
+  }, 4000);
+}
 
 // ─────────────────────────────────────────────
 //  하단 탭 전환
@@ -246,9 +270,8 @@ function switchTab(tab) {
 //  단서 추가 & 렌더링
 // ─────────────────────────────────────────────
 function addClue(clue) {
-  if (clues.some(c => c.title === clue.title)) return;  // 중복 방지
+  if (clues.some(c => c.title === clue.title)) return;
   clues.push({ ...clue, time: nowTime() });
-
   if (currentTab !== 'clue') {
     document.getElementById('tab-clue-badge').style.display = '';
   }
@@ -299,25 +322,21 @@ function switchNPC(idx) {
 
   const npc = NPCs[idx];
 
-  // 아바타
   const av = document.getElementById('header-npc-avatar');
   if (av) {
-    av.style.cssText   = npc.avatarStyle;
-    av.textContent     = npc.name.slice(1, 3) || npc.name.slice(0, 2);
+    av.style.cssText = npc.avatarStyle;
+    av.textContent   = npc.name.slice(1, 3) || npc.name.slice(0, 2);
   }
 
-  // 헤더 텍스트
   document.getElementById('header-npc-name').textContent = npc.name;
   document.getElementById('header-npc-sub').textContent  = npc.sub;
 
-  // 헤더 태그
   const ht = document.getElementById('header-tag');
   ht.textContent       = npc.tag;
   ht.style.color       = npc.tagColor;
   ht.style.borderColor = npc.tagColor + '44';
   ht.style.background  = npc.tagColor + '14';
 
-  // 채팅창 전환
   for (let i = 0; i < NPCs.length; i++) {
     const el = document.getElementById(`chat-npc-${i}`);
     if (el) el.style.display = (i === idx) ? 'block' : 'none';
@@ -352,18 +371,28 @@ function selectChoice(text) {
 }
 
 // ─────────────────────────────────────────────
-//  메시지 전송
+//  메시지 전송 (★ 대화 횟수 카운트 추가)
 // ─────────────────────────────────────────────
 function sendMsg() {
-  if (isSending || isSwitchingNPC) return;
+  if (isSending || isSwitchingNPC || isMsgLimitReached) return;
   const input = document.getElementById('msg-input');
   const text  = input.value.trim();
   if (!text) return;
   input.value = '';
 
+  // 대화 횟수 증가 & 표시
+  msgCount++;
+  updateMsgCounter();
+
   checkChikiTrigger(text);
   addPlayerMsg(text);
   sendToBackend(text);
+
+  // 20회 도달 시 → NPC 응답 받은 후 suspect.html 이동
+  if (msgCount >= MSG_LIMIT) {
+    // sendToBackend 완료(약 2~3초) 후 triggerMsgLimit 호출
+    setTimeout(() => triggerMsgLimit(), 3000);
+  }
 }
 
 function addPlayerMsg(text) {
@@ -386,34 +415,6 @@ function addPlayerMsg(text) {
   scrollToBottom();
 }
 
-function showTyping() {
-  const npc = NPCs[currentNPC];
-  const row = document.createElement('div');
-  row.className = 'msg-row';
-  row.id = 'typing-row';
-  row.innerHTML = `
-    <div class="npc-avatar" style="${npc.avatarStyle}">
-      ${npc.name.slice(1, 3) || npc.name.slice(0, 2)}
-    </div>
-    <div class="msg-col">
-      <div class="msg-name">${npc.name}</div>
-      <div class="typing-bubble">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </div>
-    </div>`;
-  currentChatEl().appendChild(row);
-  scrollToBottom();
-
-  setTimeout(() => {
-    const tr = document.getElementById('typing-row');
-    if (tr) tr.remove();
-    addNPCMsg();
-  }, 1400);
-}
-
-// typing-row만 삽입 (자동 제거 없음 — sendToBackend가 응답 후 직접 제거)
 function appendTypingRow() {
   const npc = NPCs[currentNPC];
   const row = document.createElement('div');
@@ -454,11 +455,9 @@ function addNPCMsg(overrideText = null) {
   currentChatEl().appendChild(row);
   scrollToBottom();
 
-  // NPC 발화에 단서 트리거 감지
   checkClueTrigger(npc.name, text);
 }
 
-// image_url이 있을 때 마지막 NPC 말풍선 아래 이미지 삽입
 function renderNPCImage(url) {
   const chat    = currentChatEl();
   const lastRow = chat.querySelector('.msg-row:last-child');
@@ -478,7 +477,6 @@ function renderNPCImage(url) {
 // ─────────────────────────────────────────────
 function checkChikiTrigger(text) {
   if (!triggersLoaded) return;
-
   for (const trigger of CHIKI_TRIGGERS) {
     if (trigger.words.some(w => text.includes(w))) {
       showChikiToast(trigger.toast || '🐰 치키가 반응했습니다…');
@@ -487,23 +485,19 @@ function checkChikiTrigger(text) {
         openChiki();
         if (trigger.clue) addClue(trigger.clue);
       }, 1300);
-      return;  // 첫 번째 매칭만 처리
+      return;
     }
   }
 }
 
 // ─────────────────────────────────────────────
 //  단서 트리거 감지 (NPC 발화)
-//  source=npc 항목만 여기서 처리
-//  source=event 항목은 fireEventTrigger()로 처리
 // ─────────────────────────────────────────────
 function checkClueTrigger(npcName, npcText) {
   if (!triggersLoaded) return;
-
   for (const trigger of CLUE_TRIGGERS) {
     if (trigger.source !== 'npc') continue;
     if (trigger.npc !== npcName) continue;
-
     const detected = (trigger.detect_words ?? []).some(w => npcText.includes(w));
     if (detected && trigger.clue) {
       addClue(trigger.clue);
@@ -514,13 +508,9 @@ function checkClueTrigger(npcName, npcText) {
 
 // ─────────────────────────────────────────────
 //  이벤트 트리거 발화
-//  source=event 항목 수동 호출용
-//  사용 예) 금고 열림 → fireEventTrigger('safe_opened')
-//           30분 이하 → fireEventTrigger('timer_30min')
 // ─────────────────────────────────────────────
 function fireEventTrigger(eventId) {
   if (!triggersLoaded) return;
-
   const trigger = CLUE_TRIGGERS.find(
     t => t.source === 'event' && t.event === eventId
   );
@@ -549,49 +539,110 @@ function closeChiki() {
 }
 
 // ─────────────────────────────────────────────
-//  사망 연출
+//  ★ 사망 연출 (타이머 사망 전용)
+//  대화 중 is_dead는 sendToBackend에서 처리
 // ─────────────────────────────────────────────
-async function triggerDeath() {
+async function triggerDeath(cause = 'timer') {
   if (isDeadProcessing) return;
   isDeadProcessing = true;
 
   clearInterval(timerInterval);
+
+  // death_cause 저장 → suspect.js에서 타이머 사망 분기 처리
+  sessionStorage.setItem('death_cause', cause);
+  sessionStorage.setItem('loop_num', String(loopNum));
+
   document.getElementById('death-overlay').classList.add('show');
 
-  const nextLoop = loopNum + 1;
-
-  // 오버레이 연출 딜레이(3500ms)와 API 호출을 병렬 처리
-  const [, loopData] = await Promise.all([
+  // 백엔드 사망 처리 (병렬)
+  await Promise.all([
     new Promise(r => setTimeout(r, 3500)),
-    (async () => {
-      await fetchAPI('/player-dead');
-      if (lastLoopCount >= nextLoop) return null;
-      const data = await fetchAPI('/new-loop');
-      lastLoopCount = nextLoop;
-      return data;
-    })()
+    fetchAPI('/player-dead'),
   ]);
-
-  const resolvedLoop = loopData?.loop_count ?? nextLoop;
-
-  if (loopData?.is_game_over) {
-    document.getElementById('death-overlay').classList.remove('show');
-    document.getElementById('game-over-overlay')?.classList.add('show');
-    isDeadProcessing = false;
-    return;
-  }
-
-  document.getElementById('loop-num').textContent   = resolvedLoop;
-  document.getElementById('loop-count').textContent = resolvedLoop;
-  totalSeconds = 47 * 60 + 12;
-
-  await reloadTriggersForLoop(resolvedLoop);
 
   setTimeout(() => {
     document.getElementById('death-overlay').classList.remove('show');
-    timerInterval    = setInterval(updateTimer, 1000);
-    isDeadProcessing = false;
+    window.location.href = 'suspect.html';
   }, 1200);
+}
+
+// ─────────────────────────────────────────────
+//  백엔드 채팅 전송
+// ─────────────────────────────────────────────
+async function sendToBackend(text) {
+  const input   = document.getElementById('msg-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  isSending        = true;
+  input.disabled   = true;
+  sendBtn.disabled = true;
+
+  appendTypingRow();
+
+  try {
+    const session_id = sessionStorage.getItem('session_id');
+    if (!session_id) throw new Error('no session_id');
+
+    const res = await fetch(`${BASE_URL}/chat`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id,
+        npc_name:   NPCs[currentNPC].name,
+        user_input: text,
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+
+    const tr = document.getElementById('typing-row');
+    if (tr) tr.remove();
+    addNPCMsg(data.response);
+    if (data.image_url) renderNPCImage(data.image_url);
+
+    if (data.is_dead) {
+      // 대화 중 사망 → 범인별 이미지 처리 위해 suspect.html로
+      sessionStorage.setItem('death_cause', 'chat');
+      sessionStorage.setItem('loop_num', String(loopNum));
+      clearInterval(timerInterval);
+      document.getElementById('death-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('death-overlay').classList.remove('show');
+        window.location.href = 'suspect.html';
+      }, 3500);
+
+    } else if (data.is_loop_reset) {
+      const nextLoop = loopNum + 1;
+      await reloadTriggersForLoop(nextLoop);
+
+      if (lastLoopCount < nextLoop) {
+        const loopData = await fetchAPI('/new-loop');
+        lastLoopCount = nextLoop;
+        const resolvedLoop = loopData?.loop_count ?? nextLoop;
+        document.getElementById('loop-num').textContent   = resolvedLoop;
+        document.getElementById('loop-count').textContent = resolvedLoop;
+
+        if (loopData?.is_game_over) {
+          document.getElementById('game-over-overlay')?.classList.add('show');
+        }
+      }
+    }
+
+  } catch (err) {
+    console.warn('[sendToBackend] 백엔드 미연결, 폴백 응답 사용:', err.message);
+    const tr = document.getElementById('typing-row');
+    if (tr) tr.remove();
+    addNPCMsg();
+  } finally {
+    isSending        = false;
+    // 메시지 한도 도달 시 입력창 비활성 유지
+    if (!isMsgLimitReached) {
+      input.disabled   = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -629,75 +680,14 @@ document.getElementById('tab-chat').addEventListener('click', () => switchTab('c
 document.getElementById('tab-clue').addEventListener('click', () => switchTab('clue'));
 
 // ─────────────────────────────────────────────
-//  초기화 — 트리거 로드 후 UI 시작
+//  초기화
 // ─────────────────────────────────────────────
 (async () => {
-  await loadTriggers();   // 트리거 먼저 로드
+  // loop_num 세션 저장 (suspect.js에서 읽기 위해)
+  sessionStorage.setItem('loop_num', String(loopNum));
+
+  await loadTriggers();
   switchNPC(0);
+  updateMsgCounter();   // 카운터 초기 표시 (20회 남음)
   scrollToBottom();
 })();
-
-async function sendToBackend(text) {
-  const input   = document.getElementById('msg-input');
-  const sendBtn = document.getElementById('send-btn');
-
-  isSending        = true;
-  input.disabled   = true;
-  sendBtn.disabled = true;
-
-  appendTypingRow();
-
-  try {
-    const session_id = sessionStorage.getItem('session_id');
-    if (!session_id) throw new Error('no session_id');
-
-    const res = await fetch(`${BASE_URL}/chat`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        session_id,
-        npc_name:   NPCs[currentNPC].name,
-        user_input: text,
-      }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-
-    const tr = document.getElementById('typing-row');
-    if (tr) tr.remove();
-    addNPCMsg(data.response);
-    if (data.image_url) renderNPCImage(data.image_url);
-
-    if (data.is_dead) {
-      triggerDeath();
-    } else if (data.is_loop_reset) {
-      const nextLoop = loopNum + 1;
-      await reloadTriggersForLoop(nextLoop);
-
-      if (lastLoopCount < nextLoop) {
-        const loopData = await fetchAPI('/new-loop');
-        lastLoopCount = nextLoop;
-
-        const resolvedLoop = loopData?.loop_count ?? nextLoop;
-        document.getElementById('loop-num').textContent   = resolvedLoop;
-        document.getElementById('loop-count').textContent = resolvedLoop;
-
-        if (loopData?.is_game_over) {
-          document.getElementById('game-over-overlay')?.classList.add('show');
-        }
-      }
-    }
-
-  } catch (err) {
-    console.warn('[sendToBackend] 백엔드 미연결, 폴백 응답 사용:', err.message);
-    const tr = document.getElementById('typing-row');
-    if (tr) tr.remove();
-    addNPCMsg();
-  } finally {
-    isSending        = false;
-    input.disabled   = false;
-    sendBtn.disabled = false;
-    input.focus();
-  }
-}

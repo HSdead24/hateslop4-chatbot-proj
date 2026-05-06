@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>죽기 24시간 전에 — 범인을 골라봐</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/suspect.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════════════════════════════
+       SCENE 1 — 치키 등장 + 범인 선택
+  ══════════════════════════════════════ -->
+  <div class="scene active" id="scene-select">
+
+    <!-- 치키 이미지 -->
+    <div class="chiki-stage">
+      <img class="chiki-img" src="images/치키.png" alt="치키"
+           onerror="this.style.display='none'">
+    </div>
+
+    <!-- 치키 말풍선 -->
+    <div class="chiki-bubble">
+      <div class="chiki-bubble-text">
+        이제 <span class="highlight">범인을 골라볼까?</span> 🐰<br>
+        내가 그 범인으로부터 지켜줄게~!
+      </div>
+    </div>
+
+    <!-- 범인 선택 그리드 -->
+    <div class="section-label">범인이 누구라고 생각해?</div>
+    <div class="suspect-grid" id="suspect-grid">
+      <!-- JS로 렌더링 -->
+    </div>
+
+    <!-- 확정 버튼 -->
+    <div class="confirm-wrap">
+      <button class="confirm-btn" id="confirm-btn" onclick="confirmSuspect()">
+        이 사람이 범인이야
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCENE 2 — 치키 확인 멘트
+  ══════════════════════════════════════ -->
+  <div class="scene" id="scene-confirm">
+    <div class="chiki-stage">
+      <img class="chiki-img" src="images/치키.png" alt="치키"
+           onerror="this.style.display='none'">
+    </div>
+    <div class="chiki-bubble">
+      <div class="chiki-bubble-text" id="chiki-confirm-text">
+        내가 지켜줄게~! 🐰✨
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCENE 3 — 밤 이미지
+  ══════════════════════════════════════ -->
+  <div class="scene" id="scene-night">
+    <img class="night-img" id="night-img" src="" alt="밤" style="display:none;">
+    <div class="night-fallback" id="night-fallback">
+      <div class="night-text">밤이 찾아왔다</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCENE 4 — 사망 이미지
+  ══════════════════════════════════════ -->
+  <div class="scene" id="scene-death">
+    <img class="death-img" id="death-img" src="" alt="사망" style="display:none;">
+    <div class="death-fallback" id="death-fallback" style="display:none;">
+      <div class="death-label">사 &nbsp; 망</div>
+      <div class="loop-reset-label">LOOP RESET</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCENE 5 — 다음 루프 아침
+  ══════════════════════════════════════ -->
+  <div class="scene" id="scene-morning" onclick="tapMorning()">
+    <img class="morning-img" id="morning-img" src="" alt="아침" style="display:none;">
+    <div class="morning-fallback" id="morning-fallback" style="display:none;">
+      <div class="loop-badge" id="next-loop-badge">LOOP 2</div>
+      <div class="loop-title" id="next-loop-title">두 번째 하루</div>
+    </div>
+    <div class="tap-hint">화면을 탭하면 시작합니다</div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCENE 6 — 엔딩 (루프 3 종료)
+  ══════════════════════════════════════ -->
+  <div class="scene" id="scene-ending">
+    <img class="ending-img" id="ending-img" src="" alt="엔딩" style="display:none;">
+    <div class="ending-fallback" id="ending-fallback" style="display:none;">
+      <div class="ending-title">모든 루프가<br>끝났다</div>
+      <div class="ending-sub">
+        당신은 끝내<br>진실에 닿지 못했다
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="js/suspect.js"></script>
+</body>
+</html>

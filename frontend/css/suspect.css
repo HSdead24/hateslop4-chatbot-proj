@@ -1,0 +1,438 @@
+/* ════════════════════════════════════════════
+   suspect.css  —  범인 선택 화면 스타일
+   ════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg:          #0a0908;
+  --bg-surface:  #131211;
+  --bg-card:     #1a1917;
+  --accent:      #c0392b;
+  --accent-dim:  rgba(192,57,43,0.15);
+  --accent-glow: rgba(192,57,43,0.35);
+  --text-primary:   #d4cfc8;
+  --text-secondary: #7a7470;
+  --text-dim:       #4a4744;
+  --border:      rgba(255,255,255,0.07);
+  --border-warm: rgba(255,255,255,0.10);
+  --chiki-purple: rgba(180,160,220,0.12);
+  --chiki-border: rgba(180,160,220,0.25);
+}
+
+html, body {
+  width:100%; height:100%;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  font-family: 'Noto Sans KR', sans-serif;
+  overflow: hidden;
+}
+
+#app {
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  background: var(--bg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── 스캔라인 ── */
+#app::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px
+  );
+  pointer-events: none; z-index: 200;
+}
+
+/* ═══════════════════════════════════
+   씬 컨테이너 (페이드 전환용)
+═══════════════════════════════════ */
+.scene {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+.scene.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ═══════════════════════════════════
+   SCENE 1 — 치키 등장 + 범인 선택
+═══════════════════════════════════ */
+#scene-select {
+  background: var(--bg);
+  overflow-y: auto;
+  padding: 0 0 32px;
+}
+
+/* 치키 이미지 영역 */
+.chiki-stage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 28px 0 0;
+  position: relative;
+}
+
+.chiki-img {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 24px rgba(180,160,220,0.3));
+  animation: chiki-float 3s ease-in-out infinite;
+}
+
+@keyframes chiki-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* 치키 말풍선 */
+.chiki-bubble {
+  margin: 16px 20px 0;
+  background: var(--chiki-purple);
+  border: 1px solid var(--chiki-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  position: relative;
+}
+
+.chiki-bubble::before {
+  content: '';
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-bottom-color: var(--chiki-border);
+  border-top: none;
+}
+
+.chiki-bubble-text {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-primary);
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  letter-spacing: 0.01em;
+}
+
+.chiki-bubble-text .highlight {
+  color: #c4a8e8;
+  font-weight: 700;
+}
+
+/* 섹션 타이틀 */
+.section-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--text-dim);
+  text-align: center;
+  margin: 24px 0 14px;
+  text-transform: uppercase;
+}
+
+/* 범인 선택 그리드 */
+.suspect-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+.suspect-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-warm);
+  border-radius: 14px;
+  padding: 18px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.suspect-card:active {
+  transform: scale(0.97);
+}
+
+.suspect-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.suspect-card.selected .suspect-name {
+  color: #e8a09a;
+}
+
+/* 아바타 원 */
+.suspect-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-warm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  overflow: hidden;
+  position: relative;
+}
+
+.suspect-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.suspect-avatar .avatar-initials {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.suspect-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.suspect-role {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+/* 확정 버튼 */
+.confirm-wrap {
+  padding: 20px 16px 0;
+}
+
+.confirm-btn {
+  width: 100%;
+  height: 50px;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.15s;
+}
+
+.confirm-btn.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.confirm-btn:active { transform: scale(0.98); }
+
+/* ═══════════════════════════════════
+   SCENE 2 — 치키 확인 멘트
+═══════════════════════════════════ */
+#scene-confirm {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 24px;
+}
+
+#scene-confirm .chiki-img {
+  width: 200px;
+}
+
+#scene-confirm .chiki-bubble {
+  margin: 0;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════
+   SCENE 3 — 밤 이미지
+═══════════════════════════════════ */
+#scene-night {
+  background: #000;
+  align-items: center;
+  justify-content: center;
+}
+
+.night-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.night-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  background: linear-gradient(180deg, #0a0510 0%, #000 100%);
+}
+
+.night-text {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 22px;
+  color: rgba(255,255,255,0.15);
+  letter-spacing: 0.3em;
+}
+
+/* ═══════════════════════════════════
+   SCENE 4 — 사망 이미지
+═══════════════════════════════════ */
+#scene-death {
+  background: #000;
+  align-items: center;
+  justify-content: center;
+}
+
+.death-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.death-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px;
+  background: #000;
+}
+
+.death-label {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 36px;
+  color: var(--accent);
+  letter-spacing: 0.4em;
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
+
+.loop-reset-label {
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ═══════════════════════════════════
+   SCENE 5 — 다음 루프 아침 이미지
+═══════════════════════════════════ */
+#scene-morning {
+  background: #0a0908;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0;
+}
+
+.morning-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.morning-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  background: linear-gradient(180deg, #0d0c0a 0%, #1a1510 100%);
+}
+
+.loop-badge {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+
+.loop-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 26px;
+  color: var(--text-primary);
+  letter-spacing: 0.12em;
+}
+
+/* ═══════════════════════════════════
+   SCENE 6 — 엔딩 (루프3 종료)
+═══════════════════════════════════ */
+#scene-ending {
+  background: #000;
+  align-items: center;
+  justify-content: center;
+}
+
+.ending-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.ending-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 24px;
+  background: #000;
+  padding: 40px;
+  text-align: center;
+}
+
+.ending-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 28px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.2em;
+  line-height: 1.6;
+}
+
+.ending-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.15em;
+  line-height: 2;
+}
+
+/* ═══════════════════════════════════
+   공통 — 탭 영역 클릭 유도 텍스트
+═══════════════════════════════════ */
+.tap-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.18);
+  text-transform: uppercase;
+  animation: blink 2s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}

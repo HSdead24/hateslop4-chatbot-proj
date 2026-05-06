@@ -462,7 +462,6 @@ function showContinueBtn(nodeId) {
   btn.className = 'continue-btn';
   btn.innerHTML = '<span>▶ &nbsp; 계속</span>';
   btn.addEventListener('click', () => {
-    // before_ 씬으로 교체 (선택지 버튼과 함께 표시될 씬)
     applyScene(nodeId, 'start_');
     renderChoices(getChildButtons(nodeId));
   });
@@ -593,8 +592,14 @@ async function finalizeAndNavigate() {
     const data = await res.json();
     console.log('[finalize]', data);
     sessionStorage.setItem('session_id', session_id);
+
+    // ★ 추가: last_button_id를 sessionStorage에 저장 → suspect.js에서 범인 판별에 사용
+    sessionStorage.setItem('last_button_id', String(GAME_STATE.lastButtonId));
+
   } catch (e) {
     console.warn('[finalizeAndNavigate 실패]', e);
+    // 오프라인 모드에서도 last_button_id 저장
+    sessionStorage.setItem('last_button_id', String(GAME_STATE.lastButtonId));
   } finally {
     window.location.href = 'chatroom.html';
   }
@@ -650,13 +655,10 @@ function applyScene(nodeId, prefix = 'select_') {
     });
   };
 
-  // 팝업 큐: location 변경 팝업 → 이벤트 팝업 → 씬 적용 순서로 실행
   const popupQueue = [];
 
-  // 1) location 변경 감지 팝업
   if (scene.location && scene.location !== GAME_STATE.currentLocation) {
     if (GAME_STATE.currentLocation !== null) {
-      // 처음 로드가 아닐 때만 팝업
       popupQueue.push((callback) => showPopup({
         type:     'location',
         icon:     '📍',
@@ -668,7 +670,6 @@ function applyScene(nodeId, prefix = 'select_') {
     GAME_STATE.currentLocation = scene.location;
   }
 
-  // 2) 이벤트 팝업 (전화 / 문자 / 초인종 등)
   if (scene.event) {
     popupQueue.push((callback) => showPopup({
       type:     'event',
@@ -697,7 +698,6 @@ function applyScene(nodeId, prefix = 'select_') {
   runQueue(popupQueue, applyUpdate);
 }
 
-// 팝업 큐 실행기
 function runQueue(queue, finalCallback) {
   if (queue.length === 0) {
     finalCallback();
@@ -707,8 +707,6 @@ function runQueue(queue, finalCallback) {
   next(() => runQueue(queue, finalCallback));
 }
 
-// 통합 팝업 표시
-// opts: { type, icon, label, sublabel?, duration, callback? }
 function showPopup(opts, callback) {
   const popup   = document.getElementById('eventPopup');
   const iconEl  = document.getElementById('eventIcon');
@@ -723,13 +721,12 @@ function showPopup(opts, callback) {
     subEl.style.display  = opts.sublabel ? 'block' : 'none';
   }
 
-  // location 타입이면 다른 스타일 적용
   popup.dataset.type = opts.type || 'event';
   popup.classList.add('show');
 
   setTimeout(() => {
     popup.classList.remove('show');
-    if (callback) setTimeout(callback, 250); // 팝업 사라지는 트랜지션 후 콜백
+    if (callback) setTimeout(callback, 250);
   }, opts.duration || 1500);
 }
 
@@ -737,8 +734,6 @@ function showPopup(opts, callback) {
 //  초기화
 // ─────────────────────────────────────────────
 (async () => {
-  // 1) scenes.json 로드 — 경로 후보 순서대로 시도
-  // scenes.json 로드 — FastAPI가 /frontend 정적 서빙 중일 때
   try {
     const res = await fetch('/frontend/data/scenes.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -749,16 +744,9 @@ function showPopup(opts, callback) {
     console.error('[SCENE_DATA 로드 실패]', e.message);
   }
 
-  // 2) 게임 시작 → session_id 발급
   await startNewGame();
-
-  // 3) select_root 씬 표시 (치키 오프닝 대사)
   applyScene('root', 'select_');
-
-  // 4) 3초 후 계속 버튼 → 클릭하면 start_root 씬 + 선택지 버튼 렌더링
   setTimeout(() => showContinueBtn('root'), 3000);
-
-  // 5) 피 방울 장식
   createDrips();
 })();
 
