@@ -69,7 +69,7 @@
           <source src="/frontend/assets/opening.mp4" type="video/mp4">
         </video>
       -->
-      <video id="opVideo" autoplay playsinline
+      <video id="opVideo" playsinline
         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
         <source src="/frontend/images/opening_vd.mp4" type="video/mp4">
       </video>
@@ -142,25 +142,7 @@
       <!-- 말풍선: JS가 순차 삽입 -->
       <div class="bubble-area" id="bubbleArea"></div>
 
-      <!-- 플레이어 정보 박스 -->
-      <div class="player-info-box" id="playerInfoBox">
-        <div class="player-info-row">
-          <span class="pi-label">이름</span>
-          <span class="pi-val accent" id="piName">—</span>
-        </div>
-        <div class="player-info-row">
-          <span class="pi-label">나이</span>
-          <span class="pi-val">34세</span>
-        </div>
-        <div class="player-info-row">
-          <span class="pi-label">성별</span>
-          <span class="pi-val" id="piGender">—</span>
-        </div>
-        <div class="player-info-row">
-          <span class="pi-label">직업</span>
-          <span class="pi-val">정신건강의학과 상담사</span>
-        </div>
-      </div>
+      <!-- 플레이어 정보 박스: JS가 bubbleArea 안에 동적 삽입 -->
 
       <button class="chiki-go-btn" id="goBtn" onclick="goGame()">
         <span>🐰&ensp;루프 속으로 —</span>

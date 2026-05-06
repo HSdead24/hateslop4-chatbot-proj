@@ -98,11 +98,27 @@ function goOpening() {
   STATE.name = document.getElementById('playerName').value.trim();
   curtainTransition(() => {
     showPhase('ph-opening');
+    // 1번 수정: 버튼 클릭 시점에 영상 재생 시작
+    const video = document.getElementById('opVideo');
+    video.play().catch(() => {
+      // 재생 실패 시 바로 타이머로 fallback
+      runTimer();
+    });
     startOpeningSequence();
   });
 }
 
 function startOpeningSequence() {
+  const video = document.getElementById('opVideo');
+
+  // 2번 수정: 영상 종료 후 타이머 시작 (동시 실행 방지)
+  video.addEventListener('ended', () => runTimer());
+
+  // 영상 로드 실패 대비 fallback
+  video.addEventListener('error', () => runTimer());
+}
+
+function runTimer() {
   let secs   = 24 * 60;
   const clockEl = document.getElementById('opClock');
 
@@ -119,7 +135,6 @@ function startOpeningSequence() {
   }, 80);
 
   // 5.5초 후 방 화면으로 자동 진행
-  // 실제 영상 연결 시: video.addEventListener('ended', goRoom) 으로 교체
   setTimeout(() => {
     clearInterval(tick);
     goRoom();
@@ -145,19 +160,15 @@ function goRoom() {
 function goChiki() {
   curtainTransition(() => {
     showPhase('ph-chiki');
-    document.getElementById('piName').textContent   = STATE.name;
-    document.getElementById('piGender').textContent = STATE.gender;
     startChikiDialogue();
   });
 }
 
 function startChikiDialogue() {
-  const area    = document.getElementById('bubbleArea');
-  const infoBox = document.getElementById('playerInfoBox');
-  const goBtn   = document.getElementById('goBtn');
+  const area  = document.getElementById('bubbleArea');
+  const goBtn = document.getElementById('goBtn');
 
   area.innerHTML = '';
-  infoBox.classList.remove('show');
   goBtn.classList.remove('show');
 
   const nameSpan = `<span class="name-call">${escHtml(STATE.name)}</span>`;
@@ -178,13 +189,31 @@ function startChikiDialogue() {
       return;
     }
 
-    // index 8 직전: infoBox 표시 후 잠깐 대기
+    // 3번 수정: index 8 직전 — infoBox를 bubbleArea 안에 동적 삽입
     if (i === 8) {
-      infoBox.classList.add('show');
+      const infoBox = document.createElement('div');
+      infoBox.className = 'player-info-box show';
+      infoBox.innerHTML = `
+        <div class="player-info-row">
+          <span class="pi-label">이름</span>
+          <span class="pi-val accent">${escHtml(STATE.name)}</span>
+        </div>
+        <div class="player-info-row">
+          <span class="pi-label">나이</span>
+          <span class="pi-val">34세</span>
+        </div>
+        <div class="player-info-row">
+          <span class="pi-label">성별</span>
+          <span class="pi-val">${escHtml(STATE.gender)}</span>
+        </div>
+        <div class="player-info-row">
+          <span class="pi-label">직업</span>
+          <span class="pi-val">정신건강의학과 의사 / 심리상담센터 &lt;안식&gt; 상담가</span>
+        </div>
+      `;
+      area.appendChild(infoBox);
       setTimeout(() => infoBox.scrollIntoView({ behavior:'smooth', block:'nearest' }), 200);
-      setTimeout(() => {
-        showNextBubble();
-      }, 1000); // infoBox 보여주고 1초 후 대사 재개
+      setTimeout(() => showNextBubble(), 1000);
       return;
     }
 
