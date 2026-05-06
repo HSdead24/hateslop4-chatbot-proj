@@ -5,7 +5,7 @@ scenes.json의 각 씬 대사를 임베딩하여,
 해당 화자(speaker_name)의 이미지 파일들과 cosine 유사도를 계산하고
 가장 어울리는 이미지를 scene_image_map.json으로 저장하는 1회성 스크립트.
 
-실행 방법 (프로젝트 루트에서):
+실행 방법 (frontend/ 폴더에서):
     python build_scene_image_map.py
 
 출력:
@@ -16,8 +16,8 @@ scenes.json의 각 씬 대사를 임베딩하여,
     환경변수 OPENAI_API_KEY 필요
 
 이미지 경로 규칙:
-    llm/vector_store/data/images/{캐릭터명}/{파일명}.png
-    → 프론트 서빙 경로: /static/images/{캐릭터명}/{파일명}.png
+    llm/vector_store/data/images/button/{캐릭터명}/{파일명}.png
+    → 프론트 서빙 경로: /static/images/button/{캐릭터명}/{파일명}.png
 """
 
 import json
@@ -30,14 +30,15 @@ from typing import Optional
 import numpy as np
 
 # ── 경로 설정 ─────────────────────────────────────────
-ROOT = Path(__file__).parent          # 프로젝트 루트
-SCENES_JSON     = ROOT / "frontend" / "data" / "scenes.json"
-CAPTIONS_JSON   = ROOT / "llm" / "vector_store" / "data" / "image_captions.json"
-IMAGES_DIR      = ROOT / "llm" / "vector_store" / "data" / "images"
-OUTPUT_JSON     = ROOT / "frontend" / "data" / "scene_image_map.json"
+ROOT = Path(__file__).parent.parent   # ★ 변경: frontend/ 한 단계 위 = 프로젝트 루트
+
+SCENES_JSON   = ROOT / "frontend" / "data" / "scenes.json"
+CAPTIONS_JSON = ROOT / "llm" / "vector_store" / "data" / "button_image_captions.json"  # ★ 변경
+IMAGES_DIR    = ROOT / "llm" / "vector_store" / "data" / "images" / "button"           # ★ 변경
+OUTPUT_JSON   = ROOT / "frontend" / "data" / "scene_image_map.json"
 
 # 프론트에서 이미지를 서빙하는 URL prefix (main.py 기준)
-IMAGE_URL_PREFIX = "/static/images"
+IMAGE_URL_PREFIX = "/static/images/button"  # ★ 변경
 
 # 치키 이미지 경로 (표정 변화 없이 단일 파일 사용)
 # 치키 폴더가 있으면 자동 감지, 없으면 아래 fallback 사용
@@ -75,10 +76,10 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
         return 0.0
     return float(np.dot(va, vb) / denom)
 
-# ── image_captions.json 로드 ──────────────────────────
+# ── button_image_captions.json 로드 ──────────────────────────
 def load_captions() -> dict:
     """
-    image_captions.json 구조 예시:
+    button_image_captions.json 구조 예시:
     {
       "김도현/화남.png": "김도현이 분노하며 주먹을 쥐고 있는 표정",
       "김도현/놀람.png": "김도현이 눈을 크게 뜨고 놀라는 표정",
@@ -158,7 +159,7 @@ def main():
         scenes_data: dict = json.load(f)["scenes"]
     print(f"      씬 수: {len(scenes_data)}개")
 
-    print(f"\n[2/5] image_captions.json 로드: {CAPTIONS_JSON}")
+    print(f"\n[2/5] button_image_captions.json 로드: {CAPTIONS_JSON}")
     captions = load_captions()
     print(f"      캡션 수: {len(captions)}개")
 
