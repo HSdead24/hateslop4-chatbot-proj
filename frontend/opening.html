@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>죽기 24시간 전에</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/opening.css">
+</head>
+<body>
+
+<!-- ── 전역 분위기 레이어 ── -->
+<div class="atmo"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+<div class="blood-pulse"></div>
+<div class="flash-overlay" id="flashOverlay"></div>
+<div class="curtain"       id="curtain"></div>
+
+<div class="wrapper">
+
+  <!-- ════════════════════════════
+       PHASE 0: 이름 / 성별 입력
+  ════════════════════════════ -->
+  <div class="phase active" id="ph-input">
+    <div class="input-logo">DEAD ZONE / LOOP &nbsp;01</div>
+    <div class="input-title">죽기 <span class="accent">24시간</span> 전에</div>
+    <div class="input-subtitle">24 HOURS BEFORE DEATH</div>
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label class="form-label">당신의 이름</label>
+      <input
+        class="form-input" id="playerName" type="text"
+        placeholder="이름을 입력하세요" maxlength="10" autocomplete="off"
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">성별</label>
+      <div class="gender-row">
+        <button class="gender-btn" id="genderM" onclick="selectGender('남성')">남성</button>
+        <button class="gender-btn" id="genderF" onclick="selectGender('여성')">여성</button>
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn" onclick="goOpening()" disabled>
+      <span>▶&ensp;루프 시작</span>
+    </button>
+
+    <p class="input-note">
+      당신은 오늘 밤 죽습니다.<br>
+      24시간 전으로 돌아가 범인을 찾으세요.
+    </p>
+  </div>
+
+  <!-- ════════════════════════════
+       PHASE 1: 오프닝 타이틀 시퀀스
+  ════════════════════════════ -->
+  <div class="phase" id="ph-opening">
+    <div class="opening-inner">
+
+      <!--
+        실제 영상 연결 시 아래 주석 해제 후
+        startOpeningSequence() 내 setTimeout 대신
+        video.addEventListener('ended', goRoom) 사용
+        <video autoplay muted playsinline id="opVideo"
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;">
+          <source src="assets/opening.mp4" type="video/mp4">
+        </video>
+      -->
+
+      <!-- 핏빛 번짐 배경 -->
+      <div class="blood-spread"></div>
+
+      <!-- 정전 깜빡임 효과 -->
+      <div id="opFlicker" style="
+        position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none;
+        animation: flickerSeq 5s forwards;
+      "></div>
+
+      <!-- 타이틀 컨텐츠 -->
+      <div class="op-content">
+        <div class="op-date">0 9 . 0 2 &nbsp;&nbsp; 0 7 : 0 0</div>
+        <div class="op-title-main">죽기 <span class="red">24시간</span> 전에</div>
+        <div class="op-pulse-ring">
+          <div class="op-clock" id="opClock">24:00</div>
+        </div>
+        <div class="op-title-sub">L O O P &nbsp;&nbsp; 0 1 &nbsp;/&nbsp; 0 3</div>
+      </div>
+
+      <div class="op-skip" onclick="skipOpening()">SKIP ▶</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PHASE 2: 방 Reveal
+  ════════════════════════════ -->
+  <div class="phase" id="ph-room">
+    <div class="room-inner">
+
+      <!-- 방 배경 placeholder SVG (실제 이미지 수령 시 <img>로 교체) -->
+      <!-- 방 배경 실제 이미지 -->
+      <img class="room-bg-svg" src="images/room_img.png" alt="방 배경">
+
+      <div class="room-overlay">
+        <div class="room-label">📍 현재 위치 — 자택</div>
+        <div class="room-text" id="roomText"><!-- JS로 채워짐 --></div>
+        <button class="room-continue-btn" onclick="goChiki()">▶&ensp;계속</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PHASE 3: 치키 등장 + 설명
+  ════════════════════════════ -->
+  <div class="phase" id="ph-chiki">
+
+    <!-- 치키 캐릭터 영역 -->
+    <div class="chiki-top">
+      <div class="chiki-aura"></div>
+      <div class="chiki-figure-wrap">
+        <!-- 치키 (흰 토끼) placeholder SVG — 실제 이미지 수령 시 <img>로 교체 -->
+        <!-- 치키 실제 이미지 -->
+        <img class="chiki-img" src="images/chiki_img.png" alt="치키"
+           onerror="this.style.display='none'">
+      </div>
+      <div class="chiki-top-fade"></div>
+    </div>
+
+    <!-- 치키 대화 영역 -->
+    <div class="chiki-dialogue">
+      <div class="chiki-name-tag">
+        <span class="chiki-name">치키</span>
+        <div class="chiki-dot"></div>
+        <span class="chiki-role">SYSTEM</span>
+      </div>
+
+      <!-- 말풍선: JS가 순차 삽입 -->
+      <div class="bubble-area" id="bubbleArea"></div>
+
+      <!-- 플레이어 정보 박스 -->
+      <div class="player-info-box" id="playerInfoBox">
+        <div class="player-info-row">
+          <span class="pi-label">이름</span>
+          <span class="pi-val accent" id="piName">—</span>
+        </div>
+        <div class="player-info-row">
+          <span class="pi-label">나이</span>
+          <span class="pi-val">34세</span>
+        </div>
+        <div class="player-info-row">
+          <span class="pi-label">성별</span>
+          <span class="pi-val" id="piGender">—</span>
+        </div>
+        <div class="player-info-row">
+          <span class="pi-label">직업</span>
+          <span class="pi-val">정신건강의학과 상담사</span>
+        </div>
+      </div>
+
+      <button class="chiki-go-btn" id="goBtn" onclick="goGame()">
+        <span>🐰&ensp;루프 속으로 —</span>
+      </button>
+    </div>
+
+  </div>
+
+</div><!-- /wrapper -->
+
+<script src="js/opening.js"></script>
+</body>
+</html>

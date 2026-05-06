@@ -1,0 +1,488 @@
+/* ════════════════════════════════════
+   opening.css  —  오프닝 UI 스타일
+   ════════════════════════════════════ */
+
+/* ── 리셋 ── */
+* { margin:0; padding:0; box-sizing:border-box; }
+
+/* ── CSS 변수 ── */
+:root {
+  --red:    #8c0a0a;
+  --red2:   #c01010;
+  --teal:   #00c8a0;
+  --dim:    #cdd8d4;
+  --muted:  #6a7870;
+  --bg:     #05070d;
+  --panel:  #0a0d13;
+  --border: rgba(200,210,200,0.08);
+}
+
+body {
+  background: var(--bg);
+  color: var(--dim);
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════
+   전역 분위기 레이어
+══════════════════════════════════ */
+.atmo {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,   rgba(140,10,10,0.15) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 20% 80%,  rgba(0,60,60,0.10)  0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 100%, rgba(10,30,50,0.12) 0%, transparent 60%);
+}
+.scanlines {
+  position:fixed; inset:0; pointer-events:none; z-index:200;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px
+  );
+}
+.vignette {
+  position:fixed; inset:0; pointer-events:none; z-index:1;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%,
+    transparent 50%, rgba(0,0,0,0.6) 100%);
+}
+.blood-pulse {
+  position:fixed; inset:0; pointer-events:none; z-index:2;
+  background: radial-gradient(ellipse 70% 30% at 50% 100%, rgba(140,10,10,0.18) 0%, transparent 70%);
+  animation: bloodPulse 4s ease-in-out infinite;
+}
+@keyframes bloodPulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+/* ══════════════════════════════════
+   WRAPPER
+══════════════════════════════════ */
+.wrapper {
+  width:100%; max-width:460px; min-height:100vh;
+  display:flex; flex-direction:column;
+  position:relative; z-index:10;
+  background: var(--bg);
+  overflow:hidden;
+}
+
+/* ══════════════════════════════════
+   PHASE 공통 — 절대 위치로 겹침
+══════════════════════════════════ */
+.phase {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  opacity:0; pointer-events:none;
+  transition: opacity 0.8s ease;
+}
+.phase.active { opacity:1; pointer-events:all; }
+
+/* ══════════════════════════════════
+   PHASE 0: 이름 / 성별 입력
+══════════════════════════════════ */
+#ph-input {
+  justify-content:center; align-items:center;
+  padding: 32px 28px;
+  background: var(--bg);
+}
+
+.input-logo {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size:13px; font-weight:700; letter-spacing:4px;
+  color: var(--muted); text-align:center;
+  margin-bottom:8px;
+}
+.input-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size:26px; font-weight:800;
+  color: var(--dim); text-align:center;
+  line-height:1.4; margin-bottom:6px;
+}
+.input-title .accent { color: var(--red2); }
+.input-subtitle {
+  font-size:11px; color: var(--muted); text-align:center;
+  letter-spacing:1.5px; margin-bottom:40px;
+}
+
+.divider {
+  width:40px; height:1px; background: var(--red);
+  margin: 0 auto 40px;
+}
+
+.form-group { width:100%; margin-bottom:24px; }
+.form-label {
+  display:block; font-size:10px; letter-spacing:2.5px;
+  color:var(--muted); margin-bottom:10px; text-transform:uppercase;
+}
+.form-input {
+  width:100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-bottom: 1px solid rgba(200,210,200,0.18);
+  color: var(--dim); font-family:'Noto Sans KR',sans-serif; font-size:15px;
+  padding:12px 14px; outline:none; caret-color: var(--teal);
+  transition: border-color 0.3s, background 0.3s;
+}
+.form-input:focus {
+  border-color: rgba(0,200,160,0.3);
+  background: rgba(0,200,160,0.04);
+}
+.form-input::placeholder { color: var(--muted); }
+
+.gender-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.gender-btn {
+  padding:12px; background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); color: var(--muted);
+  font-family:'Noto Sans KR',sans-serif; font-size:13px;
+  cursor:pointer; transition: all 0.25s; letter-spacing:1px;
+  position:relative;
+}
+.gender-btn:hover { border-color: rgba(0,200,160,0.25); color:var(--dim); }
+.gender-btn.selected {
+  border-color: var(--teal); color:var(--teal);
+  background: rgba(0,200,160,0.08);
+}
+.gender-btn.selected::after {
+  content:''; position:absolute; bottom:-1px; left:0; right:0; height:2px;
+  background: var(--teal);
+}
+
+.start-btn {
+  width:100%; margin-top:32px; padding:15px;
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--dim); font-family:'Noto Sans KR',sans-serif;
+  font-size:13px; letter-spacing:3px; cursor:pointer;
+  transition: all 0.3s; position:relative; overflow:hidden;
+}
+.start-btn::before {
+  content:''; position:absolute; inset:0;
+  background: var(--red); transform:translateX(-100%);
+  transition: transform 0.3s;
+}
+.start-btn:hover::before { transform:translateX(0); }
+.start-btn span { position:relative; z-index:1; }
+.start-btn:disabled { opacity:0.3; cursor:not-allowed; }
+.start-btn:disabled::before { transform:translateX(-100%); }
+
+.input-note {
+  font-size:10px; color:var(--muted); text-align:center;
+  margin-top:20px; letter-spacing:0.5px; line-height:1.8;
+}
+
+/* ══════════════════════════════════
+   PHASE 1: 오프닝 타이틀 시퀀스
+══════════════════════════════════ */
+#ph-opening {
+  justify-content:center; align-items:center;
+  background: #000;
+}
+
+.opening-inner {
+  width:100%; height:100%;
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+}
+
+/* 피 번지는 배경 */
+.blood-spread {
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse 0% 0% at 50% 50%, rgba(120,0,0,0.9) 0%, transparent 70%);
+  animation: bloodSpread 4s ease-out forwards;
+}
+@keyframes bloodSpread {
+  0%   { background: radial-gradient(ellipse 0%   0%   at 50% 50%, rgba(120,0,0,0.9) 0%, transparent 70%); }
+  40%  { background: radial-gradient(ellipse 120% 80%  at 50% 50%, rgba(100,0,0,0.7) 0%, rgba(20,0,0,0.4) 60%, transparent 80%); }
+  100% { background: radial-gradient(ellipse 200% 200% at 50% 50%, rgba(5,0,0,0.95) 0%, #000 60%); }
+}
+
+/* 정전 깜빡임 */
+@keyframes flickerSeq {
+  0%  {opacity:0}
+  10% {opacity:0.7}
+  12% {opacity:0}
+  14% {opacity:0.5}
+  16% {opacity:0}
+  50% {opacity:0}
+  52% {opacity:0.3}
+  54% {opacity:0}
+  100%{opacity:0}
+}
+
+/* 컨텐츠 공통 페이드인 */
+@keyframes opFadeIn  { to { opacity:1; } }
+@keyframes opSlideUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.op-content {
+  position:relative; z-index:10;
+  display:flex; flex-direction:column; align-items:center;
+  opacity:0; animation: opFadeIn 1.2s 1.5s forwards;
+}
+.op-date {
+  font-size:11px; letter-spacing:5px; color: rgba(200,180,180,0.5);
+  margin-bottom:24px; text-align:center;
+  animation: opSlideUp 1.2s 1.5s both;
+}
+.op-title-main {
+  font-family:'Nanum Myeongjo',serif; font-size:30px; font-weight:800;
+  color: #d8c8c0; text-align:center; line-height:1.4;
+  animation: opSlideUp 1.2s 1.8s both;
+}
+.op-title-main .red { color: var(--red2); }
+.op-title-sub {
+  font-size:11px; letter-spacing:4px; color: rgba(200,180,180,0.4);
+  margin-top:12px; text-align:center;
+  animation: opSlideUp 1.2s 2.1s both;
+}
+
+.op-pulse-ring {
+  width:80px; height:80px; border:1px solid rgba(140,10,10,0.4);
+  border-radius:50%; margin:28px auto;
+  animation: opSlideUp 1.2s 2.0s both, ringPulse 2.5s 3s infinite;
+  display:flex; align-items:center; justify-content:center;
+}
+@keyframes ringPulse {
+  0%,100%{ transform:scale(1);    border-color:rgba(140,10,10,0.4); }
+  50%    { transform:scale(1.08); border-color:rgba(200,20,20,0.6); }
+}
+.op-clock {
+  font-family:'Nanum Myeongjo',serif; font-size:22px;
+  color: rgba(220,200,200,0.8); letter-spacing:2px;
+  text-shadow: 0 0 10px rgba(140,0,0,0.5);
+}
+
+.op-skip {
+  position:absolute; bottom:32px; right:24px;
+  font-size:10px; letter-spacing:2px; color:var(--muted);
+  cursor:pointer; opacity:0; animation: opFadeIn 1s 3s forwards;
+  border-bottom:1px solid var(--muted); padding-bottom:2px;
+}
+.op-skip:hover { color:var(--dim); border-color:var(--dim); }
+
+/* ══════════════════════════════════
+   PHASE 2: 방 Reveal
+══════════════════════════════════ */
+#ph-room {
+  background: #030508;
+  justify-content:flex-end;
+}
+
+.room-inner {
+  position:absolute; inset:0;
+  display:flex; align-items:flex-end; justify-content:center;
+  overflow:hidden;
+}
+
+.room-bg-svg {
+  position:absolute; inset:0; width:100%; height:100%;
+  opacity:0; animation: roomReveal 2s 0.5s forwards;
+}
+@keyframes roomReveal {
+  from{ opacity:0; transform:scale(1.04); }
+  to  { opacity:1; transform:scale(1); }
+}
+
+.room-overlay {
+  position:relative; z-index:20; width:100%;
+  padding:24px 24px 40px;
+  background: linear-gradient(to top, rgba(3,5,8,0.98) 0%, rgba(3,5,8,0.6) 70%, transparent 100%);
+  opacity:0; animation: opFadeIn 1s 2s forwards;
+}
+.room-label {
+  font-size:10px; letter-spacing:3px; color:var(--muted); margin-bottom:8px;
+}
+.room-text {
+  font-family:'Nanum Myeongjo',serif; font-size:16px; color:var(--dim);
+  line-height:1.8; margin-bottom:24px;
+}
+.room-text .name-hl { color:var(--teal); }
+
+.room-continue-btn {
+  padding:12px 0; width:100%; text-align:center;
+  border:1px solid rgba(200,210,200,0.15);
+  font-size:11px; letter-spacing:3px; color:var(--muted);
+  cursor:pointer; background:transparent; transition:all 0.3s;
+  animation: opFadeIn 1s 3.5s both;
+}
+.room-continue-btn:hover { color:var(--dim); border-color:rgba(200,210,200,0.3); }
+
+/* ══════════════════════════════════
+   PHASE 3: 치키 등장 + 설명
+══════════════════════════════════ */
+#ph-chiki {
+  display: flex; /* flex-direction을 사용하기 위해 추가 */
+  flex-direction: column;
+  background: var(--bg);
+  overflow-y: auto;
+}
+
+.chiki-top {
+  flex: 0 0 auto;
+  position: relative;
+  height: 280px;
+  overflow: hidden;
+  background: #030508;
+}
+
+/* 1. 캐릭터를 감싸는 영역: 크기를 적절히 제한하고 중앙 배치 */
+.chiki-figure-wrap {
+  width: 250px;        /* 캐릭터가 들어갈 상자 크기 */
+  height: 250px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+/* 2. 실제 이미지 스타일: wrap 크기를 벗어나지 않게 설정 */
+.chiki-img {
+  width: 100%;         /* wrap 너비에 맞춤 */
+  height: auto;        /* 비율 유지 */
+  max-height: 100%;    /* 세로로 너무 커지지 않게 제한 */
+  object-fit: contain;
+  animation: chikiFloat 3s ease-in-out infinite; /* 둥둥 뜨는 효과 적용 */
+  filter: drop-shadow(0 4px 20px rgba(220, 200, 200, 0.15));
+}
+
+/* 3. 배경 아우라 효과 */
+.chiki-aura {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 70% at 50% 60%, rgba(220, 200, 200, 0.06) 0%, transparent 70%);
+  animation: chikiAura 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes chikiAura { 
+  0%, 100% { opacity: 0.5; } 
+  50% { opacity: 1; } 
+}
+
+/* 4. 둥둥 뜨는 애니메이션 */
+@keyframes chikiFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+.chiki-top-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top, var(--bg), transparent);
+  z-index: 10; /* 이미지보다 위에 오도록 설정 */
+}
+
+/* 대화 영역 */
+.chiki-dialogue {
+  flex:1 1 auto;
+  padding:0 20px 20px;
+  display:flex; flex-direction:column;
+}
+
+.chiki-name-tag {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:16px;
+}
+.chiki-name {
+  font-family:'Nanum Myeongjo',serif; font-size:13px; font-weight:700;
+  color:var(--dim); letter-spacing:1px;
+}
+.chiki-dot {
+  width:5px; height:5px; border-radius:50%;
+  background: rgba(220,200,200,0.4);
+}
+.chiki-role { font-size:10px; color:var(--muted); letter-spacing:1.5px; }
+
+/* 말풍선 */
+.bubble-area {
+  flex:1 1 auto;
+  display:flex; flex-direction:column; gap:12px;
+  padding-bottom:16px;
+}
+.bubble {
+  background: rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-left:2px solid rgba(220,200,200,0.2);
+  padding:12px 14px;
+  font-size:13.5px; line-height:1.9; color:var(--dim);
+  opacity:0; transform:translateY(8px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.bubble.show      { opacity:1; transform:translateY(0); }
+.bubble .hl       { color:var(--teal); }
+.bubble .warn     { color:var(--red2); font-weight:500; }
+.bubble .name-call{ color:#e8d0c0; font-weight:500; }
+
+/* 플레이어 정보 박스 */
+.player-info-box {
+  margin:4px 0 16px;
+  border:1px solid var(--border);
+  padding:12px 14px;
+  background: rgba(0,200,160,0.04);
+  opacity:0; transition:opacity 0.5s;
+}
+.player-info-box.show { opacity:1; }
+.player-info-row {
+  display:grid; grid-template-columns:80px 1fr; gap:4px;
+  font-size:12px; line-height:2;
+}
+.pi-label       { color:var(--muted); letter-spacing:1px; }
+.pi-val         { color:var(--dim); }
+.pi-val.accent  { color:var(--teal); }
+
+/* 루프 진입 버튼 */
+.chiki-go-btn {
+  flex:0 0 auto;
+  padding:15px;
+  background: transparent;
+  border:1px solid var(--red);
+  color:var(--dim); font-family:'Noto Sans KR',sans-serif;
+  font-size:12px; letter-spacing:3px; cursor:pointer;
+  position:relative; overflow:hidden;
+  opacity:0; transition:opacity 0.5s;
+  pointer-events:none;
+}
+.chiki-go-btn.show { opacity:1; pointer-events:all; }
+.chiki-go-btn::before {
+  content:''; position:absolute; inset:0;
+  background:var(--red); transform:translateX(-100%); transition:transform 0.3s;
+}
+.chiki-go-btn:hover::before { transform:translateX(0); }
+.chiki-go-btn span { position:relative; z-index:1; }
+
+/* ══════════════════════════════════
+   전환 연출
+══════════════════════════════════ */
+.flash-overlay {
+  position:fixed; inset:0; z-index:999;
+  background:#fff; opacity:0; pointer-events:none;
+  transition:opacity 0.15s;
+}
+.flash-overlay.on { opacity:0.12; }
+
+.curtain {
+  position:fixed; inset:0; z-index:500;
+  background:#000; opacity:0; pointer-events:none;
+  transition:opacity 0.5s;
+}
+.curtain.closing { opacity:1; pointer-events:all; }
+
+/* ══════════════════════════════════
+   스크롤바
+══════════════════════════════════ */
+#ph-chiki::-webkit-scrollbar       { width:3px; }
+#ph-chiki::-webkit-scrollbar-track { background:transparent; }
+#ph-chiki::-webkit-scrollbar-thumb { background:rgba(200,180,180,0.2); }
