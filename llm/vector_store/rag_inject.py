@@ -87,26 +87,23 @@ def build_rag_block(
 
 
 def inject_rag_into_system(
-    system_prompt : str,
-    rag_block     : str,
+    system_prompt: str,
+    rag_block    : str,
+    anchor       : str = "=== 기본 성격",
 ) -> str:
     """
-    기존 시스템 프롬프트 끝에 RAG 블록을 붙여 반환한다.
-
-    RAG 블록이 비어 있으면 원본 시스템 프롬프트를 그대로 반환한다.
-    (retriever 실패 / 결과 없음 → 안전 fallback)
-
-    Args:
-        system_prompt: 기존 NPC 시스템 프롬프트 (캐릭터 페르소나 포함)
-        rag_block    : build_rag_block()의 반환값
-
-    Returns:
-        RAG 정보가 추가된 최종 시스템 프롬프트
+    RAG 블록을 기본 성격 섹션 바로 앞에 삽입한다.
+    Few-Shot이 맨 끝에 유지되어 말투 recency bias를 활용할 수 있다.
     """
     if not rag_block:
         return system_prompt
 
-    return system_prompt + rag_block
+    idx = system_prompt.find(anchor)
+    if idx == -1:
+        # anchor를 못 찾으면 기존 방식(맨 끝)으로 fallback
+        return system_prompt + rag_block
+
+    return system_prompt[:idx] + rag_block + "\n" + system_prompt[idx:]
 
 
 def get_enriched_system_prompt(

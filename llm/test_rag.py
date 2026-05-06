@@ -1,14 +1,19 @@
-# RAG 문제 사항 확인용
-
-import sys
-import os
+# test_rag.py
+import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from vector_store.retriever import retrieve_story_context
+from vector_store.rag_inject import inject_rag_into_system
 
-result = retrieve_story_context(
-    user_input = "제가 상담해줘야하는데, 왜 당신이 상담사처럼 구죠?",
-    loop       = 1,
-    character  = "김도현",
-)
+dummy_system = """=== 응답 규칙 ===
+...
+
+=== 기본 성격 ===
+...
+
+=== 말투 예시 ===
+..."""
+
+dummy_rag = "【RAG 블록】"
+
+result = inject_rag_into_system(dummy_system, dummy_rag)
 print(result)
