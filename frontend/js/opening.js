@@ -89,6 +89,16 @@ function goOpening() {
 }
 
 function startOpeningSequence() {
+  const video = document.getElementById('opVideo');
+
+  // 영상 종료 후 타이머 시작
+  video.addEventListener('ended', () => runTimer());
+
+  // 영상 로드 실패 대비 fallback
+  video.addEventListener('error', () => runTimer());
+}
+
+function runTimer() {
   let secs   = 24 * 60;
   const clockEl = document.getElementById('opClock');
 
@@ -105,7 +115,6 @@ function startOpeningSequence() {
   }, 80);
 
   // 5.5초 후 방 화면으로 자동 진행
-  // 실제 영상 연결 시: video.addEventListener('ended', goRoom) 으로 교체
   setTimeout(() => {
     clearInterval(tick);
     goRoom();
