@@ -5,6 +5,8 @@ state.py의 실제 GameState 필드를 기반으로 작성됨.
 #게임 서버의 API 통신규격을 정의한 것
 #클라이언트와 서버가 어떤 형식으로 데이터를 주고 받을 지 약속하는 명세서
 
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -67,7 +69,7 @@ class FinalizeResponse(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
-    image_url: str              # 유사도 미달 시 프로필 이미지 경로 반환
+    image_url: Optional[str] = None  # 유사도 미달 시 None 반환
     is_dead: bool
     is_loop_reset: bool
 
