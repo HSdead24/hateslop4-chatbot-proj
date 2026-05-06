@@ -87,7 +87,7 @@ def build_image_store(image_dir: str, reset: bool = False) -> None:
     print(f"\n[build_image_store] {len(ids)}개 이미지 저장 완료 → {CHROMA_PATH}/{IMAGE_COLLECTION}")
 
 
-def retrieve_image(response_text: str, character: str) -> str:
+def retrieve_image(response_text: str, character: str | None = None) -> str | None:
     """
     response_text를 임베딩해 Chroma DB에서 코사인 유사도 Top-1 이미지를 검색한다.
 
@@ -106,10 +106,13 @@ def retrieve_image(response_text: str, character: str) -> str:
     embedding = _get_embedding(response_text)
     collection = _get_collection()
 
+    where = {"character": character} if character else None
+
     results = collection.query(
         query_embeddings=[embedding],
         n_results=1,
         include=["metadatas", "distances"],
+        where=where,
     )
 
     if not results["metadatas"] or not results["metadatas"][0]:

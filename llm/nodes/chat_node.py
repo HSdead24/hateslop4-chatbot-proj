@@ -286,6 +286,6 @@ def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str]:
     updated_state["is_loop_reset"] = is_loop_reset
 
     # 6. 이미지 검색
-    image_url = retrieve_image(response, npc_name)
+    image_url = retrieve_image(response, character=npc_name)
 
     return GameState(**updated_state), response, image_url

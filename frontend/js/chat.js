@@ -479,8 +479,11 @@ function addNPCMsg(overrideText = null) {
   checkClueTrigger(npc.name, text);
 }
 
-function renderNPCImage(url) {
-  const chat = currentChatEl();
+function renderNPCImage(url, npcIdx = currentNPC) {
+  // npcIdx: 메시지를 전송한 시점의 NPC 인덱스를 고정해서 받음
+  // currentNPC를 직접 쓰면 NPC 전환 후 엉뚱한 채팅 영역을 가리킬 수 있음
+  const chat = document.getElementById(`chat-npc-${npcIdx}`);
+  if (!chat) return;
   // 가장 마지막 NPC 말풍선 행의 아바타 이미지를 교체
   const rows = chat.querySelectorAll('.msg-row:not(.player)');
   const lastRow = rows[rows.length - 1];
@@ -587,6 +590,10 @@ async function sendToBackend(text) {
   const input = document.getElementById('msg-input');
   const sendBtn = document.getElementById('send-btn');
 
+  // 전송 시점의 NPC 인덱스를 고정: 백엔드 응답 대기 중 탭 전환이 일어나도
+  // 올바른 채팅 영역에 이미지를 삽입할 수 있도록 클로저로 캡처
+  const npcIndexAtSend = currentNPC;
+
   isSending = true;
   input.disabled = true;
   sendBtn.disabled = true;
@@ -613,7 +620,7 @@ async function sendToBackend(text) {
     const tr = document.getElementById('typing-row');
     if (tr) tr.remove();
     addNPCMsg(data.response);
-    if (data.image_url) renderNPCImage(data.image_url);
+    if (data.image_url) renderNPCImage(data.image_url, npcIndexAtSend);
 
     if (data.is_dead) {
       // 대화 중 사망 → 범인별 이미지 처리 위해 suspect.html로
