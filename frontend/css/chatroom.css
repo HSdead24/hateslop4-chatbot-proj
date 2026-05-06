@@ -228,10 +228,17 @@ html, body {
 .msg-row        { display:flex; align-items:flex-start; gap:7px; margin-bottom:9px; }
 .msg-row.player { flex-direction:row-reverse; }
 .npc-avatar {
-  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  width:52px; height:68px; border-radius:6px; flex-shrink:0;
   background:var(--bg-surface2); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
-  font-size:10px; font-weight:700;
+  font-size:10px; font-weight:700; overflow:hidden;
+  align-self: flex-start;
+  transition: opacity 0.2s ease;
+}
+.npc-avatar img {
+  width:100%; height:100%; object-fit:cover; object-position:center top;
+  display:block;
+  transition: opacity 0.3s ease;
 }
 .player-avatar {
   width:32px; height:32px; border-radius:50%; flex-shrink:0;
