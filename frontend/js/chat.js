@@ -14,7 +14,7 @@ const NPCs = [
   {
     id: 0, name: '김도현', sub: '34세 · 남성', tag: '내담자',
     tagColor: '#6a7f99', avatarStyle: 'color:#6a7f99;',
-    profile: '/frontend/images/김도현/김도현_프로필.png',
+    profile: '/static/images/김도현/김도현_프로필.png',
     statLabel: '경계심', statVal: 72, statColor: '#c0392b',
     choices: ['그 이름을 왜 묻습니까?', '이틀 전 일이요?', '기억하고 있습니다', '왜 화났어요?'],
     responses: [
@@ -26,7 +26,7 @@ const NPCs = [
   {
     id: 1, name: '차서연', sub: '32세 · 여성', tag: '신경과 의사',
     tagColor: '#5a8870', avatarStyle: 'color:#5a8870;',
-    profile: '/frontend/images/차서연/차서연_프로필.png',
+    profile: '/static/images/차서연/차서연_프로필.png',
     statLabel: '의심도', statVal: 58, statColor: '#b07030',
     choices: ['커피 안 마실게요', '박주원 알아요?', '사무실 뒤진 거예요?', '패턴이 뭔가요?'],
     responses: [
@@ -38,7 +38,7 @@ const NPCs = [
   {
     id: 2, name: '엄마', sub: '61세 · 여성', tag: '가족',
     tagColor: '#8a7040', avatarStyle: 'color:#8a7040;',
-    profile: '/frontend/images/엄마/엄마_프로필.png',
+    profile: '/static/images/엄마/엄마_프로필.png',
     statLabel: '집착도', statVal: 89, statColor: '#b07030',
     choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
     responses: [
@@ -50,7 +50,7 @@ const NPCs = [
   {
     id: 3, name: '박도원', sub: '60세 · 남성', tag: '청소부',
     tagColor: '#7a6a5a', avatarStyle: 'color:#7a6a5a;',
-    profile: '/frontend/images/박도원/박도원_프로필.png',
+    profile: '/static/images/박도원/박도원_프로필.png',
     statLabel: '수상함', statVal: 45, statColor: '#7a6a5a',
     choices: ['누구세요?', '문 앞에 두세요', '딸이 있으세요?', '여기서 일한 지 얼마나 됐어요?'],
     responses: [
@@ -485,7 +485,7 @@ function renderNPCImage(url, npcIdx = currentNPC) {
   if (!lastRow) return;
   const avatarImg = lastRow.querySelector('.npc-avatar img');
   if (!avatarImg) return;
-  const fullUrl = url.startsWith('http') ? url : `${BASE_URL}/static/${url}`;
+  const fullUrl = url.startsWith('http') ? url : `${BASE_URL}/static/images${url}`;
   avatarImg.style.opacity = '0';
   setTimeout(() => {
     avatarImg.src = fullUrl;
