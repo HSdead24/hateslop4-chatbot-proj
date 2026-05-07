@@ -388,6 +388,58 @@ function selectChoice(text) {
 }
 
 // ─────────────────────────────────────────────
+//  입력 키워드 기반 추천 문구 필터링
+// ─────────────────────────────────────────────
+function filterChoicesByInput(query) {
+  const npc = NPCs[currentNPC];
+  if (!npc) return;
+
+  const area = document.getElementById('choices-area');
+  const q = query.trim();
+
+  // 입력 없으면 원래 선택지 복원
+  if (!q) {
+    renderChoices(npc.choices);
+    return;
+  }
+
+  // 현재 NPC choices에서 키워드 포함 항목 필터링
+  const matched = npc.choices.filter(c =>
+    c.toLowerCase().includes(q.toLowerCase())
+  );
+
+  area.innerHTML = '';
+
+  if (matched.length > 0) {
+    // 매칭된 항목: 일치 부분 빨간 하이라이트
+    matched.forEach(text => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn choice-btn--suggest';
+
+      const highlighted = text.replace(
+        new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+        '<mark>$1</mark>'
+      );
+
+      btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+      </svg>${highlighted}`;
+      btn.onclick = () => selectChoice(text);
+      area.appendChild(btn);
+    });
+  } else {
+    // 매칭 없으면 "직접 입력" 안내 버튼
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn choice-btn--suggest choice-btn--direct';
+    btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+    </svg>직접 입력: "${esc(q)}"`;
+    btn.onclick = () => sendMsg();
+    area.appendChild(btn);
+  }
+}
+
+// ─────────────────────────────────────────────
 //  메시지 전송 (★ 대화 횟수 카운트 추가)
 // ─────────────────────────────────────────────
 function sendMsg() {
@@ -396,6 +448,8 @@ function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
+  // 전송 후 추천 문구 → 원래 선택지 복원
+  renderChoices(NPCs[currentNPC].choices);
 
   // 대화 횟수 증가 & 표시
   msgCount++;
@@ -796,6 +850,16 @@ document.getElementById('sound-toggle').addEventListener('click', (e) => {
   switchNPC(0);
   updateMsgCounter();
   scrollToBottom();
+
+  // 입력창 키워드 기반 추천 문구 필터링
+  const msgInput = document.getElementById('msg-input');
+  msgInput.addEventListener('input', (e) => {
+    filterChoicesByInput(e.target.value);
+  });
+  // Enter 키 전송
+  msgInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMsg();
+  });
 
   // 페이지 로드 시 백그라운드에서 오디오 재생 시도
   bgmAudio.play().then(() => {

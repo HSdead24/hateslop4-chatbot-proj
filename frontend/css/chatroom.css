@@ -312,6 +312,29 @@ html, body {
 .choice-btn:active { border-color:var(--border-accent); color:var(--text-primary); }
 .choice-btn svg    { width:11px; height:11px; opacity:.35; flex-shrink:0; }
 
+/* ── 추천 문구 필터링 상태 ── */
+.choice-btn--suggest {
+  border-color: rgba(212,32,24,0.25);
+  background: rgba(212,32,24,0.06);
+  transition: border-color 0.15s, background 0.15s;
+}
+.choice-btn--suggest mark {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+}
+/* 매칭 없을 때 직접 입력 버튼 */
+.choice-btn--direct {
+  color: var(--text-dim);
+  border-color: var(--border);
+  background: transparent;
+  font-style: italic;
+}
+.choice-btn--direct:active {
+  border-color: var(--border-accent);
+  color: var(--text-secondary);
+}
+
 /* ── 입력창 ── */
 #input-area {
   position:relative; z-index:10; flex-shrink:0;
