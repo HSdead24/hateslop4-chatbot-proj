@@ -169,14 +169,16 @@ body {
   min-height: 30vh; 
   max-height: 40vh; 
   overflow:hidden; background:#030508;
-  flex: 1 1 auto; /* 축소될 수 있도록 1 0 auto에서 1 1 auto로 변경 */
+  flex: 0 0 auto; /* 축소될 수 있도록 1 0 auto에서 1 1 auto로 변경 */
 }
 
 /* 실제 이미지 */
 .scene-image {
-  position:absolute; inset:0;
-  width:100%; height:100%; object-fit:cover;
-  display:none;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;   /* cover → contain */
+  object-position: bottom center;  /* 발이 잘리지 않게 아래 기준 */
+  display: none;
 }
 
 /* 배경 이미지 레이어 (z-index: 1 적용) */
