@@ -734,7 +734,6 @@ function applyScene(nodeId, prefix = 'select_') {
     if (GAME_STATE.currentLocation !== null) {
       popupQueue.push((callback) => showPopup({
         type: 'location',
-        icon: '📍',
         label: scene.location,
         sublabel: scene.place,
         duration: 2000,
@@ -746,7 +745,6 @@ function applyScene(nodeId, prefix = 'select_') {
   if (scene.event) {
     popupQueue.push((callback) => showPopup({
       type: 'event',
-      icon: scene.event_icon || '🔔',
       label: scene.event,
       duration: 2000,
     }, callback));
