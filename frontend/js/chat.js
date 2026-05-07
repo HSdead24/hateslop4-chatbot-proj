@@ -341,8 +341,8 @@ function switchNPC(idx) {
 
   const headerImg = document.getElementById('header-profile-img');
   if (headerImg) {
-    headerImg.src = `${BASE_URL}/static/${npc.profile}`;
-    headerImg.alt = npc.initials;
+    headerImg.src = npc.profile;
+    headerImg.alt = npc.name;
   }
 
   document.getElementById('header-npc-name').textContent = npc.name;
@@ -434,9 +434,8 @@ function appendTypingRow() {
   row.id = 'typing-row';
   row.innerHTML = `
     <div class="npc-avatar">
-      <img src="${BASE_URL}/static/${npc.profile}"
-           alt="${npc.initials}"
-           onerror="this.src='/frontend/${npc.profile}'">
+      <img src="${npc.profile}"
+           alt="${npc.name}">
     </div>
     <div class="msg-col">
       <div class="msg-name">${npc.name}</div>
@@ -459,9 +458,8 @@ function addNPCMsg(overrideText = null) {
   row.className = 'msg-row';
   row.innerHTML = `
     <div class="npc-avatar" id="npc-avatar-${Date.now()}">
-      <img src="${BASE_URL}/static/${npc.profile}"
-           alt="${npc.initials}"
-           onerror="this.src='/frontend/${npc.profile}'">
+      <img src="${npc.profile}"
+           alt="${npc.name}">
     </div>
     <div class="msg-col">
       <div class="msg-name">${npc.name}</div>
@@ -485,7 +483,7 @@ function renderNPCImage(url, npcIdx = currentNPC) {
   if (!lastRow) return;
   const avatarImg = lastRow.querySelector('.npc-avatar img');
   if (!avatarImg) return;
-  const fullUrl = url.startsWith('http') ? url : `${BASE_URL}/static/images/images${url}`;
+  const fullUrl = url.startsWith('http') ? url : `/static/images/${url}`;
   avatarImg.style.opacity = '0';
   setTimeout(() => {
     avatarImg.src = fullUrl;

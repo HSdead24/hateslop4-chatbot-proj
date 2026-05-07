@@ -643,6 +643,34 @@ async function finalizeAndNavigate() {
 }
 
 // ─────────────────────────────────────────────
+//  배경 이미지 매핑 (location → bg 파일)
+// ─────────────────────────────────────────────
+const LOCATION_BG_MAP = {
+  '주인공의 방':   '/frontend/images/bg/bg_room.png',
+  '현관 앞':       '/frontend/images/bg/bg_entrance.png',
+  '거실':          '/frontend/images/bg/bg_living.png',
+  '거실 창가':     '/frontend/images/bg/bg_living.png',
+  '휴게실':        '/frontend/images/bg/bg_lounge.png',
+  '원장실':        '/frontend/images/bg/bg_director.png',
+  '원장실 앞':     '/frontend/images/bg/bg_corridor.png',
+  '진료실':        '/frontend/images/bg/bg_consulting.png',
+  '진료실 앞':     '/frontend/images/bg/bg_corridor.png',
+  '상담실':        '/frontend/images/bg/bg_consulting.png',
+  '복도':          '/frontend/images/bg/bg_corridor.png',
+  '병원 1층 로비': '/frontend/images/bg/bg_lobby.png',
+};
+
+function setSceneBgImage(location) {
+  const url = LOCATION_BG_MAP[location];
+  if (!url) return;
+  const bgImg = document.getElementById('sceneBgImage');
+  if (!bgImg) return;
+  bgImg.onload = () => { bgImg.style.opacity = '1'; };
+  bgImg.src = url;
+  bgImg.style.display = 'block';
+}
+
+// ─────────────────────────────────────────────
 //  씬 이미지 교체
 // ─────────────────────────────────────────────
 function setSceneImage(url, speakerName) {
@@ -673,6 +701,7 @@ function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) 
     document.getElementById('dialogueText').innerHTML = dialogue.replace(/\n/g, '<br>');
   }
   if (location) {
+    setSceneBgImage(location);
     document.querySelector('.loc-name').textContent = location;
   }
   if (place) {

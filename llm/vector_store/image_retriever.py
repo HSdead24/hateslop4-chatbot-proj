@@ -101,7 +101,7 @@ def retrieve_image(response_text: str, character: str | None = None) -> str | No
     Returns:
         image_url 문자열 (항상 반환, None 없음)
     """
-    default_image = f"{character}/{character}_프로필.png"
+    default_image = f"images/{character}/{character}_프로필.png"
 
     embedding = _get_embedding(response_text)
     collection = _get_collection()
