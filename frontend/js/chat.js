@@ -227,7 +227,7 @@ function triggerMsgLimit() {
     closeChiki();
     setTimeout(() => {
       sessionStorage.setItem('loop_num', String(loopNum));
-      window.location.href = 'suspect.html';
+      window.location.href = '/suspect';
     }, 800);
   }, 4000);
 }
@@ -575,7 +575,7 @@ async function triggerDeath(cause = 'timer') {
 
   // 백엔드 사망 처리 후 바로 suspect.html 이동
   await fetchAPI('/player-dead');
-  window.location.href = 'suspect.html';
+  window.location.href = '/suspect';
 }
 
 // ─────────────────────────────────────────────
@@ -638,7 +638,7 @@ async function sendToBackend(text) {
         setTimeout(() => {
           closeChiki();
           setTimeout(() => {
-            window.location.href = 'suspect.html';
+            window.location.href = '/suspect';
           }, 800);
         }, 4000);
       }

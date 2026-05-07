@@ -472,7 +472,7 @@ function updateButtonTimer() {
     // 루프 횟수는 suspect.js goToMorning()에서 증가시키므로 여기선 현재값만 저장
     const currentLoop = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
     sessionStorage.setItem('loop_num', String(currentLoop));
-    window.location.href = 'suspect.html';
+    window.location.href = '/suspect';
   }
 }
 
@@ -629,7 +629,7 @@ async function finalizeAndNavigate() {
     // 오프라인 모드에서도 last_button_id 저장
     sessionStorage.setItem('last_button_id', String(GAME_STATE.lastButtonId));
   } finally {
-    window.location.href = '/frontend/chatroom.html';
+    window.location.href = '/chat';
   }
 }
 
