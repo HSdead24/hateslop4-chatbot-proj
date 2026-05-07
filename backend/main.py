@@ -113,12 +113,15 @@ def health():
 def root():
     return FileResponse(str(_FRONTEND_DIR / "opening.html"))
 
-# /room 주소로 접속하면 buttonroom.html을 보여줍니다.
-@app.get("/room", tags=["system"])
+# /button 주소로 접속하면 buttonroom.html들을 보여줍니다.
+@app.get("/button", tags=["system"])
 def get_room():
     return FileResponse(str(_FRONTEND_DIR / "buttonroom.html"))
 
-# /chat 주소로 접속하면 chatroom.html을 보여줍니다.
 @app.get("/chat", tags=["system"])
 def get_chat():
     return FileResponse(str(_FRONTEND_DIR / "chatroom.html"))
+
+@app.get("/suspect", tags=["system"])
+def get_suspect():
+    return FileResponse(str(_FRONTEND_DIR / "suspect.html"))
