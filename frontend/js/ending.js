@@ -12,7 +12,7 @@ const CHIKI_IMAGES = {
   default:  '/frontend/images/치키_기본.png',
   smile:    '/frontend/images/치키_웃음.png',
   laugh:    '/frontend/images/치키_크게웃음.png',
-  close:    '/frontend/images/치키_접근.jpeg',
+  close:    '/frontend/images/치키_접근.png',
   whisper:  '/frontend/images/치키_귓속말.png',
 };
 
