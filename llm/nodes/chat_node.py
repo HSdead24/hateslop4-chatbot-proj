@@ -29,7 +29,7 @@ from prompts.cha_seoyeon import build_cha_prompt
 from prompts.umma import build_umma_prompt
 from prompts.park_dowon import build_park_prompt
 
-from vector_store.rag_inject import get_enriched_system_prompt
+from vector_store.rag_inject import build_rag_block, inject_rag_into_system
 from vector_store.image_retriever import retrieve_image
 
 # ────────────────────────────────────────────
@@ -127,7 +127,20 @@ def generate_npc_response(
     player_name   = state["player_name"]
     player_gender = state["player_gender"]
 
-    # 집행자(치키)는 별도 프롬프트 빌더 사용
+    # 1. RAG 먼저 실행 — 캐시 확인 후 없으면 검색
+    _cache_key = f"{npc_name}_{loop_count}_{user_input[:20]}"
+    if _cache_key in _rag_cache:
+        rag_block = _rag_cache[_cache_key]
+    else:
+        rag_block = build_rag_block(
+            user_input   = user_input,
+            loop         = loop_count,
+            first_button = state["first_button"],
+            character    = npc_name,
+        )
+        _rag_cache[_cache_key] = rag_block
+
+    # 2. 프롬프트 빌드
     if npc_name == NPC_EXECUTOR:
         system_prompt = build_executor_prompt(
             loop_count    = loop_count,
@@ -147,19 +160,8 @@ def generate_npc_response(
             player_gender = player_gender,
         )
 
-    # RAG 캐시 확인 — 동일 NPC × 루프 × 입력 앞 20자면 재사용
-    _cache_key = f"{npc_name}_{loop_count}_{user_input[:20]}"
-    if _cache_key in _rag_cache:
-        system_prompt = _rag_cache[_cache_key]
-    else:
-        system_prompt = get_enriched_system_prompt(
-            system_prompt = system_prompt,
-            user_input    = user_input,
-            loop          = state["loop_count"],
-            first_button  = state["first_button"],
-            character     = npc_name,
-        )
-        _rag_cache[_cache_key] = system_prompt
+    # 3. RAG 주입
+    system_prompt = inject_rag_into_system(system_prompt, rag_block)
 
     # 슬라이딩 윈도우 적용 후 요약 처리
     current_messages = state["messages"].get(npc_name, [])
