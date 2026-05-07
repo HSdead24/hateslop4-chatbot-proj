@@ -17,12 +17,15 @@ body {
 .game-wrapper {
   width: 100%;
   max-width: 460px;
-  min-height: 100vh;
+  /* dvh(동적 뷰포트 높이) 적용 및 스크롤 허용 */
+  min-height: 100vh; 
+  min-height: 100dvh; 
   display: flex;
   flex-direction: column;
   position: relative;
   background: #05070d;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto; /* hidden을 auto로 변경하여 작은 폰에서 스크롤 허용 */
 }
 
 /* ══════════════════════════════════
@@ -162,9 +165,11 @@ body {
 ══════════════════════════════════ */
 .scene-container {
   position:relative; width:100%;
-  min-height:290px; max-height:370px;
+  /* 화면 비율(vh)을 사용하여 유연하게 조정 */
+  min-height: 30vh; 
+  max-height: 40vh; 
   overflow:hidden; background:#030508;
-  flex: 1 0 auto;
+  flex: 1 1 auto; /* 축소될 수 있도록 1 0 auto에서 1 1 auto로 변경 */
 }
 
 /* 실제 이미지 */

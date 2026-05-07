@@ -62,7 +62,9 @@ body {
    WRAPPER
 ══════════════════════════════════ */
 .wrapper {
-  width:100%; max-width:460px; min-height:100vh;
+  width:100%; max-width:460px; 
+  height: 100vh;
+  height: 100dvh; /* d-vh 적용 */
   display:flex; flex-direction:column;
   position:relative; z-index:10;
   background: var(--bg);
@@ -87,6 +89,7 @@ body {
   justify-content:center; align-items:center;
   padding: 32px 28px;
   background: var(--bg);
+  overflow-y: auto; /* 폰이 너무 작으면 스크롤되도록 추가 */
 }
 
 .input-logo {
@@ -320,22 +323,22 @@ body {
 .chiki-top {
   flex: 0 0 auto;
   position: relative;
-  height: 280px;
+  height: 40vh; /* 280px에서 변경 */
+  min-height: 200px;
   overflow: hidden;
   background: #030508;
 }
 
 /* 1. 캐릭터를 감싸는 영역: 크기를 적절히 제한하고 중앙 배치 */
 .chiki-figure-wrap {
-  width: 250px;        /* 캐릭터가 들어갈 상자 크기 */
-  height: 250px;
+  width: 25vh; /* 화면 세로 길이에 비례하게 변경 */
+  height: 25vh;
+  min-width: 180px; min-height: 180px;
+  max-width: 250px; max-height: 250px;
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; align-items: center; justify-content: center;
   z-index: 5;
 }
 
