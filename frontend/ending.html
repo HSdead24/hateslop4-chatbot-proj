@@ -10,25 +10,30 @@
 <body>
 <div id="app">
 
-  <!-- 치키 이미지 -->
-  <div class="chiki-stage">
-    <img class="chiki-img" id="chiki-img"
-         src="/frontend/images/chiki_img.png" alt="치키"
+  <!-- 치키 전체 배경 이미지 -->
+  <div class="chiki-bg">
+    <img class="chiki-bg-img" id="chiki-img"
+         src="/frontend/images/치키_기본.png?v=2" alt="치키"
          onerror="this.style.opacity='0'">
   </div>
 
-  <!-- 말풍선 -->
-  <div class="bubble-wrap">
-    <div class="chiki-bubble">
-      <div class="bubble-text" id="bubble-text"></div>
+  <!-- 하단 콘텐츠 (말풍선 + 버튼) -->
+  <div class="chiki-content">
+
+    <!-- 말풍선 카드 -->
+    <div class="chiki-card">
+      <div class="chiki-card-text" id="bubble-text"></div>
       <span class="cursor" id="cursor">|</span>
     </div>
-    <div class="tap-hint" id="tap-hint">▼</div>
-  </div>
 
-  <!-- 엔딩 후 재시작 버튼 -->
-  <div class="restart-wrap" id="restart-wrap">
-    <button class="restart-btn" id="restart-btn">다시 시작하기</button>
+    <!-- 탭 힌트 -->
+    <div class="tap-hint" id="tap-hint" style="display:none;">▼ 탭하여 계속</div>
+
+    <!-- 엔딩 후 재시작 버튼 -->
+    <div class="restart-wrap" id="restart-wrap" style="display:none;">
+      <button class="restart-btn" id="restart-btn">다시 시작하기</button>
+    </div>
+
   </div>
 
   <div class="noise-overlay"></div>

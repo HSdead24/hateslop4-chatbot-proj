@@ -8,12 +8,13 @@
 //  치키 이미지 목록
 //  실제 파일명에 맞게 수정해주세요
 // ─────────────────────────────────────────────
+const _V = '?v=2';
 const CHIKI_IMAGES = {
-  default:  '/frontend/images/치키_기본.png',
-  smile:    '/frontend/images/치키_웃음.png',
-  laugh:    '/frontend/images/치키_크게웃음.png',
-  close:    '/frontend/images/치키_접근.jpeg',
-  whisper:  '/frontend/images/치키_귓속말.png',
+  default:  '/frontend/images/치키_기본.png' + _V,
+  smile:    '/frontend/images/치키_웃음.png' + _V,
+  laugh:    '/frontend/images/치키_크게웃음.png' + _V,
+  close:    '/frontend/images/치키_접근.png' + _V,
+  whisper:  '/frontend/images/치키_귓속말.png' + _V,
 };
 
 // ─────────────────────────────────────────────
@@ -100,16 +101,18 @@ const restartWrap = document.getElementById('restart-wrap');
 const restartBtn  = document.getElementById('restart-btn');
 
 // ─────────────────────────────────────────────
-//  치키 이미지 교체 (페이드)
+//  치키 이미지 교체 (페이드 — 전체 배경 방식)
 // ─────────────────────────────────────────────
 function changeChikiImage(key) {
   const src = CHIKI_IMAGES[key];
   if (!src) return;
 
-  chikiImg.style.opacity = '0';
+  chikiImg.classList.add('fade-out');
   setTimeout(() => {
     chikiImg.src = src;
-    chikiImg.style.opacity = '1';
+    chikiImg.classList.remove('fade-out');
+    chikiImg.classList.add('fade-in');
+    setTimeout(() => chikiImg.classList.remove('fade-in'), 400);
   }, 350);
 }
 
@@ -182,7 +185,7 @@ function showLine(idx) {
       }
 
       waitForTap = true;
-      tapHint.style.display = 'block';
+      tapHint.style.display = 'flex';
     });
   };
 
@@ -205,7 +208,7 @@ function handleTap() {
     bubbleText.innerHTML = line.text.replace(/\n/g, '<br>');
 
     waitForTap = true;
-    tapHint.style.display = 'block';
+    tapHint.style.display = 'flex';
     return;
   }
 
