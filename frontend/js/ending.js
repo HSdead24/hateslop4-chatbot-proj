@@ -100,16 +100,18 @@ const restartWrap = document.getElementById('restart-wrap');
 const restartBtn  = document.getElementById('restart-btn');
 
 // ─────────────────────────────────────────────
-//  치키 이미지 교체 (페이드)
+//  치키 이미지 교체 (페이드 — 전체 배경 방식)
 // ─────────────────────────────────────────────
 function changeChikiImage(key) {
   const src = CHIKI_IMAGES[key];
   if (!src) return;
 
-  chikiImg.style.opacity = '0';
+  chikiImg.classList.add('fade-out');
   setTimeout(() => {
     chikiImg.src = src;
-    chikiImg.style.opacity = '1';
+    chikiImg.classList.remove('fade-out');
+    chikiImg.classList.add('fade-in');
+    setTimeout(() => chikiImg.classList.remove('fade-in'), 400);
   }, 350);
 }
 
@@ -182,7 +184,7 @@ function showLine(idx) {
       }
 
       waitForTap = true;
-      tapHint.style.display = 'block';
+      tapHint.style.display = 'flex';
     });
   };
 
@@ -205,7 +207,7 @@ function handleTap() {
     bubbleText.innerHTML = line.text.replace(/\n/g, '<br>');
 
     waitForTap = true;
-    tapHint.style.display = 'block';
+    tapHint.style.display = 'flex';
     return;
   }
 
