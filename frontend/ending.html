@@ -10,27 +10,28 @@
 <body>
 <div id="app">
 
-  <!-- 치키 이미지 (고정) -->
-  <div class="chiki-stage" id="chiki-stage">
+  <!-- 치키 이미지 -->
+  <div class="chiki-stage">
     <img class="chiki-img" id="chiki-img"
-         src="images/chiki_img.png" alt="치키"
-         onerror="this.style.display='none'">
+         src="/frontend/images/chiki_img.png" alt="치키"
+         onerror="this.style.opacity='0'">
   </div>
 
-  <!-- 말풍선 영역 -->
+  <!-- 말풍선 -->
   <div class="bubble-wrap">
-    <div class="chiki-bubble" id="chiki-bubble">
+    <div class="chiki-bubble">
       <div class="bubble-text" id="bubble-text"></div>
-      <!-- 커서 깜빡임 -->
       <span class="cursor" id="cursor">|</span>
     </div>
-    <!-- 다음으로 진행 힌트 -->
-    <div class="tap-hint" id="tap-hint" style="display:none;">화면을 탭해서 계속</div>
+    <div class="tap-hint" id="tap-hint">▼</div>
   </div>
 
-  <!-- 배경 노이즈 레이어 -->
-  <div class="noise-overlay"></div>
+  <!-- 엔딩 후 재시작 버튼 -->
+  <div class="restart-wrap" id="restart-wrap">
+    <button class="restart-btn" id="restart-btn">다시 시작하기</button>
+  </div>
 
+  <div class="noise-overlay"></div>
 </div>
 <script src="/frontend/js/ending.js"></script>
 </body>

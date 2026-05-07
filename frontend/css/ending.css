@@ -82,7 +82,8 @@ html, body {
 }
 
 .chiki-img {
-  width: 190px;
+  width: 140px;
+  max-height: 200px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 0 28px rgba(180,160,220,0.28));
@@ -203,6 +204,42 @@ html, body {
 @keyframes blink-hint {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.25; }
+}
+
+/* ── 재시작 버튼 ── */
+.restart-wrap {
+  display: none;
+  width: 100%;
+  padding: 0 20px 32px;
+  position: relative;
+  z-index: 10;
+}
+
+.restart-btn {
+  width: 100%;
+  padding: 14px 0;
+  background: transparent;
+  border: 1px solid rgba(180,160,220,0.35);
+  border-radius: 8px;
+  color: rgba(180,160,220,0.75);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+  animation: fade-in-btn 0.6s ease forwards;
+}
+
+.restart-btn:hover,
+.restart-btn:active {
+  background: rgba(180,160,220,0.12);
+  border-color: rgba(180,160,220,0.6);
+  color: rgba(180,160,220,1);
+}
+
+@keyframes fade-in-btn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── 모든 메시지 끝난 후 어둠 페이드 ── */
