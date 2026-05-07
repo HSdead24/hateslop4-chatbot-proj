@@ -52,26 +52,7 @@ _rag_cache: dict = {}
 # 대화 기록 요약
 # ────────────────────────────────────────────
 
-def summarize_messages(messages: list, llm: ChatOpenAI) -> list:
-    """
-    대화 기록이 MESSAGE_SUMMARY_THRESHOLD를 초과하면
-    오래된 대화를 LLM으로 요약해 토큰을 절약한다.
-
-    요약 방식
-    ---------
-    - 최근 MESSAGE_SUMMARY_THRESHOLD // 2 개는 원본 유지
-    - 나머지 오래된 대화를 LLM이 3문장 내외로 요약
-    - 요약본을 SystemMessage로 변환해 맨 앞에 삽입
-
-    Parameters
-    ----------
-    messages : 현재 대화 기록 딕셔너리 리스트
-    llm      : 요약에 사용할 LLM 인스턴스
-
-    Returns
-    -------
-    요약이 적용된 대화 기록 딕셔너리 리스트
-    """
+def summarize_messages(messages: list, llm: ChatOpenAI, player_name: str, npc_name: str) -> list:
     if len(messages) < MESSAGE_SUMMARY_THRESHOLD:
         return messages
 
@@ -79,20 +60,18 @@ def summarize_messages(messages: list, llm: ChatOpenAI) -> list:
     old_msgs    = messages[:-keep_count]
     recent_msgs = messages[-keep_count:]
 
-    # 오래된 대화를 텍스트로 변환
+    # 실제 이름 사용
     old_text = "\n".join([
-        f"{'유저' if m['role'] == 'user' else 'NPC'}: {m['content']}"
+        f"{player_name if m['role'] == 'user' else npc_name}: {m['content']}"
         for m in old_msgs
     ])
 
-    # LLM으로 요약
     summary_prompt = [
         SystemMessage(content="다음 대화를 3문장 이내로 핵심만 요약해줘. 요약문만 출력해."),
         HumanMessage(content=old_text)
     ]
     summary = llm.invoke(summary_prompt).content
 
-    # 요약본을 맨 앞 메시지로 삽입
     summary_msg = {"role": "assistant", "content": f"[이전 대화 요약] {summary}"}
     return [summary_msg] + recent_msgs
 
@@ -185,7 +164,7 @@ def generate_npc_response(
     # 슬라이딩 윈도우 적용 후 요약 처리
     current_messages = state["messages"].get(npc_name, [])
     windowed         = current_messages[-MAX_HISTORY_TURNS * 2:]
-    summarized       = summarize_messages(windowed, llm)
+    summarized       = summarize_messages(windowed, llm, player_name, npc_name)
 
     # 유저 입력을 대화 기록에 추가
     summarized_with_input = summarized + [{"role": "user", "content": user_input}]

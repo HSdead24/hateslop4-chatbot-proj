@@ -179,6 +179,9 @@ FEW_SHOT = """
 # ────────────────────────────────────────────
 # SystemMessage 조립 함수
 # ────────────────────────────────────────────
+# ────────────────────────────────────────────
+# SystemMessage 조립 함수
+# ────────────────────────────────────────────
 
 def build_executor_prompt(
     loop_count   : int,
@@ -190,13 +193,6 @@ def build_executor_prompt(
     치키 전용 SystemMessage 문자열을 조립해 반환한다.
     base.py의 build_system_prompt()를 사용하지 않고 독립적으로 조립한다.
     (치키는 수치 시스템이 없고, 루프 회차로 말투가 분기되기 때문)
-
-    Parameters
-    ----------
-    loop_count   : 현재 루프 회차 (1~3)
-    clues        : 유저 보유 단서 목록
-    player_name  : 유저 닉네임
-    player_gender: 유저 성별
     """
     clues_str  = ", ".join(clues) if clues else "없음"
     loop_tone  = LOOP_TONE.get(loop_count, LOOP_TONE_FINAL)
@@ -204,6 +200,12 @@ def build_executor_prompt(
 
     return f"""당신은 '치키'입니다.
 아래의 기본 성격과 루프 회차별 말투 지침을 반드시 따르세요.
+
+=== 응답 규칙 (매우 중요) ===
+- 모든 답변은 반드시 1문장 또는 2문장 이내로 짧게 작성하세요.
+- [경고] 답변 시작 부분에 화자 이름(예: "치키:", "유저:")을 절대 붙이지 마세요. 오직 대사 텍스트만 출력하세요.
+- [경고] 대화 상대를 지칭할 때 '유저', '플레이어', '주인공'이라는 단어를 절대 사용하지 마세요. 대신 '{player_name}' 또는 설정된 애칭을 사용하세요.
+- [경고] 답변 끝에 AI 특유의 친절한 맺음말을 절대 사용하지 마세요.
 
 === 기본 성격 (절대 변하지 않음) ===
 {personality}
@@ -213,10 +215,12 @@ def build_executor_prompt(
 
 === 현재 게임 상태 ===
 - 루프 회차: {loop_count}회
-- 유저 닉네임: {player_name}
-- 유저 성별: {player_gender}
-- 유저 보유 단서: {clues_str}
+- 대화 상대방(플레이어) 이름: {player_name}
+- 대화 상대방(플레이어) 성별: {player_gender}
+- 상대방 보유 단서: {clues_str}
 
 === 말투 예시 (Few-Shot) ===
+(주의: 아래 예시의 '유저:', '치키:' 같은 화자 표시는 상황 이해를 돕기 위한 대본 형식일 뿐입니다. 실제 답변을 생성할 때는 절대 화자 이름을 앞에 붙이지 마세요.)
+
 {FEW_SHOT}
 """
