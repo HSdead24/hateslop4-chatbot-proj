@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>죽기 24시간 전 — 엔딩</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/frontend/css/ending.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- 치키 전체 배경 이미지 -->
+  <div class="chiki-bg">
+    <img class="chiki-bg-img" id="chiki-img"
+         src="/frontend/images/치키_기본.png?v=2" alt="치키"
+         onerror="this.style.opacity='0'">
+  </div>
+
+  <!-- 하단 콘텐츠 (말풍선 + 버튼) -->
+  <div class="chiki-content">
+
+    <!-- 말풍선 카드 -->
+    <div class="chiki-card">
+      <div class="chiki-card-text" id="bubble-text"></div>
+      <span class="cursor" id="cursor">|</span>
+    </div>
+
+    <!-- 탭 힌트 -->
+    <div class="tap-hint" id="tap-hint" style="display:none;">▼ 탭하여 계속</div>
+
+    <!-- 엔딩 후 재시작 버튼 -->
+    <div class="restart-wrap" id="restart-wrap" style="display:none;">
+      <button class="restart-btn" id="restart-btn">다시 시작하기</button>
+    </div>
+
+  </div>
+
+  <div class="noise-overlay"></div>
+</div>
+<script src="/frontend/js/ending.js"></script>
+</body>
+</html>

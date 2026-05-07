@@ -1,0 +1,212 @@
+/* ════════════════════════════════════════════
+   ending.css  —  루프3 사망 엔딩 화면
+   chatroom 치키 드로어 스타일 기반
+   ════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&family=Share+Tech+Mono&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg:            #000;
+  --accent:        #c0392b;
+  --text-primary:  #ece8e2;
+  --text-secondary:#7a807d;
+  --text-dim:      #4d5250;
+  --chiki-charcoal: rgba(38, 40, 43, 0.72);
+  --chiki-border:   rgba(120, 125, 130, 0.40);
+  --chiki-glow:     rgba(100, 105, 110, 0.22);
+  --radius-sm:     4px;
+  --radius-md:     10px;
+  --font-main:     'Noto Sans KR', sans-serif;
+  --font-mono:     'Share Tech Mono', monospace;
+}
+
+html, body {
+  width:100%; height:100%;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  font-family: var(--font-main);
+}
+
+#app {
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  height: 100dvh;
+  background: #000;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── 스캔라인 ── */
+.noise-overlay {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.018) 2px, rgba(0,0,0,0.018) 4px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ═══════════════════════════════════
+   치키 전체 배경 이미지
+═══════════════════════════════════ */
+.chiki-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.chiki-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0.88;
+  transition: opacity 0.35s ease;
+}
+
+.chiki-bg-img.fade-out { opacity: 0; }
+.chiki-bg-img.fade-in  { opacity: 0.88; }
+
+/* ═══════════════════════════════════
+   하단 콘텐츠 레이어
+═══════════════════════════════════ */
+.chiki-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 20px 20px calc(52px + env(safe-area-inset-bottom));
+  gap: 12px;
+}
+
+/* ═══════════════════════════════════
+   말풍선 카드
+═══════════════════════════════════ */
+.chiki-card {
+  background: var(--chiki-charcoal);
+  border: 1px solid var(--chiki-border);
+  border-radius: var(--radius-md);
+  padding: 18px 18px 16px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 0 28px var(--chiki-glow);
+  animation: card-in 0.45s ease forwards;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chiki-card-text {
+  font-size: 15px;
+  line-height: 1.78;
+  color: var(--text-primary);
+  font-family: 'Nanum Myeongjo', serif;
+  letter-spacing: 0.01em;
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.chiki-card-text .name-em {
+  color: #c4a8e8;
+  font-weight: 700;
+}
+.chiki-card-text .ominous {
+  color: #e8a09a;
+  font-weight: 700;
+}
+
+/* ── 커서 ── */
+.cursor {
+  display: inline-block;
+  color: rgba(180, 185, 190, 0.80);
+  font-size: 15px;
+  margin-left: 1px;
+  animation: blink-cursor 0.9s step-end infinite;
+  vertical-align: text-bottom;
+}
+.cursor.hidden { opacity: 0; }
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── 탭 힌트 ── */
+.tap-hint {
+  text-align: center;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.28);
+  animation: blink-hint 2s ease-in-out infinite;
+}
+
+@keyframes blink-hint {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+/* ═══════════════════════════════════
+   재시작 버튼
+═══════════════════════════════════ */
+.restart-wrap { width: 100%; }
+
+.restart-btn {
+  width: 100%;
+  background: rgba(45, 48, 52, 0.70);
+  border: 1px solid rgba(120, 125, 130, 0.50);
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  color: rgba(210, 213, 216, 0.95);
+  font-size: 13px;
+  font-family: var(--font-main);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 0 10px rgba(80, 85, 90, 0.20);
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  animation: fade-in-btn 0.6s ease forwards;
+}
+
+.restart-btn:hover,
+.restart-btn:active {
+  background: rgba(60, 64, 68, 0.95);
+  border-color: rgba(160, 165, 170, 0.70);
+  color: #e8eaec;
+  box-shadow: 0 0 16px rgba(100, 105, 110, 0.30);
+}
+
+@keyframes fade-in-btn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 페이드 아웃 ── */
+#app.fade-to-black::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: #000;
+  z-index: 200;
+  animation: fade-black 1.5s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes fade-black {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

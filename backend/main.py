@@ -125,3 +125,11 @@ def get_chat():
 @app.get("/suspect", tags=["system"])
 def get_suspect():
     return FileResponse(str(_FRONTEND_DIR / "suspect.html"))
+
+@app.get("/ending", tags=["system"])
+def get_ending():
+    return FileResponse(str(_FRONTEND_DIR / "ending.html"))
+
+@app.get("/opening", tags=["system"])
+def get_opening():
+    return FileResponse(str(_FRONTEND_DIR / "opening.html"))

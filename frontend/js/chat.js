@@ -14,7 +14,7 @@ const NPCs = [
   {
     id: 0, name: '김도현', sub: '34세 · 남성', tag: '내담자',
     tagColor: '#6a7f99', avatarStyle: 'color:#6a7f99;',
-    profile: '/frontend/images/김도현/김도현_프로필.png',
+    profile: '/frontend/images/kim_profile.png',
     statLabel: '경계심', statVal: 72, statColor: '#c0392b',
     choices: ['그 이름을 왜 묻습니까?', '이틀 전 일이요?', '기억하고 있습니다', '왜 화났어요?'],
     responses: [
@@ -26,7 +26,7 @@ const NPCs = [
   {
     id: 1, name: '차서연', sub: '32세 · 여성', tag: '신경과 의사',
     tagColor: '#5a8870', avatarStyle: 'color:#5a8870;',
-    profile: '/frontend/images/차서연/차서연_프로필.png',
+    profile: '/frontend/images/cha_profile.png',
     statLabel: '의심도', statVal: 58, statColor: '#b07030',
     choices: ['커피 안 마실게요', '박주원 알아요?', '사무실 뒤진 거예요?', '패턴이 뭔가요?'],
     responses: [
@@ -38,7 +38,7 @@ const NPCs = [
   {
     id: 2, name: '엄마', sub: '61세 · 여성', tag: '가족',
     tagColor: '#8a7040', avatarStyle: 'color:#8a7040;',
-    profile: '/frontend/images/엄마/엄마_프로필.png',
+    profile: '/frontend/images/umma_profile.png',
     statLabel: '집착도', statVal: 89, statColor: '#b07030',
     choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
     responses: [
@@ -50,7 +50,7 @@ const NPCs = [
   {
     id: 3, name: '박도원', sub: '60세 · 남성', tag: '청소부',
     tagColor: '#7a6a5a', avatarStyle: 'color:#7a6a5a;',
-    profile: '/frontend/images/박도원/박도원_프로필.png',
+    profile: '/frontend/images/park_profile.png',
     statLabel: '수상함', statVal: 45, statColor: '#7a6a5a',
     choices: ['누구세요?', '문 앞에 두세요', '딸이 있으세요?', '여기서 일한 지 얼마나 됐어요?'],
     responses: [
@@ -341,8 +341,8 @@ function switchNPC(idx) {
 
   const headerImg = document.getElementById('header-profile-img');
   if (headerImg) {
-    headerImg.src = `${BASE_URL}/static/${npc.profile}`;
-    headerImg.alt = npc.initials;
+    headerImg.src = npc.profile;
+    headerImg.alt = npc.name;
   }
 
   document.getElementById('header-npc-name').textContent = npc.name;
@@ -388,6 +388,58 @@ function selectChoice(text) {
 }
 
 // ─────────────────────────────────────────────
+//  입력 키워드 기반 추천 문구 필터링
+// ─────────────────────────────────────────────
+function filterChoicesByInput(query) {
+  const npc = NPCs[currentNPC];
+  if (!npc) return;
+
+  const area = document.getElementById('choices-area');
+  const q = query.trim();
+
+  // 입력 없으면 원래 선택지 복원
+  if (!q) {
+    renderChoices(npc.choices);
+    return;
+  }
+
+  // 현재 NPC choices에서 키워드 포함 항목 필터링
+  const matched = npc.choices.filter(c =>
+    c.toLowerCase().includes(q.toLowerCase())
+  );
+
+  area.innerHTML = '';
+
+  if (matched.length > 0) {
+    // 매칭된 항목: 일치 부분 빨간 하이라이트
+    matched.forEach(text => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn choice-btn--suggest';
+
+      const highlighted = text.replace(
+        new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+        '<mark>$1</mark>'
+      );
+
+      btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+      </svg>${highlighted}`;
+      btn.onclick = () => selectChoice(text);
+      area.appendChild(btn);
+    });
+  } else {
+    // 매칭 없으면 "직접 입력" 안내 버튼
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn choice-btn--suggest choice-btn--direct';
+    btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+    </svg>직접 입력: "${esc(q)}"`;
+    btn.onclick = () => sendMsg();
+    area.appendChild(btn);
+  }
+}
+
+// ─────────────────────────────────────────────
 //  메시지 전송 (★ 대화 횟수 카운트 추가)
 // ─────────────────────────────────────────────
 function sendMsg() {
@@ -396,6 +448,8 @@ function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
+  // 전송 후 추천 문구 → 원래 선택지 복원
+  renderChoices(NPCs[currentNPC].choices);
 
   // 대화 횟수 증가 & 표시
   msgCount++;
@@ -434,9 +488,8 @@ function appendTypingRow() {
   row.id = 'typing-row';
   row.innerHTML = `
     <div class="npc-avatar">
-      <img src="${BASE_URL}/static/${npc.profile}"
-           alt="${npc.initials}"
-           onerror="this.src='/frontend/${npc.profile}'">
+      <img src="${npc.profile}"
+           alt="${npc.name}">
     </div>
     <div class="msg-col">
       <div class="msg-name">${npc.name}</div>
@@ -459,9 +512,8 @@ function addNPCMsg(overrideText = null) {
   row.className = 'msg-row';
   row.innerHTML = `
     <div class="npc-avatar" id="npc-avatar-${Date.now()}">
-      <img src="${BASE_URL}/static/${npc.profile}"
-           alt="${npc.initials}"
-           onerror="this.src='/frontend/${npc.profile}'">
+      <img src="${npc.profile}"
+           alt="${npc.name}">
     </div>
     <div class="msg-col">
       <div class="msg-name">${npc.name}</div>
@@ -485,7 +537,7 @@ function renderNPCImage(url, npcIdx = currentNPC) {
   if (!lastRow) return;
   const avatarImg = lastRow.querySelector('.npc-avatar img');
   if (!avatarImg) return;
-  const fullUrl = url.startsWith('http') ? url : `${BASE_URL}/static/${url}`;
+  const fullUrl = url.startsWith('http') ? url : `/static/images/${url}`;
   avatarImg.style.opacity = '0';
   setTimeout(() => {
     avatarImg.src = fullUrl;
@@ -798,6 +850,16 @@ document.getElementById('sound-toggle').addEventListener('click', (e) => {
   switchNPC(0);
   updateMsgCounter();
   scrollToBottom();
+
+  // 입력창 키워드 기반 추천 문구 필터링
+  const msgInput = document.getElementById('msg-input');
+  msgInput.addEventListener('input', (e) => {
+    filterChoicesByInput(e.target.value);
+  });
+  // Enter 키 전송
+  msgInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMsg();
+  });
 
   // 페이지 로드 시 백그라운드에서 오디오 재생 시도
   bgmAudio.play().then(() => {

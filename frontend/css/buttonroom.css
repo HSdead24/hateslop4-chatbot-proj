@@ -165,11 +165,9 @@ body {
 ══════════════════════════════════ */
 .scene-container {
   position:relative; width:100%;
-  /* 화면 비율(vh)을 사용하여 유연하게 조정 */
-  min-height: 30vh; 
-  max-height: 40vh; 
+  min-height: 35vh;
   overflow:hidden; background:#030508;
-  flex: 0 0 auto; /* 축소될 수 있도록 1 0 auto에서 1 1 auto로 변경 */
+  flex: 1 1 auto;
 }
 
 /* 실제 이미지 */
@@ -179,6 +177,7 @@ body {
   object-fit: contain;   /* cover → contain */
   object-position: bottom center;  /* 발이 잘리지 않게 아래 기준 */
   display: none;
+  z-index: 2;
 }
 
 /* 배경 이미지 레이어 (z-index: 1 적용) */

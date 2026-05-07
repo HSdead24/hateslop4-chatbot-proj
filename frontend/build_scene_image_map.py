@@ -40,9 +40,17 @@ OUTPUT_JSON   = ROOT / "frontend" / "data" / "scene_image_map.json"
 # 프론트에서 이미지를 서빙하는 URL prefix (main.py 기준)
 IMAGE_URL_PREFIX = "/static/images/button"  # ★ 변경
 
-# 치키 이미지 경로 (표정 변화 없이 단일 파일 사용)
-# 치키 폴더가 있으면 자동 감지, 없으면 아래 fallback 사용
-CHIKI_FALLBACK_URL = "/frontend/images/characters/chiki_img.png"
+# 캐릭터별 기본(fallback) 이미지 — 이미지가 null이거나 매핑 실패 시 사용
+DEFAULT_CHARACTER_IMAGES: dict[str, str] = {
+    "김도현": f"{IMAGE_URL_PREFIX}/김도현/김도현_무표정.png",
+    "박도원": f"{IMAGE_URL_PREFIX}/박도원/박도원_은은한미소_착한사람인척.png",
+    "엄마":   f"{IMAGE_URL_PREFIX}/엄마/엄마_정색.png",
+    "차서연": f"{IMAGE_URL_PREFIX}/차서연/차서연_무표정.png",
+    "치키":   f"{IMAGE_URL_PREFIX}/치키/치키_기본치키.png",
+}
+
+# 치키 폴더가 없을 때 최종 fallback (DEFAULT_CHARACTER_IMAGES["치키"]로 대체됨)
+CHIKI_FALLBACK_URL = DEFAULT_CHARACTER_IMAGES["치키"]
 
 # 임베딩 모델 (config.py와 동일하게 유지)
 EMBEDDING_MODEL = "text-embedding-3-small"
@@ -208,10 +216,15 @@ def main():
             skipped += 1
             continue
 
-        # 이미지 없는 화자 → null
+        # 이미지 없는 화자 → 기본 이미지(있으면) 또는 null
         if speaker not in char_embed_index:
-            print(f"      [경고] '{speaker}' 이미지 없음 → {scene_key} null 처리")
-            result[scene_key] = None
+            fallback = DEFAULT_CHARACTER_IMAGES.get(speaker)
+            if fallback:
+                print(f"      [경고] '{speaker}' 이미지 없음 → 기본 이미지 사용: {fallback}")
+                result[scene_key] = fallback
+            else:
+                print(f"      [경고] '{speaker}' 이미지 없음 → {scene_key} null 처리")
+                result[scene_key] = None
             skipped += 1
             continue
 
@@ -223,7 +236,10 @@ def main():
             char_index[speaker],
             char_embed_index[speaker],
         )
-        result[scene_key] = f"{IMAGE_URL_PREFIX}/{best}" if best else None
+        result[scene_key] = (
+            f"{IMAGE_URL_PREFIX}/{best}" if best
+            else DEFAULT_CHARACTER_IMAGES.get(speaker)
+        )
 
     print(f"      완료. 매핑 {len(result) - skipped}건, null {skipped}건")
 
