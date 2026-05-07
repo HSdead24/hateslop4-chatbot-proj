@@ -329,6 +329,14 @@ llm/vector_store/
 - [x] 이미지 렌더링 (백엔드 `image_url` 수신 후 말풍선 표시)
 - [x] `/chiki-triggers`, `/clue-triggers` 백엔드 연동 (루프별 트리거 동적 로드)
 - [x] → `suspect.html` 전환 (타이머 종료 또는 치키 범인 선택 시)
+- [x] NPC 이미지 화질 개선 및 배경 음악 자동 재생 처리
+- [x] 실제 화면 크기 계산 적용 (`100dvh`)
+
+**버튼 선택 화면 — 씬 이미지 시스템** (`data/scene_image_map.json` + `build_scene_image_map.py`)
+- [x] 버튼 ID별 배경 이미지 + NPC 표정 이미지 매핑 데이터 (`scene_image_map.json`)
+- [x] `build_scene_image_map.py` — `button_image_captions.json` 기반으로 매핑 파일 생성 스크립트
+- [x] 버튼 선택 화면에서 씬 전환 시 배경/인물 이미지 동적 렌더링
+- [x] buttonroom.css — 이미지 레이아웃 수정 (이미지 잘림 현상 해결)
 
 **용의자 선택 화면** (`suspect.html` + `js/suspect.js` + `css/suspect.css`)
 - [x] Scene 1: 치키 등장 + 4명 용의자 선택 그리드 (김도현/차서연/박도원/엄마)
@@ -336,8 +344,16 @@ llm/vector_store/
 - [x] Scene 3: 밤 이미지 연출
 - [x] Scene 4: 사망 이미지 연출 (NPC별 이미지 매핑 — VILLAIN_MAP)
 - [x] Scene 5: 다음 루프 아침 (탭하면 `opening.html`로 이동)
-- [x] Scene 6: 엔딩 (루프 3 소진 시)
+- [x] Scene 6: 루프 소진 시 → `ending.html`로 전환 (기존 인라인 엔딩에서 분리)
 - [x] `/new-loop` 백엔드 연동 → `is_game_over` 처리
+
+**엔딩 화면** (`ending.html` + `js/ending.js` + `css/ending.css`) ✅ **신규**
+- [x] 루프 3회 소진 후 표시되는 최종 엔딩 화면
+- [x] 치키 이미지 5종 전환 (기본 / 웃음 / 크게웃음 / 접근 / 귓속말) — 페이드 효과
+- [x] 대사 11개 시퀀스 — 한 글자씩 타이핑 연출 (HTML 태그 `<span>` 유지)
+- [x] 탭/클릭으로 대사 진행, 타이핑 중 탭 시 즉시 완성
+- [x] 마지막 대사 후 "다시 시작하기" 버튼 → `/opening` 전환
+- [x] 어두운 공포 테마 (퍼플 글로우, 스캔라인 오버레이, 커서 깜박임)
 
 **추가된 파일**
 ```
@@ -346,23 +362,41 @@ frontend/
 ├── buttonroom.html        ← 버튼 선택 화면 (7단계)
 ├── chatroom.html          ← 채팅 화면
 ├── suspect.html           ← 범인 선택 + 결과 연출 화면 (6씬)
+├── ending.html            ← 루프3 소진 시 최종 엔딩 화면 ★신규
 ├── css/
 │   ├── opening.css
 │   ├── buttonroom.css
 │   ├── chatroom.css
-│   └── suspect.css
+│   ├── suspect.css
+│   └── ending.css         ← 엔딩 화면 스타일 ★신규
 ├── js/
 │   ├── opening.js         ← 오프닝 흐름 + new-game 연동
-│   ├── button.js          ← 버튼 트리 탐색 + 백엔드 연동
+│   ├── button.js          ← 버튼 트리 탐색 + 백엔드 연동 + 씬 이미지 렌더링
 │   ├── chat.js            ← NPC 전환 / 타이머 / 치키 트리거 / 사망 연출 / 백엔드 연동
-│   └── suspect.js         ← 범인 선택 + 씬 전환 + 루프 처리
+│   ├── suspect.js         ← 범인 선택 + 씬 전환 + 루프 처리
+│   └── ending.js          ← 치키 대사 타이핑 + 이미지 전환 연출 ★신규
 ├── data/
-│   └── scenes.json        ← 버튼 선택 화면 씬/장소/대사 데이터
+│   ├── scenes.json        ← 버튼 선택 화면 씬/장소/대사 데이터
+│   └── scene_image_map.json ← 버튼 ID별 배경 + NPC 이미지 매핑 ★신규
+├── audio/                 ← 음향 효과 폴더 ★신규
+│   ├── atlasaudio-horror-ambience-512255.mp3    ← 채팅방 배경 음악
+│   ├── konstantinpazuzustudio-horror-piano-488124.mp3 ← 채팅방 배경 음악
+│   ├── 노크.mp3
+│   ├── 문자알림.mp3
+│   ├── 유리깨짐.mp3
+│   ├── 전화벨.mp3
+│   └── 초인종.mp3
+├── build_scene_image_map.py ← scene_image_map.json 생성 스크립트 ★신규
 └── images/
     ├── opening_vd.mp4     ← 오프닝 영상
     ├── room_img.png       ← 방 배경 이미지
     ├── chiki_img.png      ← 치키 캐릭터 이미지
     ├── chiki.png
+    ├── 치키_기본.png       ← 치키 표정 이미지 5종 ★신규
+    ├── 치키_웃음.png
+    ├── 치키_크게웃음.png
+    ├── 치키_접근.jpeg
+    ├── 치키_귓속말.png
     ├── kim_profile.png    ← 김도현 프로필
     ├── cha_profile.png    ← 차서연 프로필
     ├── park_profile.png   ← 박도원 프로필
@@ -371,7 +405,12 @@ frontend/
     ├── 사망_방.png
     ├── 사망_추락사.png
     ├── 사망_피 토 하는 사람.png
-    └── 사망2_칼.png
+    ├── 사망2_칼.png
+    └── bg/                ← 버튼 선택 화면 배경 이미지 ★신규
+        ├── bg_consulting.png / bg_corridor.png / bg_director.png
+        ├── bg_entrance.png / bg_living.png / bg_lobby.png
+        ├── bg_lounge.png / bg_room.png
+        └── 엔딩배경_치키세계.png 등
 ```
 
 ---
@@ -420,6 +459,15 @@ GET  /                      ← opening.html 반환 (루트 접속)
 - `/static/images/**` → `llm/vector_store/data/images/` (NPC 표정 이미지)
 - 루트 `/` → `frontend/opening.html`
 
+**HTML 클린 URL 라우팅 (신규 추가)**
+```
+GET /opening   ← opening.html
+GET /button    ← buttonroom.html
+GET /chat      ← chatroom.html
+GET /suspect   ← suspect.html
+GET /ending    ← ending.html  ★신규
+```
+
 **구현 완료 작업**
 - [x] `schemas.py` — 요청/응답 Pydantic 모델 전체 정의
 - [x] `session/manager.py` — `create_initial_state()` 기반 세션 생성/조회/갱신/삭제
@@ -431,6 +479,8 @@ GET  /                      ← opening.html 반환 (루트 접속)
   - `sys.path`를 `../../` → `../../llm`, `../../llm/nodes` 로 수정 (모듈 import 오류 해결)
   - `loop_node` → `loop_reset_node` 함수명 수정
   - `allow_credentials=True` + `allow_origins=["*"]` 조합 → `allow_credentials=False` 수정 (CORS 브라우저 거부 방지)
+- [x] HTML 클린 URL 라우팅 추가 (`/opening`, `/button`, `/chat`, `/suspect`, `/ending`) ★신규
+- [x] `/ending` 라우트 → `ending.html` 반환 ★신규
 
 **llm/frontend/backend 역할 분담 요약**
 
@@ -591,6 +641,126 @@ openai
 httpx
 pytest
 ```
+
+---
+
+### Phase 9 — 엔딩 화면 구현 ✅ 완료
+
+**브랜치**: `ending` → `main` 머지 완료 (PR #55)
+
+**구현 내용**
+- 루프 3회 소진(`is_game_over=true`) 후 `suspect.html`에서 `/ending`으로 이동
+- 치키가 진실을 밝히는 11개 대사 시퀀스 (타이핑 연출)
+- 치키 이미지 5종 (기본/웃음/크게웃음/접근/귓속말) — 대사별 자동 전환 + 페이드
+- 탭/클릭으로 대사 진행; 타이핑 중 탭 시 즉시 완성
+- 모든 대사 종료 후 "다시 시작하기" 버튼 → `/opening` 전환
+
+**추가된 파일**
+```
+frontend/
+├── ending.html
+├── css/ending.css
+├── js/ending.js
+└── images/
+    ├── 치키_기본.png
+    ├── 치키_웃음.png
+    ├── 치키_크게웃음.png
+    ├── 치키_접근.jpeg
+    └── 치키_귓속말.png
+```
+
+**완료 작업**
+- [x] `ending.html` / `ending.js` / `ending.css` 작성
+- [x] 치키 표정 이미지 5종 추가 (`frontend/images/`)
+- [x] `backend/main.py` — `/ending` GET 라우트 추가
+- [x] `suspect.js` — `is_game_over` 시 `ending.html` 전환 연동
+
+---
+
+### Phase 10 — 버튼룸 씬 이미지 시스템 ✅ 완료
+
+**브랜치**: `buttonimg` → `main` 머지 완료 (PR #51, #53)
+
+**구현 내용**
+- 버튼 ID별로 배경 이미지 + NPC 표정 이미지를 매핑하는 `scene_image_map.json` 생성
+- 버튼 선택 시 씬에 맞는 배경과 NPC 이미지가 동적으로 렌더링
+- `build_scene_image_map.py` — `button_image_captions.json`을 읽어 매핑 파일 자동 생성
+
+**추가된 파일**
+```
+frontend/
+├── data/scene_image_map.json       ← 버튼 ID → 배경/NPC 이미지 매핑
+├── build_scene_image_map.py        ← 매핑 파일 생성 스크립트
+└── images/bg/                      ← 버튼 선택 화면 배경 이미지 8종+
+    ├── bg_consulting.png / bg_corridor.png / bg_director.png
+    ├── bg_entrance.png / bg_living.png / bg_lobby.png
+    └── bg_lounge.png / bg_room.png 등
+
+llm/vector_store/data/
+├── button_image_captions.json      ← 씬별 이미지 캡션 데이터
+└── button/                         ← NPC 표정 이미지 (버튼룸용)
+    ├── 김도현/  (9종)
+    ├── 박도원/  (8종)
+    ├── 엄마/    (10종)
+    ├── 차서연/  (8종)
+    └── 치키/    (3종)
+```
+
+**완료 작업**
+- [x] `scene_image_map.json` 작성 (버튼 ID 전수 매핑)
+- [x] `build_scene_image_map.py` 작성
+- [x] 배경 이미지 8종+ `frontend/images/bg/`에 추가
+- [x] NPC 표정 이미지 (`llm/vector_store/data/button/`) NPC별 폴더에 추가
+- [x] `button.js` — 씬 전환 시 이미지 렌더링 로직 반영
+- [x] `buttonroom.css` — 이미지 잘림 현상 수정
+
+---
+
+### Phase 11 — 음향 효과 및 배경 음악 ✅ 완료
+
+**구현 내용**
+- 채팅 화면 배경 음악 2종 (공포 앰비언스, 호러 피아노) 자동 재생 처리
+- 이벤트 음향 효과 5종 (노크, 문자 알림, 유리 깨짐, 전화벨, 초인종)
+
+**추가된 파일**
+```
+frontend/audio/
+├── atlasaudio-horror-ambience-512255.mp3       ← 배경 음악
+├── konstantinpazuzustudio-horror-piano-488124.mp3 ← 배경 음악
+├── 노크.mp3
+├── 문자알림.mp3
+├── 유리깨짐.mp3
+├── 전화벨.mp3
+└── 초인종.mp3
+```
+
+**완료 작업**
+- [x] 배경 음악 2종 추가 및 자동 재생 처리 (브라우저 정책 대응)
+- [x] 이벤트 음향 5종 추가
+
+---
+
+### Phase 12 — LLM 프롬프트 품질 개선 ✅ 완료
+
+**브랜치**: `prompt` → `main` 머지 완료 (PR #50, #52, #54)
+
+**개선 내용**
+- `rag_inject.py` — RAG 문서 내 '유저', '주인공' 워딩 → 대화 상대방 실제 이름으로 교체 (몰입감 저하 방지)
+- `base.py` `build_system_prompt` 수정 — 시스템 프롬프트 구조 개선
+- NPC별 `BASE_PERSONALITY` 수정 — 캐릭터 성격 일관성 강화
+- Few-shot 샘플 수정 — 캐릭터 말투 정확도 향상
+- `chat_node.py` 기억 교정 — 대화 요약 시 '유저'/'NPC' 대신 실제 이름으로 덮어씌워 요약 왜곡 방지
+- `image_retriever.py` 기본 이미지 경로 변경 (배포 환경 경로 일치)
+- `chat.js` — BASE_URL 제거, NPC 프로필 이미지 경로 수정 (상대 경로로 통일)
+
+**완료 작업**
+- [x] `rag_inject.py` 워딩 교체 로직 추가
+- [x] `base.py` 시스템 프롬프트 수정
+- [x] NPC별 `BASE_PERSONALITY` 수정 (4 NPC)
+- [x] few-shot 샘플 수정
+- [x] `chat_node.py` 대화 요약 시 실제 이름 덮어씌움 처리
+- [x] `image_retriever.py` 기본 이미지 경로 수정
+- [x] `chat.js` / `button.js` / `opening.js` / `suspect.js` BASE_URL 제거 및 경로 정리
 
 ---
 
