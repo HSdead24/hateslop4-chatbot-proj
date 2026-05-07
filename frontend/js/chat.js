@@ -712,7 +712,7 @@ document.getElementById('tab-clue').addEventListener('click', () => switchTab('c
 
 
 // ─────────────────────────────────────────────
-//  BGM 제어 로직 (여러 곡 번갈아 무한 재생)
+//  BGM 제어 로직 (자동 재생 시도 포함)
 // ─────────────────────────────────────────────
 const bgmList = [
   '/frontend/audio/atlasaudio-horror-ambience-512255.mp3',
@@ -721,60 +721,69 @@ const bgmList = [
 
 let currentBgmIdx = 0; 
 let bgmAudio = new Audio(bgmList[currentBgmIdx]); 
-// 주의: loop = true 를 설정하지 않습니다. (곡이 끝나야 다음 곡으로 넘어가기 때문)
 
 let isSoundOn = false;
 let hasInteracted = false;
 
-// 한 곡이 완전히 끝났을 때 다음 곡으로 넘어가는 이벤트 리스너
+// 한 곡이 끝났을 때 다음 곡으로 넘어감
 bgmAudio.addEventListener('ended', () => {
-  // 다음 곡 인덱스 계산 (0 -> 1 -> 0 -> 1 반복)
   currentBgmIdx = (currentBgmIdx + 1) % bgmList.length;
-  
-  // 오디오 소스 변경 및 재생
   bgmAudio.src = bgmList[currentBgmIdx];
   if (isSoundOn) {
       bgmAudio.play().catch(e => console.warn('다음 BGM 재생 실패:', e));
   }
 });
 
-function toggleSound() {
+// 상단 스피커 아이콘 이미지를 바꿔주는 헬퍼 함수
+function updateSoundIcon(playing) {
   const iconOn = document.getElementById('sound-icon-on');
   const iconOff = document.getElementById('sound-icon-off');
-  
-  if (isSoundOn) {
-    bgmAudio.pause();
-    iconOn.style.display = 'none';
-    iconOff.style.display = 'block';
-    isSoundOn = false;
-  } else {
-    bgmAudio.play().catch(e => console.warn('BGM 재생 실패:', e));
+  if (playing) {
     iconOn.style.display = 'block';
     iconOff.style.display = 'none';
     isSoundOn = true;
+  } else {
+    iconOn.style.display = 'none';
+    iconOff.style.display = 'block';
+    isSoundOn = false;
   }
 }
 
-// 화면 아무 곳이나 처음 클릭했을 때 BGM 켜기
+// 스피커 버튼을 눌렀을 때 켜고 끄기
+function toggleSound() {
+  if (isSoundOn) {
+    bgmAudio.pause();
+    updateSoundIcon(false);
+  } else {
+    bgmAudio.play().then(() => {
+        updateSoundIcon(true);
+    }).catch(e => console.warn('BGM 재생 실패:', e));
+  }
+}
+
+// 자동 재생이 브라우저에 의해 막혔을 때, 사용자의 첫 클릭 시 재생
 document.body.addEventListener('click', () => {
   if (!hasInteracted) {
     hasInteracted = true;
-    toggleSound(); 
+    if (!isSoundOn) {
+        bgmAudio.play().then(() => {
+            updateSoundIcon(true);
+        }).catch(e => console.warn('BGM 재생 실패:', e));
+    }
   }
 }, { once: true });
 
+// 스피커 아이콘 클릭 이벤트
 document.getElementById('sound-toggle').addEventListener('click', (e) => {
   e.stopPropagation(); 
   hasInteracted = true; 
   toggleSound();
 });
 
-
 // ─────────────────────────────────────────────
 //  초기화
 // ─────────────────────────────────────────────
 (async () => {
-  // ★ sessionStorage에서 루프 번호 읽어서 UI 반영
   const storedLoop = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
   loopNum = storedLoop;
   loopCount = storedLoop;
@@ -789,4 +798,15 @@ document.getElementById('sound-toggle').addEventListener('click', (e) => {
   switchNPC(0);
   updateMsgCounter();
   scrollToBottom();
+
+  // 페이지 로드 시 백그라운드에서 오디오 재생 시도
+  bgmAudio.play().then(() => {
+      console.log('BGM 자동 재생 성공');
+      updateSoundIcon(true);
+      hasInteracted = true; 
+  }).catch((e) => {
+      // 브라우저가 막으면 꺼진 상태로 대기 (사용자 첫 클릭 시 켜짐)
+      console.warn('브라우저 정책으로 자동 재생 차단. 사용자 클릭 대기 중.');
+      updateSoundIcon(false);
+  });
 })();
