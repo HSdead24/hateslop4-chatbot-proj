@@ -267,7 +267,7 @@ async function goGame() {
   }
 
   curtainTransition(() => {
-    window.location.href = '/frontend/buttonroom.html';
+    window.location.href = '/button';
   });
 }
 

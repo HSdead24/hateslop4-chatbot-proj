@@ -215,7 +215,7 @@ function goToMorning() {
 
 // 아침 씬 탭 → 버튼룸으로
 function tapMorning() {
-  window.location.href = 'buttonroom.html';
+  window.location.href = '/button';
 }
 
 // ─────────────────────────────────────────────

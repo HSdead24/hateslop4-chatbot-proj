@@ -102,14 +102,26 @@ app.include_router(triggers_router)
 
 
 # ────────────────────────────────────────────
-# 헬스 체크
+# 헬스 체크 및 HTML 라우팅
 # ────────────────────────────────────────────
 
 @app.get("/health", tags=["system"])
 def health():
     return {"status": "ok"}
 
-
 @app.get("/", tags=["system"])
 def root():
     return FileResponse(str(_FRONTEND_DIR / "opening.html"))
+
+# /button 주소로 접속하면 buttonroom.html들을 보여줍니다.
+@app.get("/button", tags=["system"])
+def get_room():
+    return FileResponse(str(_FRONTEND_DIR / "buttonroom.html"))
+
+@app.get("/chat", tags=["system"])
+def get_chat():
+    return FileResponse(str(_FRONTEND_DIR / "chatroom.html"))
+
+@app.get("/suspect", tags=["system"])
+def get_suspect():
+    return FileResponse(str(_FRONTEND_DIR / "suspect.html"))
