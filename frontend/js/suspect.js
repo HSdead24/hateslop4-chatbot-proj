@@ -45,18 +45,18 @@ const VILLAIN_MAP = {
 
 // 범인 NPC → 사망 이미지 파일명
 const DEATH_IMAGE_MAP = {
-  '김도현': 'images/사망_루프.png',
-  '차서연': 'images/사망_피 토 하는 사람.png',
-  '박도원': 'images/사망2_칼.png',
-  '엄마': 'images/사망_방.png',
+  '김도현': '/frontend/images/사망_루프.png',
+  '차서연': '/frontend/images/사망_피 토 하는 사람.png',
+  '박도원': '/frontend/images/사망2_칼.png',
+  '엄마': '/frontend/images/사망_방.png',
 };
 
 // NPC 정보 (아바타 색상, 역할)
 const NPC_INFO = {
-  '김도현': { color: '#6a7f99', role: '내담자', initials: '도현', profile: 'images/kim_profile.png' },
-  '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연', profile: 'images/cha_profile.png' },
-  '박도원': { color: '#7a6a5a', role: '청소부', initials: '도원', profile: 'images/park_profile.png' },
-  '엄마': { color: '#8a7040', role: '가족', initials: '엄마', profile: 'images/umma_profile.png' },
+  '김도현': { color: '#6a7f99', role: '내담자', initials: '도현', profile: '/frontend/images/kim_profile.png' },
+  '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연', profile: '/frontend/images/cha_profile.png' },
+  '박도원': { color: '#7a6a5a', role: '청소부', initials: '도원', profile: '/frontend/images/park_profile.png' },
+  '엄마': { color: '#8a7040', role: '가족', initials: '엄마', profile: '/frontend/images/umma_profile.png' },
 };
 
 // ─────────────────────────────────────────────
@@ -155,7 +155,7 @@ function confirmSuspect() {
   // 밤 씬 이미지 세팅
   loadImg(
     document.getElementById('night-img'),
-    'images/밤.png',
+    '/frontend/images/밤.png',
     document.getElementById('night-fallback')
   );
 
@@ -203,7 +203,7 @@ function goToMorning() {
 
   loadImg(
     document.getElementById('morning-img'),
-    'images/아침_방.png',
+    '/frontend/images/아침_방.png',
     document.getElementById('morning-fallback')
   );
 
@@ -232,7 +232,7 @@ function tapMorning() {
 }*/
 function goToEnding() {
   // 엔딩 전용 페이지로 이동
-  window.location.href = 'ending.html';
+  window.location.href = '/ending';
 }
  
 
@@ -275,7 +275,7 @@ async function notifyDeath() {
     showScene('scene-death');
     loadImg(
       document.getElementById('death-img'),
-      'images/사망_추락사.png',
+      '/frontend/images/사망_추락사.png',
       document.getElementById('death-fallback')
     );
     setTimeout(() => {
