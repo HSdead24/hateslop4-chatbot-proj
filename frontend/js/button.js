@@ -7,6 +7,15 @@
 // ─────────────────────────────────────────────
 //  게임 상태
 // ─────────────────────────────────────────────
+// 캐릭터별 기본(fallback) 이미지 — 씬 이미지가 없거나 로드 실패 시 사용
+const DEFAULT_CHARACTER_IMAGES = {
+  '김도현': '/static/images/button/김도현/김도현_무표정.png',
+  '박도원': '/static/images/button/박도원/박도원_은은한미소_착한사람인척.png',
+  '엄마':   '/static/images/button/엄마/엄마_정색.png',
+  '차서연': '/static/images/button/차서연/차서연_무표정.png',
+  '치키':   '/static/images/button/치키/치키_기본치키.png',
+};
+
 const GAME_STATE = {
   timer: { h: 0, m: 24, s: 0 },  // 24분 제한
   currentNodeId: 'root',              // 현재 위치한 트리 노드
@@ -636,10 +645,16 @@ async function finalizeAndNavigate() {
 // ─────────────────────────────────────────────
 //  씬 이미지 교체
 // ─────────────────────────────────────────────
-function setSceneImage(url) {
+function setSceneImage(url, speakerName) {
   if (!url) return;
   const img = document.getElementById('sceneImage');
   const fig = document.getElementById('sceneFigure');
+  img.onerror = () => {
+    const fallback = DEFAULT_CHARACTER_IMAGES[speakerName];
+    if (fallback && img.src !== location.origin + fallback) {
+      img.src = fallback;
+    }
+  };
   img.src = url;
   img.style.display = 'block';
   if (fig) fig.style.display = 'none';
@@ -649,7 +664,7 @@ function setSceneImage(url) {
 //  씬 전체 업데이트 (외부에서 호출 가능)
 // ─────────────────────────────────────────────
 function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) {
-  if (imageUrl !== undefined) setSceneImage(imageUrl);
+  if (imageUrl !== undefined) setSceneImage(imageUrl, speaker?.name);
   if (speaker) {
     document.getElementById('speakerName').textContent = speaker.name;
     document.getElementById('speakerRole').textContent = speaker.role;
@@ -676,7 +691,7 @@ function applyScene(nodeId, prefix = 'select_') {
 
   const applyUpdate = () => {
     updateScene({
-      imageUrl: window.SCENE_IMAGE_MAP?.[key] || null,  // ★ 추가: 씬별 인물 이미지
+      imageUrl: window.SCENE_IMAGE_MAP?.[key] || DEFAULT_CHARACTER_IMAGES[scene.speaker_name] || null,
       speaker: { name: scene.speaker_name, role: scene.speaker_role },
       dialogue: scene.dialogue,
       location: scene.location,
