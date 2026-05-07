@@ -82,8 +82,11 @@ def build_rag_block(
 
     if not context.strip():
         return _NO_CONTEXT_MSG
+    
+    # 문서의 '유저', '주인공'을 LLM이 읽기 전에 중립적인 단어로 강제 변환
+    safe_context = context.replace("유저", "대화 상대방").replace("주인공", "대화 상대방")
 
-    return f"{_RAG_HEADER}{context}{_RAG_FOOTER}"
+    return f"{_RAG_HEADER}{safe_context}{_RAG_FOOTER}"
 
 
 def inject_rag_into_system(
