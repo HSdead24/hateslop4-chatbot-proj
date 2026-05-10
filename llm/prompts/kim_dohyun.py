@@ -3,6 +3,7 @@
 
 chat_node.py에서 build_kim_prompt()를 호출해 SystemMessage를 생성한다.
 수치(trust, hostility, composure)는 base.py의 build_system_prompt()를 통해 반영된다.
+
 """
 
 from prompts.base import build_system_prompt
