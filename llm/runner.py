@@ -20,7 +20,7 @@ from state import GameState, PHASE_CHAT, NPC_LIST
 from config import DEFAULT_NPC_STATS
 from stories import STORIES
 from graph import game_graph
-from nodes.button_node import record_button, finalize_stats, get_available_buttons as _get_available_buttons
+from nodes.button_node import record_button, finalize_stats, get_disabled_buttons as _get_available_buttons
 from nodes.router import route_after_chat, ROUTE_RESET, ROUTE_END
 from langgraph.graph import END
 

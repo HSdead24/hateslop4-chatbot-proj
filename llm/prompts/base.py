@@ -96,115 +96,62 @@ def stats_to_description(stats: dict) -> str:
 
 def stats_to_tone_guidance(stats: dict) -> str:
     """
-    수치 범위에 따라 캐릭터 말투 조정 지침을 생성한다.
-    프롬프트의 '수치에 따른 말투 조정 지침' 섹션에 삽입된다.
-
-    수치별 high/low 임계값은 config.py의 THRESHOLDS에서 관리한다.
-    Fleshy는 범인 판정 전용 수치로 말투 분기 대상에서 제외한다.
-
-    새로운 수치 항목 추가 시 config.py의 THRESHOLDS에 항목 추가 후
-    이 함수에 elif 블록만 추가하면 된다.
-
-    Parameters
-    ----------
-    stats : {"trust": 20, "hostility": 70, ...}
-
-    Returns
-    -------
-    말투 지침 문자열
+    수치 범위에 따라 캐릭터의 내면 상태(심리)를 설명한다.
+    명령형 지시("~하게 말해라")를 배제하고 상태 위주로 묘사하여 캐릭터의 기본 성격이 붕괴되는 것을 막는다.
     """
     guidance = []
 
     for key, value in stats.items():
-
         if key not in THRESHOLDS:
-            continue  # Fleshy 등 임계값 미정의 수치는 건너뜀
+            continue
 
         high = THRESHOLDS[key]["high"]
         low  = THRESHOLDS[key]["low"]
 
         if key == "trust":
             if value >= high:
-                guidance.append(
-                    "- 신뢰도가 높음: 유저에게 비교적 솔직하게 대화한다. "
-                    "가끔 힌트성 발언을 할 수 있으며, 말투가 부드러워진다."
-                )
+                guidance.append("- 신뢰도 높음: 대화 상대의 말을 믿어보려는 심리 상태. 방어기제가 살짝 옅어지며, 정보를 조금 더 공유할 의향이 생김.")
             elif value <= low:
-                guidance.append(
-                    "- 신뢰도가 낮음: 단답 위주로 대화하고 질문을 회피한다. "
-                    "유저의 말을 의심하며 질문에 질문으로 받아친다."
-                )
+                guidance.append("- 신뢰도 낮음: 대화 상대를 전혀 믿지 못하는 심리 상태. 상대의 질문 의도를 끊임없이 의심하며, 확답을 피하고 방어적으로 반응함.")
 
         elif key == "hostility":
             if value >= high:
-                guidance.append(
-                    "- 적대감이 높음: 공격적인 말투를 사용한다. "
-                    "빈정거림과 위협적인 뉘앙스가 섞이며, 유저를 몰아붙인다."
-                )
+                guidance.append("- 적대감 높음: 상대방에 대한 강한 분노와 적대감을 품은 상태. 대사 속에 가시가 돋치며, 상대를 은근히 또는 노골적으로 압박하고 몰아세우려 함.")
             elif value <= low:
-                guidance.append(
-                    "- 적대감이 낮음: 비교적 차분하고 중립적인 태도를 유지한다."
-                )
+                guidance.append("- 적대감 낮음: 적대감이 가라앉은 상태. 비교적 감정을 누르고 대화의 원래 목적에 집중함.")
 
         elif key == "suspicion":
             if value >= high:
-                guidance.append(
-                    "- 의심이 높음: 유저의 모든 말에서 모순을 찾으려 한다. "
-                    "정황과 근거를 들어 유저를 압박하는 질문을 던진다."
-                )
+                guidance.append("- 의심 높음: 상대방의 모든 말과 행동에 모순이 있다고 확신하는 상태. 상대의 허점을 찌르거나 숨겨진 정황을 집요하게 캐묻고자 함.")
             elif value <= low:
-                guidance.append(
-                    "- 의심이 낮음: 유저의 말을 일단 받아들이는 편이다. "
-                    "단정적인 표현보다 가능성을 열어두는 말투를 사용한다."
-                )
+                guidance.append("- 의심 낮음: 의심을 잠시 거두고 상대의 말을 있는 그대로 들어보려는 상태. 단정 짓는 태도가 줄어듦.")
 
         elif key == "caution":
             if value >= high:
-                guidance.append(
-                    "- 경계심이 높음: 민감한 정보는 절대 먼저 꺼내지 않는다. "
-                    "유저가 특정 주제에 접근하면 화제를 돌리거나 말을 흐린다."
-                )
+                guidance.append("- 경계심 높음: 극도로 경계하는 상태. 자신의 속마음이나 중요 정보(단서)가 노출되는 것을 철저히 방어하며 화제를 돌리려 함.")
             elif value <= low:
-                guidance.append(
-                    "- 경계심이 낮음: 비교적 자유롭게 정보를 공유한다."
-                )
+                guidance.append("- 경계심 낮음: 경계심이 느슨해진 상태. 자신의 생각이나 알고 있는 사실을 덜 걸러내고 발화함.")
 
         elif key == "composure":
             if value >= high:
-                guidance.append(
-                    "- 침착함이 높음: 감정을 잘 숨기고 논리적으로 말한다. "
-                    "도발적인 질문에도 쉽게 흔들리지 않는다."
-                )
+                guidance.append("- 침착함 높음: 이성과 침착함을 완벽히 유지하는 상태. 상대의 도발이나 돌발 상황에도 흔들리지 않고 냉정하게 대응함.")
             elif value <= low:
-                guidance.append(
-                    "- 침착함이 낮음: 감정이 말투에 쉽게 드러난다. "
-                    "말을 흐리거나 같은 말을 반복하는 등 불안정한 모습을 보인다."
-                )
+                guidance.append("- 침착함 낮음: 감정 통제력이 무너진 상태. 여유가 없어지고 불안정해지며, 억눌렀던 감정(분노, 슬픔, 당황 등)이 대화 밖으로 새어 나옴.")
 
         elif key == "guilt":
             if value >= high:
-                guidance.append(
-                    "- 죄책감이 높음: 특정 주제에서 말끝을 흐리거나 화제를 돌린다. "
-                    "유저가 핵심에 가까워질수록 방어적이 되고 감정이 흔들린다."
-                )
+                guidance.append("- 죄책감 높음: 과거의 일로 인해 극심한 죄책감에 짓눌린 상태. 상대가 사건의 핵심을 찌르면 강박적인 방어기제가 발동하여 회피하거나 감정이 크게 동요함.")
             elif value <= low:
-                guidance.append(
-                    "- 죄책감이 낮음: 과거 사건에 대해 비교적 담담하게 말한다."
-                )
+                guidance.append("- 죄책감 낮음: 자신의 행동을 정당화하거나 덤덤하게 받아들이는 상태. 과거의 일에 대해 비교적 거리를 두고 말함.")
 
         elif key == "grief":
             if value >= high:
-                guidance.append(
-                    "- 슬픔/상실감이 높음: 말의 속도가 느려지고 한숨이 섞인다. "
-                    "딸(박주원) 관련 이야기가 나오면 감정이 크게 흔들린다."
-                )
+                guidance.append("- 슬픔/상실감 높음: 상실감이 감당하기 힘들 정도로 차오른 상태. 말이 느려지거나 체념, 짙은 원망이 묻어나오며 특정 인물 언급 시 깊게 침잠함.")
             elif value <= low:
-                guidance.append(
-                    "- 슬픔/상실감이 낮음: 감정을 많이 추스른 상태로 비교적 차분하다."
-                )
+                guidance.append("- 슬픔/상실감 낮음: 슬픔을 어느 정도 갈무리하고 당장의 현실(현재 대화)에 집중할 수 있는 상태.")
 
     if not guidance:
-        guidance.append("- 모든 수치가 중간 범위: 기본 성격과 말투를 그대로 유지한다.")
+        guidance.append("- 내면 상태 안정: 모든 감정 수치가 중간 범위. 특별히 동요하지 않고 기본 성격에 가장 충실한 상태.")
 
     return "\n".join(guidance)
 
@@ -374,7 +321,8 @@ def build_system_prompt(
 === 현재 수치 상태 ===
 {stats_to_description(stats)}
 
-=== 수치에 따른 말투 조정 지침 ===
+=== 현재 내면 상태 및 행동 지침 ===
+[주의: 아래의 내면 상태를 대사에 반영하되, 반드시 앞서 정의된 '기본 성격'과 '말투 규칙'의 틀 안에서 표현해야 합니다. 캐릭터 고유의 어조를 절대 잃거나 다른 성격으로 변하지 마세요.]
 {stats_to_tone_guidance(stats)}
 
 === 절대 말하면 안 되는 것 ===

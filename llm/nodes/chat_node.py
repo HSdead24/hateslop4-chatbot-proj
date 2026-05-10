@@ -18,7 +18,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from state import GameState, NPC_EXECUTOR, NPC_KIM, NPC_CHA, NPC_MOM, NPC_PARK, TOTAL_LOOPS
 from config import (
     LLM_MODEL_DEFAULT, LLM_MODEL_HEAVY, LLM_TEMPERATURE, LLM_MAX_TOKENS,
-    MAX_CHAT_TURNS, MESSAGE_SUMMARY_THRESHOLD, MAX_HISTORY_TURNS,
+    MAX_CHAT_TURNS
 )
 from death_triggers import check_death_trigger, check_chiki_loop_reset
 
@@ -46,34 +46,6 @@ NPC_PROMPT_BUILDERS = {
 # RAG 컨텍스트 캐시 — 동일 NPC × 루프 × 입력 앞 20자 조합 재사용
 # 프로세스 재시작 시 초기화되므로 영속성 불필요
 _rag_cache: dict = {}
-
-
-# ────────────────────────────────────────────
-# 대화 기록 요약
-# ────────────────────────────────────────────
-
-def summarize_messages(messages: list, llm: ChatOpenAI, player_name: str, npc_name: str) -> list:
-    if len(messages) < MESSAGE_SUMMARY_THRESHOLD:
-        return messages
-
-    keep_count  = MESSAGE_SUMMARY_THRESHOLD // 2
-    old_msgs    = messages[:-keep_count]
-    recent_msgs = messages[-keep_count:]
-
-    # 실제 이름 사용
-    old_text = "\n".join([
-        f"{player_name if m['role'] == 'user' else npc_name}: {m['content']}"
-        for m in old_msgs
-    ])
-
-    summary_prompt = [
-        SystemMessage(content="다음 대화를 3문장 이내로 핵심만 요약해줘. 요약문만 출력해."),
-        HumanMessage(content=old_text)
-    ]
-    summary = llm.invoke(summary_prompt).content
-
-    summary_msg = {"role": "assistant", "content": f"[이전 대화 요약] {summary}"}
-    return [summary_msg] + recent_msgs
 
 
 # ────────────────────────────────────────────
@@ -163,19 +135,17 @@ def generate_npc_response(
     # 3. RAG 주입
     system_prompt = inject_rag_into_system(system_prompt, rag_block)
 
-    # 슬라이딩 윈도우 적용 후 요약 처리
+    # 요약(Summary) 로직 완전 삭제, 원본 그대로 사용
     current_messages = state["messages"].get(npc_name, [])
-    windowed         = current_messages[-MAX_HISTORY_TURNS * 2:]
-    summarized       = summarize_messages(windowed, llm, player_name, npc_name)
 
-    # 유저 입력을 대화 기록에 추가
-    summarized_with_input = summarized + [{"role": "user", "content": user_input}]
+    # 유저 입력을 원본 대화 기록 전체에 바로 추가
+    messages_with_input = current_messages + [{"role": "user", "content": user_input}]
 
-    # LangChain 메시지 형식으로 변환
-    history  = build_message_history(summarized_with_input)
+    # 5. LangChain 메시지 형식으로 변환
+    history  = build_message_history(messages_with_input)
     messages = build_chat_prompt(system_prompt, history)
 
-    # LLM 호출
+    # 6. LLM 호출
     response = llm.invoke(messages).content
     return response
 

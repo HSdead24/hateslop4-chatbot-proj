@@ -1,7 +1,7 @@
 """
-게임 전체에서 공유되는 데이터 구조(GameState)를 정의하는 파일.
+게임의 모든 상태(루프 횟수, 현재 수치, NPC별 대화 기록 등)를 담는 중앙 저장소.
+messages를 딕셔너리 형태로 분리하여 NPC별 1:1 대화 기록이 섞이지 않도록 방지한다.
 모든 LangGraph 노드는 이 TypedDict를 읽고 쓴다.
-수치 항목(npc_stats의 키)이 바뀌어도 이 파일은 수정하지 않아도 된다.
 """
 
 from typing import TypedDict
@@ -130,6 +130,10 @@ class GameState(TypedDict):
     first_button   : int    # 첫 번째 선택지 버튼 ID. RAG route 필터에 사용.
     context        : list   # list[str] — 프론트에서 조합한 버튼 텍스트 목록
 
+    _user_input    : str    
+    _last_response : str    
+    _image_url     : str | None
+
 
 # ────────────────────────────────────────────
 # 초기 GameState 생성 헬퍼
@@ -167,4 +171,9 @@ def create_initial_state(
         button_history = [],
         first_button   = 0,
         context        = [],
+
+        # 초기값 세팅
+        _user_input    = "",
+        _last_response = "",
+        _image_url     = None,
     )

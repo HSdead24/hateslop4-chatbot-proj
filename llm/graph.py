@@ -51,11 +51,13 @@ def chat_phase_node(state: GameState) -> GameState:
     runner.py에서만 사용하고 LangGraph 상태에는 영향을 주지 않는다.
     """
     user_input = state.get("_user_input", "")
-    updated_state, response = chat_node(state, user_input)
+    updated_state, response, image_url = chat_node(state, user_input)
 
     # 응답을 임시 필드에 저장 (runner.py에서 꺼내 쓴 후 제거)
     result = dict(updated_state)
     result["_last_response"] = response
+    result["_image_url"] = image_url
+
     return GameState(**result)
 
 
@@ -106,7 +108,7 @@ def build_graph() -> StateGraph:
         ROUTE_CHAT,
         route_after_chat,
         {
-            ROUTE_CHAT : ROUTE_CHAT,
+            ROUTE_CHAT : END, # ROUTE_CHAT(정상 진행)일 때 다시 돌지 말고 그래프 실행을 종료(END)하여 유저 입력을 기다리도록 변경
             ROUTE_RESET: ROUTE_RESET,
             END        : END,
         }
