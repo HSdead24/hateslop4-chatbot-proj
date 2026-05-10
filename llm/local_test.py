@@ -8,9 +8,9 @@ def main():
     
     # 1. 초기 상태 세팅 (Phase 1 생략 후 바로 채팅 진입)
     # 💡 여기서 원하는 스토리 ID를 바꿔가며 NPC의 초기 수치(적대감, 신뢰도 등)에 따른 말투 변화를 테스트할 수 있습니다.
-    player_name = "정재희"
-    player_gender = "여자"
-    target_story = "story_1"  # stories.py에 정의된 스토리 (예: 김도현 적대감 MAX 스토리)
+    player_name = input("이름을 입력하세요: ")
+    player_gender = input("성별을 선택하세요 (여자 / 남자): ")
+    target_story = "story_15"
     
     state = start_phase2_directly(
         player_name=player_name, 
@@ -20,7 +20,7 @@ def main():
     
     # 2. 대화할 캐릭터 선택
     # NPC_KIM, NPC_CHA, NPC_MOM, NPC_PARK, NPC_EXECUTOR 중 택 1
-    current_npc = NPC_KIM 
+    current_npc = NPC_MOM
     
     print(f"✅ 플레이어: {player_name} ({player_gender})")
     print(f"✅ 적용 스토리: {target_story}")
