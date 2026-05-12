@@ -646,18 +646,18 @@ async function finalizeAndNavigate() {
 //  배경 이미지 매핑 (location → bg 파일)
 // ─────────────────────────────────────────────
 const LOCATION_BG_MAP = {
-  '주인공의 방':   '/frontend/images/bg/bg_room.png',
-  '현관 앞':       '/frontend/images/bg/bg_entrance.png',
-  '거실':          '/frontend/images/bg/bg_living.png',
-  '거실 창가':     '/frontend/images/bg/bg_living.png',
-  '휴게실':        '/frontend/images/bg/bg_lounge.png',
-  '원장실':        '/frontend/images/bg/bg_director.png',
-  '원장실 앞':     '/frontend/images/bg/bg_corridor.png',
-  '진료실':        '/frontend/images/bg/bg_consulting.png',
-  '진료실 앞':     '/frontend/images/bg/bg_corridor.png',
-  '상담실':        '/frontend/images/bg/bg_consulting.png',
-  '복도':          '/frontend/images/bg/bg_corridor.png',
-  '병원 1층 로비': '/frontend/images/bg/bg_lobby.png',
+  '주인공의 방':   'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550044/bg_room_yn5qfy.png',
+  '현관 앞':       'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_entrance_awsngo.png',
+  '거실':          'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
+  '거실 창가':     'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
+  '휴게실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lounge_rbdrz9.png',
+  '원장실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_director_mw2fno.png',
+  '원장실 앞':     'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
+  '진료실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550040/bg_consulting_cregzw.png',
+  '진료실 앞':     'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
+  '상담실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550040/bg_consulting_cregzw.png',
+  '복도':          'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
+  '병원 1층 로비': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
 };
 
 function setSceneBgImage(location) {

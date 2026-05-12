@@ -12,7 +12,7 @@ FastAPI 앱 진입점.
     http://localhost:8000/frontend/buttonroom.html
 
 Swagger UI:
-    http://localhost:8000/docs
+    http://localhost:8000/
 """
 
 from fastapi import FastAPI, Request
