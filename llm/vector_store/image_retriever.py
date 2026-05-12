@@ -74,7 +74,7 @@ def build_image_store(image_dir: str, reset: bool = False) -> None:
             caption = f"{character}이 {situation} 상태이다."
 
             # image_url: images/ 기준 상대경로 (백엔드 static 서빙 경로와 일치)
-            rel_path = f"images/{character}/{img_entry.name}"
+            rel_path = f"https://res.cloudinary.com/dqu0dyn5k/image/upload/f_png/chat/{character}/{img_entry.name}"
 
             ids.append(rel_path)
             embeddings.append(_get_embedding(caption))
@@ -101,7 +101,7 @@ def retrieve_image(response_text: str, character: str | None = None) -> str | No
     Returns:
         image_url 문자열 (항상 반환, None 없음)
     """
-    default_image = f"images/{character}/{character}_프로필.png"
+    default_image = f"https://res.cloudinary.com/dqu0dyn5k/image/upload/f_png/chat/{character}/{character}_프로필.png"
 
     embedding = _get_embedding(response_text)
     collection = _get_collection()

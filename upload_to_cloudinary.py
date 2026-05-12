@@ -1,5 +1,3 @@
-# 버튼룸 NPC 이미지 업로드 스크립트
-
 import cloudinary
 import cloudinary.uploader
 from pathlib import Path
@@ -14,13 +12,15 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-IMAGES_DIR = Path("llm/vector_store/data/button")
+IMAGES_DIR = Path("llm/vector_store/data/images")
 
 for char_dir in IMAGES_DIR.iterdir():
     if not char_dir.is_dir():
         continue
     for img in char_dir.iterdir():
-        public_id = f"button/{char_dir.name}/{img.stem}"
+        if img.suffix.lower() not in ['.png', '.jpg', '.jpeg']:
+            continue
+        public_id = f"chat/{char_dir.name}/{img.stem}"
         cloudinary.uploader.upload(
             str(img),
             public_id=public_id,
