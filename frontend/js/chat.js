@@ -23,12 +23,12 @@ const NPCs = [
     ]
   },
   {
-    id: 1, name: '엄마', sub: '61세 · 여성', tag: '가족',
+    id: 1, name: '윤미경', sub: '61세 · 여성', tag: '어머니',
     tagColor: '#8a7040',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595815/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%9B%84%ED%9B%97%20%EB%82%98%EB%8F%84%20%EB%AD%94%ED%91%9C%EC%A0%95%EC%9D%B8%EC%A7%80%EB%AA%B0%EB%9D%BC%20%ED%9B%84%ED%9B%97%20%EB%A8%B9%EA%B8%88.png',
     choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
     responses: [
-      '밥은 먹었어? 얼굴이 왜 이렇게 상했어, 재희야.',
+      '밥은 먹었어? 얼굴이 왜 이렇게 상했어, 재희.',
       '내일이 무슨 날인지 기억하니? 아니야, 됐다.',
       '엄마한텐 너밖에 없어. 그게 제일 무서운 말인 거 엄마도 알아.',
     ]

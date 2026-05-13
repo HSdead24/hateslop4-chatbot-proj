@@ -124,32 +124,56 @@ html, body {
 
 /* 캐릭터 전환 버튼 (우측 하단) */
 .npc-switch-btn {
-  position:absolute; bottom:12px; right:12px; z-index:4;
-  width:48px; height:48px; border-radius:50%;
-  overflow:hidden; cursor:pointer;
-  border:2px solid var(--border-accent);
-  background:var(--bg-surface2);
-  padding:0;
-  box-shadow:0 0 10px rgba(192,57,43,0.3);
-  transition:opacity 0.2s, box-shadow 0.2s;
+  position: absolute; bottom: 12px; right: 12px; z-index: 4;
+  width: 48px; height: 48px;
+  /* overflow: hidden; 삭제 유지 (알림 점이 밖으로 나올 수 있게 함) */
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--bg-surface2);
+  padding: 0;
+  border: none; /* 실제 테두리는 가상 요소(::after)로 그립니다 */
+  box-shadow: 0 0 15px rgba(192, 57, 43, 0.4);
+  transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.npc-switch-btn::after {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 3px solid var(--border-accent);
+  box-sizing: border-box;
+  pointer-events: none; /* 클릭을 방해하지 않음 */
+  z-index: 2; /* 이미지보다 위로 올림 */
 }
 .npc-switch-btn:disabled {
-  opacity:0.35; cursor:not-allowed; box-shadow:none;
+  opacity: 0.35; cursor: not-allowed; box-shadow: none;
 }
 .npc-switch-btn img {
-  width:100%; height:100%; object-fit:cover; object-position:center top;
-  display:block;
+  position: absolute; top: 50%; left: 50%;
+  width: 115%; height: 115%; /* 여백을 없애기 위해 15% 줌인 */
+  transform: translate(-50%, -50%); /* 이미지를 정중앙에 배치 */
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  
+  /* 확대된 이미지(115%)를 부모(100%) 크기에 맞춰 정확한 원형으로 자름 */
+  /* 계산식: 100% / 1.15 / 2 = 43.48% */
+  clip-path: circle(43.48% at 50% 50%);
+  z-index: 1; /* 테두리 아래에 배치 */
 }
+
 .switch-status-dot {
-  position:absolute; bottom:2px; right:2px;
-  width:10px; height:10px; border-radius:50%;
-  background:var(--accent); border:2px solid var(--bg-surface);
-  box-shadow:0 0 6px rgba(192,57,43,0.9);
-  animation:dotPulse 2s ease-in-out infinite;
+  position: absolute; bottom: -2px; right: -2px; /* 위치를 살짝 밖으로 뺌 */
+  z-index: 3; /* 버튼의 모든 요소 중 가장 위로 올림 */
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg-surface);
+  box-shadow: 0 0 6px rgba(192, 57, 43, 0.9);
+  animation: dotPulse 2s ease-in-out infinite;
 }
+
 @keyframes dotPulse {
-  0%,100%{ box-shadow:0 0 5px rgba(192,57,43,.8); }
-  50%{     box-shadow:0 0 12px rgba(192,57,43,1); }
+  0%, 100% { box-shadow: 0 0 5px rgba(192, 57, 43, .8); }
+  50% { box-shadow: 0 0 12px rgba(192, 57, 43, 1); }
 }
 
 @keyframes timerPulse { 0%,100%{opacity:1} 50%{opacity:.45} }
@@ -267,7 +291,7 @@ html, body {
 .bubble {
   background:var(--bubble-npc); border:1px solid var(--border);
   border-radius:2px var(--radius-md) var(--radius-md) var(--radius-md);
-  padding:9px 12px; font-size:14px; line-height:1.65; color:var(--text-primary);
+  padding:9px 12px; font-size:13px; line-height:1.65; color:var(--text-primary);
 }
 .msg-row.player .bubble {
   background:var(--bubble-player); border:1px solid rgba(192,57,43,.18);
