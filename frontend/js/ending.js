@@ -10,11 +10,11 @@
 // ─────────────────────────────────────────────
 const _V = '?v=2';
 const CHIKI_IMAGES = {
-  default:  '/frontend/images/치키_기본.png' + _V,
-  smile:    '/frontend/images/치키_웃음.png' + _V,
-  laugh:    '/frontend/images/치키_크게웃음.png' + _V,
-  close:    '/frontend/images/치키_접근.png' + _V,
-  whisper:  '/frontend/images/치키_귓속말.png' + _V,
+  default:  'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550862/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB_iasok9.png',
+  smile:    'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550860/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%8B%E1%85%AE%E1%86%BA%E1%84%8B%E1%85%B3%E1%86%B7_rn8ecs.png',
+  laugh:    'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550858/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%8F%E1%85%B3%E1%84%80%E1%85%A6%E1%84%8B%E1%85%AE%E1%86%BA%E1%84%8B%E1%85%B3%E1%86%B7_za0aws.png',
+  close:    'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550865/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%8C%E1%85%A5%E1%86%B8%E1%84%80%E1%85%B3%E1%86%AB_ku36bj.png',
+  whisper:  'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550856/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%80%E1%85%B1%E1%86%BA%E1%84%89%E1%85%A9%E1%86%A8%E1%84%86%E1%85%A1%E1%86%AF_swrond.png',
 };
 
 // ─────────────────────────────────────────────

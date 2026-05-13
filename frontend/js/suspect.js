@@ -45,18 +45,18 @@ const VILLAIN_MAP = {
 
 // 범인 NPC → 사망 이미지 파일명
 const DEATH_IMAGE_MAP = {
-  '김도현': '/frontend/images/사망_루프.png',
-  '차서연': '/frontend/images/사망_피 토 하는 사람.png',
-  '박도원': '/frontend/images/사망2_칼.png',
-  '엄마': '/frontend/images/사망_방.png',
+  '김도현': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550922/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC_%E1%84%8E%E1%85%AE%E1%84%85%E1%85%A1%E1%86%A8%E1%84%89%E1%85%A1_leqyal.png',
+  '차서연': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550915/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC_%E1%84%91%E1%85%B5_%E1%84%90%E1%85%A9_%E1%84%92%E1%85%A1%E1%84%82%E1%85%B3%E1%86%AB_%E1%84%89%E1%85%A1%E1%84%85%E1%85%A1%E1%86%B7_jwvvkz.png',
+  '박도원': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550917/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC2_%E1%84%8F%E1%85%A1%E1%86%AF_h0io4f.png',
+  '엄마': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550920/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC_%E1%84%87%E1%85%A1%E1%86%BC_wqnnyz.png',
 };
 
 // NPC 정보 (아바타 색상, 역할)
 const NPC_INFO = {
-  '김도현': { color: '#6a7f99', role: '내담자', initials: '도현', profile: '/frontend/images/kim_profile.png' },
-  '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연', profile: '/frontend/images/cha_profile.png' },
-  '박도원': { color: '#7a6a5a', role: '청소부', initials: '도원', profile: '/frontend/images/park_profile.png' },
-  '엄마': { color: '#8a7040', role: '가족', initials: '엄마', profile: '/frontend/images/umma_profile.png' },
+  '김도현': { color: '#6a7f99', role: '내담자', initials: '도현', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595803/chat/%EA%B9%80%EB%8F%84%ED%98%84/%EA%B9%80%EB%8F%84%ED%98%84_%ED%94%84%EB%A1%9C%ED%95%84.png'},
+  '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595780/chat/%EC%B0%A8%EC%84%9C%EC%97%B0/%EC%B0%A8%EC%84%9C%EC%97%B0_%ED%94%84%EB%A1%9C%ED%95%84.png'},
+  '박도원': { color: '#7a6a5a', role: '청소부', initials: '도원', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595793/chat/%EB%B0%95%EB%8F%84%EC%9B%90/%EB%B0%95%EB%8F%84%EC%9B%90_%ED%94%84%EB%A1%9C%ED%95%84.png' },
+  '엄마': { color: '#8a7040', role: '가족', initials: '엄마', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595813/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%94%84%EB%A1%9C%ED%95%84.png' },
 };
 
 // ─────────────────────────────────────────────
