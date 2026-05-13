@@ -56,7 +56,7 @@ const NPC_INFO = {
   '김도현': { color: '#6a7f99', role: '내담자', initials: '도현', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595803/chat/%EA%B9%80%EB%8F%84%ED%98%84/%EA%B9%80%EB%8F%84%ED%98%84_%ED%94%84%EB%A1%9C%ED%95%84.png'},
   '차서연': { color: '#5a8870', role: '신경과 의사', initials: '서연', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595780/chat/%EC%B0%A8%EC%84%9C%EC%97%B0/%EC%B0%A8%EC%84%9C%EC%97%B0_%ED%94%84%EB%A1%9C%ED%95%84.png'},
   '박도원': { color: '#7a6a5a', role: '청소부', initials: '도원', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595793/chat/%EB%B0%95%EB%8F%84%EC%9B%90/%EB%B0%95%EB%8F%84%EC%9B%90_%ED%94%84%EB%A1%9C%ED%95%84.png' },
-  '엄마': { color: '#8a7040', role: '가족', initials: '엄마', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595813/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%94%84%EB%A1%9C%ED%95%84.png' },
+  '엄마': { color: '#8a7040', role: '가족', initials: '엄마', displayName: '윤미경', profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595813/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%94%84%EB%A1%9C%ED%95%84.png' },
 };
 
 // ─────────────────────────────────────────────
@@ -121,7 +121,7 @@ function renderSuspectCards() {
                style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
                onerror="this.style.display='none';this.parentElement.innerHTML+='<span class=\\'avatar-initials\\' style=\\'color:${info.color};position:absolute;\\'>${info.initials}</span>'">
         </div>
-        <div class="suspect-name">${name}</div>
+        <div class="suspect-name">${info.displayName ?? name}</div>
         <div class="suspect-role">${info.role}</div>
       </div>
     `;

@@ -18,7 +18,7 @@ const NPCs = [
     choices: ['커피 안 마실게요', '박주원 알아요?', '사무실 뒤진 거예요?', '패턴이 뭔가요?'],
   },
   {
-    id: 1, name: '엄마', sub: '61세 · 여성', tag: '가족',
+    id: 1, name: '엄마', displayName: '윤미경', sub: '61세 · 여성', tag: '가족',
     tagColor: '#8a7040',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595815/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%9B%84%ED%9B%97%20%EB%82%98%EB%8F%84%20%EB%AD%94%ED%91%9C%EC%A0%95%EC%9D%B8%EC%A7%80%EB%AA%B0%EB%9D%BC%20%ED%9B%84%ED%9B%97%20%EB%A8%B9%EA%B8%88.png',
     choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
@@ -311,7 +311,7 @@ function switchNPC(idx) {
   }
 
   // 이름 / 서브 / 태그 업데이트
-  document.getElementById('header-npc-name').textContent = npc.name;
+  document.getElementById('header-npc-name').textContent = npc.displayName ?? npc.name;
   document.getElementById('header-npc-sub').textContent = npc.sub;
   const ht = document.getElementById('header-tag');
   ht.textContent = npc.tag;
