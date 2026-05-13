@@ -17,7 +17,7 @@ router = APIRouter()
 # ── 경로 설정 ────────────────────────────────────────
 # config.py에서 가져오도록 바꾸려면:
 #   from config import TRIGGERS_PATH
-TRIGGERS_PATH = Path(__file__).parent.parent.parent / "data" / "triggers.json"
+TRIGGERS_PATH = Path(__file__).parent.parent.parent / "llm" / "vector_store" / "data" / "triggers.json"
 
 
 def _load_triggers() -> dict:
