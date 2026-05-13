@@ -17,31 +17,40 @@ const STATE = {
 //  치키 말풍선 대사 목록
 //  인자: n = 이름 HTML span, g = 성별 문자열
 // ────────────────────────────────────────────
-const CHIKI_LINES = [
-  (n) => `${n}, 안녕~? 🐰✨`,
-  ()  => `아이고, 우리 친구. 아주 <span class="warn">불쌍하게 죽어버렸구나</span>. 여기가 어디냐구? 음… 죽기 전으로 돌아가기 전에 잠깐 들르는 곳?`,
-  ()  => `히히. 🐰 너무 겁먹지는 마. 치키가 특별히 <span class="hl">한 번 더 살려줄게</span>. 대신 규칙이 있어.`,
-  ()  => `너는 곧 <span class="warn">죽기 24시간 전</span>으로 돌아가. 그리고 오늘 <span class="warn">자정이 되기 전까지</span>, 너를 죽인 범인이 누군지 찾아야 해.`,
-  ()  => `범인을 맞히면? 치키가 구해줄게! ✨ 범인이 너를 죽이기 전에, 짜잔! 하고 나타나서 막아주는 거야.`,
-  ()  => `물론… 틀리면? <span class="warn">또 죽는 거지</span>. 🐰⏰`,
-  ()  => `아하. 죽으면서 기억을 조금 잃었구나? 괜찮아. 아주 간단하게만 알려줄게. 너무 많이 알려주면 재미없잖아… 아니, 위험하잖아.`,
-  ()  => `네가 <span class="warn">범인을 기억해버릴 수도</span> 있으니까~`,
-  // index 8: infoBox가 이 대사 앞에 등장
-  ()  => `이 정도면 충분해. 너는 사람의 마음을 들여다보는 일을 해. 그런데 이상하지? 사람 마음은 그렇게 잘 안다면서, 왜 누군가의 원한은 몰랐을까? 🐰`,
-  ()  => `범인이 누구냐구? 그건 친구가 맞혀야지~ 치키가 다 말해주면 <span class="hl">게임이 아니잖아</span>🩸`,
-  ()  => `대신 의심할 사람들은 알려줄게. 짜잔~ 🎀 <span class="hl">의심할 만한 사람 리스트!</span>`,
-  ()  => `<div style="text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin-top:5px;">
-            1. <b>김도현</b>: &lt;안식&gt;의 환자<br>
-            2. <b>차서연</b>: 동료 의사<br>
-            3. <b>박도원</b>: &lt;안식&gt;의 청소부<br>
-            4. <b>윤미경</b>: 너를 가장 오래 알고 있는 사람
-          </div>`,
-  ()  => `지금부터 네 선택이 너를 가를 거야. 누구를 믿을지, 누구를 피할지, 누구를 더 화나게 만들지. 잘못 고르면 또 죽어🐰`,
-  (n) => `그럼… 이제 시작해볼까? 죽기 24시간 전으로 돌아가는 거야, ${n}. 들어가서 행동을 선택하고, 의심 가는 인물들과 이야기하고, 단서를 모아.`,
-];
+// ── 카드 삽입 인덱스 ──────────────────────────
+//  RULE_CARD_AFTER  = 2  (index 2 대사 직후)
+//  INFO_CARD_AFTER  = 4  (index 4 대사 직후, 기존 infoBox 위치)
+//  SUSPECT_CARD_AFTER = 7 (index 7 대사 직후, 구 index 11 텍스트 리스트 대체)
+const RULE_CARD_AFTER    = 2;
+const INFO_CARD_AFTER    = 4;
+const SUSPECT_CARD_AFTER = 7;
 
-const CHIKI_LAST_LINE =
-  `그리고 마지막에 <span class="warn">범인을 맞혀봐</span>. 치키가 끝까지 지켜봐줄게. 히히 🐰⏰🩸`;
+const CHIKI_LINES = [
+  // 0
+  (n) => `${n}, 안녕~? 🐰✨`,
+  // 1
+  ()  => `우리 친구 아주 불쌍하게 죽었네. 🩸`,
+  // 2 ← RULE_CARD_AFTER
+  ()  => `치키가 한 번 더 기회를 줄게. 대신 규칙이 있어.`,
+  // 3
+  ()  => `너는 곧 <span class="warn">죽기 24시간 전</span>으로 돌아가. 자정 전까지 범인을 찾아야 해.`,
+  // 4 ← INFO_CARD_AFTER
+  ()  => `죽으면서 기억을 조금 잃었지? 아주 간단하게만 알려줄게. 범인을 바로 알려주면 재미없잖아 ♦️🐰`,
+  // 5
+  ()  => `너는 사람의 마음을 들여다보는 일을 해. 그런데 이상하지?`,
+  // 6
+  ()  => `사람 마음은 그렇게 잘 안다면서, 왜 <span class="warn">누군가의 원한은 몰랐을까?</span> 🐰`,
+  // 7 ← SUSPECT_CARD_AFTER
+  ()  => `대신 의심할 사람들은 알려줄게. 짜잔~ 🎀`,
+  // 8
+  ()  => `지금부터 네 선택이 너를 가를 거야.`,
+  // 9
+  ()  => `누구를 믿을지, 누구를 피할지. 잘못 고르면 곤란하겠지? 🐰`,
+  // 10
+  (n) => `그럼 시작해볼까, ${n}.`,
+  // 11
+  ()  => `단서를 모으고, 마지막에 범인을 맞혀봐. 치키가 끝까지 지켜볼게. 🐰⏰🩸`,
+];
 
 // ────────────────────────────────────────────
 //  유틸
@@ -168,6 +177,92 @@ function goChiki() {
   });
 }
 
+// ────────────────────────────────────────────
+//  글리치 타이핑 유틸
+// ────────────────────────────────────────────
+const NOISE_CHARS = ['█','▒','▓','?','╳','▌','#','　'];
+
+function glitchTypeInto(el, html, onDone) {
+  el.classList.add('chroma-in');
+  const cursor = document.createElement('span');
+  cursor.className = 'type-cursor';
+  el.appendChild(cursor);
+  let i = 0;
+  function tick() {
+    if (i >= html.length) { cursor.remove(); if (onDone) onDone(); return; }
+    if (html[i] === '<') {
+      const end = html.indexOf('>', i);
+      cursor.insertAdjacentHTML('beforebegin', html.slice(i, end + 1));
+      i = end + 1; setTimeout(tick, 20); return;
+    }
+    if (Math.random() < 0.10) {
+      const n = document.createElement('span');
+      n.className = 'type-noise';
+      n.textContent = NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)];
+      cursor.insertAdjacentElement('beforebegin', n);
+      setTimeout(() => n.remove(), 90);
+      setTimeout(tick, 120); return;
+    }
+    cursor.insertAdjacentText('beforebegin', html[i]);
+    i++; setTimeout(tick, 36);
+  }
+  setTimeout(tick, 300);
+}
+
+// ────────────────────────────────────────────
+//  카드 생성 헬퍼
+// ────────────────────────────────────────────
+function createRuleCard() {
+  const card = document.createElement('div');
+  card.className = 'info-card';
+  card.innerHTML = `
+    <div class="info-card-title">규칙</div>
+    <div class="info-card-row">
+      <span class="ic-label">⏰</span>
+      <span class="ic-val"><span class="warn">죽기 24시간 전</span>으로 돌아가. <span class="warn">자정 전까지</span> 범인을 찾아야 해.</span>
+    </div>
+    <div class="info-card-result-row">
+      <div class="ic-result good">✅ 맞히면<br>치키가 구해줌</div>
+      <div class="ic-result bad">💀 틀리면<br>또 죽음 🩸</div>
+    </div>`;
+  return card;
+}
+
+function createInfoCard() {
+  const card = document.createElement('div');
+  card.className = 'info-card';
+  card.innerHTML = `
+    <div class="info-card-title">네 정보</div>
+    <div class="info-card-row"><span class="ic-label">이름</span><span class="ic-val accent">${escHtml(STATE.name)}</span></div>
+    <div class="info-card-row"><span class="ic-label">나이</span><span class="ic-val">34세</span></div>
+    <div class="info-card-row"><span class="ic-label">성별</span><span class="ic-val">${escHtml(STATE.gender)}</span></div>
+    <div class="info-card-row"><span class="ic-label">직업</span><span class="ic-val">정신건강의학과 의사 / 심리상담센터 &lt;안식&gt; 상담가</span></div>`;
+  return card;
+}
+
+function createSuspectCard() {
+  const card = document.createElement('div');
+  card.className = 'info-card';
+  card.innerHTML = `
+    <div class="info-card-title">의심 인물</div>
+    <div class="suspect-grid">
+      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">김도현</div><div class="suspect-sub">&lt;안식&gt;의 환자</div></div></div>
+      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">차서연</div><div class="suspect-sub">동료 의사</div></div></div>
+      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">박도원</div><div class="suspect-sub">&lt;안식&gt;의 청소부</div></div></div>
+      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">윤미경</div><div class="suspect-sub">어머니 / 가장 오래 알고 있는 사람</div></div></div>
+    </div>`;
+  return card;
+}
+
+function insertCard(area, cardEl) {
+  area.appendChild(cardEl);
+  requestAnimationFrame(() => { cardEl.offsetHeight; cardEl.classList.add('show'); });
+  setTimeout(() => cardEl.scrollIntoView({ behavior:'smooth', block:'nearest' }), 200);
+}
+
+// ────────────────────────────────────────────
+//  치키 대화 진행
+// ────────────────────────────────────────────
 function startChikiDialogue() {
   const area  = document.getElementById('bubbleArea');
   const goBtn = document.getElementById('goBtn');
@@ -179,61 +274,42 @@ function startChikiDialogue() {
   let i = 0;
 
   function showNext() {
-    // 모든 대사 끝 → 마지막 대사 + 시작 버튼
-    if (i >= CHIKI_LINES.length) {
-      setTimeout(() => {
-        const last = document.createElement('div');
-        last.className = 'bubble';
-        last.innerHTML = CHIKI_LAST_LINE;
-        area.appendChild(last);
-        requestAnimationFrame(() => { last.offsetHeight; last.classList.add('show'); });
-        setTimeout(() => last.scrollIntoView({ behavior:'smooth', block:'nearest' }), 200);
-        setTimeout(() => goBtn.classList.add('show'), 600);
-      }, 400);
-      return;
-    }
-
-    // 3번 수정: index 8 직전 — infoBox를 bubbleArea 안에 동적 삽입
-    if (i === 8) {
-      const infoBox = document.createElement('div');
-      infoBox.className = 'player-info-box show';
-      infoBox.innerHTML = `
-        <div class="player-info-row">
-          <span class="pi-label">이름</span>
-          <span class="pi-val accent">${escHtml(STATE.name)}</span>
-        </div>
-        <div class="player-info-row">
-          <span class="pi-label">나이</span>
-          <span class="pi-val">34세</span>
-        </div>
-        <div class="player-info-row">
-          <span class="pi-label">성별</span>
-          <span class="pi-val">${escHtml(STATE.gender)}</span>
-        </div>
-        <div class="player-info-row">
-          <span class="pi-label">직업</span>
-          <span class="pi-val">정신건강의학과 의사 / 심리상담센터 &lt;안식&gt; 상담가</span>
-        </div>
-      `;
-      area.appendChild(infoBox);
-      setTimeout(() => infoBox.scrollIntoView({ behavior:'smooth', block:'nearest' }), 200);
-      setTimeout(() => showNextBubble(), 1000);
-      return;
-    }
-
+    if (i >= CHIKI_LINES.length) return;
     showNextBubble();
   }
 
   function showNextBubble() {
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.innerHTML = CHIKI_LINES[i](nameSpan, STATE.gender);
     area.appendChild(bubble);
-    requestAnimationFrame(() => { bubble.offsetHeight; bubble.classList.add('show'); });
-    setTimeout(() => bubble.scrollIntoView({ behavior:'smooth', block:'nearest' }), 200);
 
+    const html = CHIKI_LINES[i](nameSpan, STATE.gender);
+    const currentIndex = i;
     i++;
-    setTimeout(showNext, i === 1 ? 900 : 1400);
+
+    glitchTypeInto(bubble, html, () => {
+      setTimeout(() => bubble.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+
+      if (currentIndex === CHIKI_LINES.length - 1) {
+        setTimeout(() => goBtn.classList.add('show'), 400);
+        return;
+      }
+
+      if (currentIndex === RULE_CARD_AFTER) {
+        setTimeout(() => { insertCard(area, createRuleCard()); setTimeout(showNext, 900); }, 400);
+        return;
+      }
+      if (currentIndex === INFO_CARD_AFTER) {
+        setTimeout(() => { insertCard(area, createInfoCard()); setTimeout(showNext, 900); }, 400);
+        return;
+      }
+      if (currentIndex === SUSPECT_CARD_AFTER) {
+        setTimeout(() => { insertCard(area, createSuspectCard()); setTimeout(showNext, 900); }, 400);
+        return;
+      }
+
+      setTimeout(showNext, currentIndex === 0 ? 600 : 500);
+    });
   }
 
   setTimeout(showNext, 600);
