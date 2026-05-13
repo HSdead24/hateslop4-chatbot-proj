@@ -792,3 +792,70 @@ frontend/audio/
 - [x] 채팅 UI 디자인 시안 (자체 디자인으로 구현)
 - [x] 사망 연출 화면 디자인 (자체 구현)
 - [x] NPC별 프로필 이미지 (4종 완료)
+
+---
+
+### Phase 13 — 이미지 Cloudinary 외부 분리 ✅ 완료
+
+**브랜치**: `backend` → `main` 머지 완료 (PR #74~#80)
+
+**구현 내용**
+- 로컬에 저장되던 NPC 표정 이미지, 버튼룸 배경 이미지, 오프닝 영상/이미지를 Cloudinary CDN으로 이전
+- `chat.js`, `button.js`, `suspect.js`, `opening.js` 내 이미지 경로를 Cloudinary URL로 교체
+- `.env.example`에 Cloudinary 환경변수 항목 추가
+- 로컬 `bg/` 이미지 삭제 (Cloudinary로 이전 완료)
+
+**완료 작업**
+- [x] NPC 표정 이미지 (채팅룸) → Cloudinary 이전
+- [x] NPC 표정 이미지 (버튼룸) → Cloudinary 이전
+- [x] 배경 이미지 / 오프닝 영상 → Cloudinary 이전
+- [x] `chat.js` / `button.js` / `suspect.js` / `opening.js` 경로 수정
+- [x] `.env.example` Cloudinary 키 항목 추가
+
+---
+
+### Phase 14 — 로컬 실행 환경 구축 ✅ 완료
+
+**브랜치**: `backend` → `main` 머지 완료
+
+**구현 내용**
+- 배포 환경(Render) 외에 로컬에서도 서버를 실행할 수 있도록 실행 경로 정비
+- `PYTHONPATH` 환경변수 설정 방법 문서화
+- `main.py` 로컬 실행 방법 안내 수정
+
+**로컬 실행 방법**
+```bash
+# 1. 환경변수 설정 (.env 파일 생성)
+cp .env.example .env
+# .env에 OPENAI_API_KEY, Cloudinary 키 등 입력
+
+# 2. PYTHONPATH 설정 후 서버 실행 (Windows PowerShell)
+$env:PYTHONPATH = "llm;llm/nodes"
+uvicorn backend.main:app --reload --port 8000
+
+# 3. 브라우저 접속
+# http://localhost:8000/
+```
+
+**완료 작업**
+- [x] `main.py` 로컬 실행 경로 수정
+- [x] `PYTHONPATH` 로컬 설정 방법 정비
+
+---
+
+## 이후 개발 TODO (Final 점검 후)
+
+### 구현 예정
+
+| 항목 | 상태 | 비고 |
+|---|---|---|
+| 버튼룸 & 채팅룸 UI/UX 수정 | ⬜ 미구현 | Figma 시안 기준, 추가된 기능 포함 |
+| 튜토리얼 / 코치 마크 | ⬜ 미구현 | 최초 1회만 등장 |
+| 단서 공개 → NPC 2명 랜덤 선택 → 채팅 흐름 구현 | ⬜ 미구현 | |
+| 단서 페이지 & 대화 상대 선택 페이지 | ⬜ 미구현 | 추후 진행 |
+
+### 기획 미확정
+
+| 항목 | 상태 | 비고 |
+|---|---|---|
+| 단서 범위 정의 | ❓ 미확정 | 단서가 스토리(루트)별로 결정되는지, 전체 세계관 기준인지 미정 |
