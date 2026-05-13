@@ -504,6 +504,17 @@ function showContinueBtn(nodeId) {
   });
 
   sec.appendChild(btn);
+
+  // TODO: #progressBtn (>>) 버튼 — 프로듀서 측 기능 확정 후 구현 예정
+  // const progressBtn = document.getElementById('progressBtn');
+  // if (progressBtn) {
+  //   progressBtn.style.display = 'flex';
+  //   progressBtn.onclick = () => {
+  //     progressBtn.style.display = 'none';
+  //     applyScene(nodeId, 'start_');
+  //     renderChoices(getChildButtons(nodeId));
+  //   };
+  // }
 }
 
 // ─────────────────────────────────────────────
@@ -512,6 +523,11 @@ function showContinueBtn(nodeId) {
 function renderChoices(choices) {
   const sec = document.getElementById('choicesSection');
   sec.innerHTML = '';
+
+  // TODO: progressBtn 연동 — 프로듀서 측 기능 확정 후 구현 예정
+  // const progressBtn = document.getElementById('progressBtn');
+  // if (progressBtn) progressBtn.style.display = 'none';
+
   choices.forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn' + (c.disabled ? ' disabled' : '');
@@ -556,7 +572,7 @@ async function onChoice(choice, btn) {
   applyScene(choice.id, 'select_');
   document.getElementById('choicesSection').innerHTML = '';
 
-  // 4) 3초 후 "▶ 계속" 버튼 등장
+  // 4) 2초 후 >> 진행 버튼 등장
   setTimeout(() => showContinueBtn(choice.id), 2000);
 }
 

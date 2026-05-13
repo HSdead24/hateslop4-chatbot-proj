@@ -206,14 +206,14 @@ body {
   pointer-events:none; z-index:3;
 }
 
-/* 하단 페이드 */
+/* 하단 페이드 — 캐릭터가 다이얼로그 뒤로 비칠 수 있도록 하단 불투명도 완화 */
 .scene-fade {
   position:absolute; bottom:0; left:0; right:0; height:50%;
   background:linear-gradient(to bottom,
     transparent 0%,
-    rgba(5,7,13,0.5) 35%,
-    rgba(5,7,13,0.92) 75%,
-    #05070d 100%
+    rgba(5,7,13,0.20) 35%,
+    rgba(5,7,13,0.48) 68%,
+    rgba(5,7,13,0.62) 100%
   );
   pointer-events:none; z-index:3;
 }
@@ -240,9 +240,10 @@ body {
 ══════════════════════════════════ */
 .dialogue-section {
   position:relative; z-index:10;
-  background:rgba(7,10,17,0.96);
-  border-top:1px solid rgba(0,160,130,0.10);
+  background:rgba(5,7,13,0.30);
+  border-top:1px solid rgba(0,160,130,0.08);
   padding:11px 14px 12px;
+  margin-top: -80px; /* 장면 하단 80px 오버랩 */
 }
 .speaker-row  { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
 .speaker-name { font-size:13px; font-weight:700; color:#cdd8d4; letter-spacing:.02em; }
@@ -263,6 +264,30 @@ body {
 .voice-log-txt  { font-size:7px; letter-spacing:.14em; color:rgba(180,210,200,0.7); }
 .voice-dot      { width:5px; height:5px; background:#e8312a; border-radius:50%; }
 
+/* TODO: 진행 버튼 (>>) — 프로듀서 측 기능 확정 후 구현 예정
+.progress-btn {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 6px 0 2px;
+  cursor: pointer;
+  gap: 1px;
+  animation: fadeInUp 0.35s ease forwards;
+}
+.progress-btn::before,
+.progress-btn::after {
+  content: '›';
+  font-size: 20px;
+  line-height: 1;
+  color: rgba(0,230,190,0.45);
+  transition: color 0.2s;
+}
+.progress-btn:hover::before,
+.progress-btn:hover::after {
+  color: rgba(0,230,190,0.80);
+}
+*/
+
 /* ══════════════════════════════════
    CHOICES — 버튼 선택 영역 (핵심)
 ══════════════════════════════════ */
@@ -270,7 +295,7 @@ body {
   position:relative; z-index:10;
   padding:6px 12px 9px;
   display:flex; flex-direction:row; gap:8px;
-  background: rgba(5,7,13,0.82);
+  background: #05070d;
 }
 
 /* 가로 배열 시 버튼이 동일한 너비를 가지도록 */
