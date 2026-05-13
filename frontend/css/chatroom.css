@@ -47,6 +47,10 @@ html, body {
   position:relative;
   display:flex; flex-direction:column;
   overflow:hidden;
+
+  /* 아이폰 노치, 다이내믹 아일랜드 대응 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom); /* 하단 홈 바 대응 */
 }
 
 /* 스캔라인 오버레이 */

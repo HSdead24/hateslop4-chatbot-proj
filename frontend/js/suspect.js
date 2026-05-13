@@ -155,7 +155,7 @@ function confirmSuspect() {
   // 밤 씬 이미지 세팅
   loadImg(
     document.getElementById('night-img'),
-    '/frontend/images/밤.png',
+    'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550920/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC_%E1%84%87%E1%85%A1%E1%86%BC_wqnnyz.png',
     document.getElementById('night-fallback')
   );
 
@@ -203,7 +203,7 @@ function goToMorning() {
 
   loadImg(
     document.getElementById('morning-img'),
-    '/frontend/images/아침_방.png',
+    'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550044/bg_room_yn5qfy.png',
     document.getElementById('morning-fallback')
   );
 
@@ -275,7 +275,7 @@ async function notifyDeath() {
     showScene('scene-death');
     loadImg(
       document.getElementById('death-img'),
-      '/frontend/images/사망_추락사.png',
+      'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550922/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC_%E1%84%8E%E1%85%AE%E1%84%85%E1%85%A1%E1%86%A8%E1%84%89%E1%85%A1_leqyal.png',
       document.getElementById('death-fallback')
     );
     setTimeout(() => {

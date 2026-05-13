@@ -14,7 +14,7 @@ const NPCs = [
   {
     id: 0, name: '김도현', sub: '34세 · 남성', tag: '내담자',
     tagColor: '#6a7f99', avatarStyle: 'color:#6a7f99;',
-    profile: '/frontend/images/kim_profile.png',
+    profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595806/chat/%EA%B9%80%EB%8F%84%ED%98%84/%EA%B9%80%EB%8F%84%ED%98%84_%EA%B4%9C%EC%B0%AE%EC%9D%80%EB%93%AF%20%EC%9B%83%EC%9D%8C.png',
     statLabel: '경계심', statVal: 72, statColor: '#c0392b',
     choices: ['그 이름을 왜 묻습니까?', '이틀 전 일이요?', '기억하고 있습니다', '왜 화났어요?'],
     responses: [
@@ -26,7 +26,7 @@ const NPCs = [
   {
     id: 1, name: '차서연', sub: '32세 · 여성', tag: '신경과 의사',
     tagColor: '#5a8870', avatarStyle: 'color:#5a8870;',
-    profile: '/frontend/images/cha_profile.png',
+    profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595780/chat/%EC%B0%A8%EC%84%9C%EC%97%B0/%EC%B0%A8%EC%84%9C%EC%97%B0_%ED%94%84%EB%A1%9C%ED%95%84.png',
     statLabel: '의심도', statVal: 58, statColor: '#b07030',
     choices: ['커피 안 마실게요', '박주원 알아요?', '사무실 뒤진 거예요?', '패턴이 뭔가요?'],
     responses: [
@@ -38,7 +38,7 @@ const NPCs = [
   {
     id: 2, name: '엄마', sub: '61세 · 여성', tag: '가족',
     tagColor: '#8a7040', avatarStyle: 'color:#8a7040;',
-    profile: '/frontend/images/umma_profile.png',
+    profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595815/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%9B%84%ED%9B%97%20%EB%82%98%EB%8F%84%20%EB%AD%94%ED%91%9C%EC%A0%95%EC%9D%B8%EC%A7%80%EB%AA%B0%EB%9D%BC%20%ED%9B%84%ED%9B%97%20%EB%A8%B9%EA%B8%88.png',
     statLabel: '집착도', statVal: 89, statColor: '#b07030',
     choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
     responses: [
@@ -50,7 +50,7 @@ const NPCs = [
   {
     id: 3, name: '박도원', sub: '60세 · 남성', tag: '청소부',
     tagColor: '#7a6a5a', avatarStyle: 'color:#7a6a5a;',
-    profile: '/frontend/images/park_profile.png',
+    profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595793/chat/%EB%B0%95%EB%8F%84%EC%9B%90/%EB%B0%95%EB%8F%84%EC%9B%90_%ED%94%84%EB%A1%9C%ED%95%84.png',
     statLabel: '수상함', statVal: 45, statColor: '#7a6a5a',
     choices: ['누구세요?', '문 앞에 두세요', '딸이 있으세요?', '여기서 일한 지 얼마나 됐어요?'],
     responses: [
