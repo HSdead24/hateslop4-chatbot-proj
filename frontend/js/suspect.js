@@ -10,7 +10,9 @@
 const SESSION_ID = sessionStorage.getItem('session_id');
 const LAST_BTN_ID = parseInt(sessionStorage.getItem('last_button_id') || '0', 10);
 const LOOP_NUM = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
-const BASE_URL = 'https://hateslop4-dead24.onrender.com';
+const BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:8000"
+  : "https://hateslop4-dead24.onrender.com";
 
 // ─────────────────────────────────────────────
 //  범인 NPC → 사망 이미지 매핑
@@ -88,11 +90,12 @@ function loadImg(imgEl, src, fallbackEl) {
     return;
   }
 
-  // 한글·공백 포함 파일명 URL 인코딩
-  // 'images/사망_피 토 하는 사람.png' → 'images/%EC%82%AC%EB%A7%9D_...'
-  const parts = src.split('/');
-  const filename = parts.pop();
-  const encoded = parts.join('/') + '/' + encodeURIComponent(filename);
+  // Cloudinary URL은 이미 인코딩되어 있으므로 그대로 사용
+  const encoded = src.startsWith('http') ? src : (() => {
+    const parts = src.split('/');
+    const filename = parts.pop();
+    return parts.join('/') + '/' + encodeURIComponent(filename);
+  })();
 
   // 일단 즉시 보여주고, 로드 실패 시 fallback으로 교체
   imgEl.style.display = 'block';
