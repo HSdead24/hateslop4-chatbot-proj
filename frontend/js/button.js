@@ -447,7 +447,8 @@ function createDrips() {
 //  페이지 전환 후에도 남은 시간 이어받음
 // ─────────────────────────────────────────────
 const timerEl = document.getElementById('timerDisplay');
-const TOTAL_SECONDS = 17 * 60;  // 17분 고정
+const TOTAL_SECONDS = 17 * 60;  // 17분 — 기준값. chat.js는 sessionStorage에서 읽음
+sessionStorage.setItem('timer_total_seconds', String(TOTAL_SECONDS));
 
 // 이미 시작된 타이머가 있으면 이어받고, 없으면 새로 시작
 let timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);

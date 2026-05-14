@@ -132,7 +132,7 @@ async function reloadTriggersForLoop(newLoop) {
 // ─────────────────────────────────────────────
 function updateTimer() {
   const timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
-  const TOTAL_SECONDS = 24 * 60;
+  const TOTAL_SECONDS = parseInt(sessionStorage.getItem('timer_total_seconds') || String(17 * 60), 10);
   const remaining = timerStart
     ? Math.max(0, TOTAL_SECONDS - Math.floor((Date.now() - timerStart) / 1000))
     : 0;
