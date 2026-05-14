@@ -48,8 +48,9 @@ const SCRIPT = [
   },
   {
     pauseBeforeType: 300,
-    text: '<span class="name-em">김하윤. 박주원. 나영.</span>\n기억이 없었으니까 몰랐겠지.\n그래도 단서는 있었잖아.\n느꼈을 텐데. 어딘가 이상하다고. 🐰',
-    speed: 48,
+    text: '<span class="name-em">김하윤</span> — 약물 조작. 상담 중 사망.\n<span class="name-em">박주원</span> — 심리 조종. 추락으로 위장.\n<span class="name-em">나영</span>   — 절벽으로 유도. 직접 살해.',
+    speed: 52,
+    isEvidence: true,
   },
   {
     text: '치키는 처음부터 다 알고 있었어.\n네가 어떤 사람이었는지. 무슨 짓을 했는지.',
@@ -270,8 +271,8 @@ function runBlock(idx) {
   setTimeout(() => {
     // 새 블록 생성
     const block = document.createElement('div');
-    block.className = 'type-block';
-    block.setAttribute('data-raw', line.text); // 원본 보관
+    block.className = 'type-block' + (line.isEvidence ? ' evidence' : '');
+    block.setAttribute('data-raw', line.text);
     endingScroll.appendChild(block);
 
     // 표시 (fade-in)
