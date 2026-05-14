@@ -94,41 +94,47 @@ resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 // ─────────────────────────────────────────────
-//  치키 이미지 미리 로드
+//  치키 이미지 3개 미리 로드 (기본 → 웃음 → 크게웃음)
 // ─────────────────────────────────────────────
-const CHIKI_IMG_SRC = 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550858/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%8F%E1%85%B3%E1%84%80%E1%85%A6%E1%84%8B%E1%85%AE%E1%86%BA%E1%84%8B%E1%85%B3%E1%86%B7_za0aws.png';
-const chikiImgEl = new Image();
-chikiImgEl.crossOrigin = 'anonymous';
-chikiImgEl.src = CHIKI_IMG_SRC;
+const CHIKI_IMGS = [
+  'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550862/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB_iasok9.png',
+  'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550860/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%8B%E1%85%AE%E1%86%BA%E1%84%8B%E1%85%B3%E1%86%B7_rn8ecs.png',
+  'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550858/%E1%84%8E%E1%85%B5%E1%84%8F%E1%85%B5_%E1%84%8F%E1%85%B3%E1%84%80%E1%85%A6%E1%84%8B%E1%85%AE%E1%86%BA%E1%84%8B%E1%85%B3%E1%86%B7_za0aws.png',
+].map(src => {
+  const el = new Image();
+  el.crossOrigin = 'anonymous';
+  el.src = src;
+  return el;
+});
 
 // ─────────────────────────────────────────────
 //  노이즈 렌더러
 //  intensity: 0.0 ~ 1.0 (1.0 = 최대 노이즈)
 //  imgOpacity: 0.0 ~ 1.0 (이미지 투명도)
 // ─────────────────────────────────────────────
-function drawNoise(intensity, imgOpacity = 0) {
+function drawNoise(intensity, imgOpacity = 0, imgIndex = 0) {
   const W = noiseCanvas.width;
   const H = noiseCanvas.height;
 
-  // 흰 배경
   ctx.fillStyle = '#f8f8f8';
   ctx.fillRect(0, 0, W, H);
 
-  // 치키 이미지 — 노이즈 아래에 먼저 합성
-  if (imgOpacity > 0 && chikiImgEl.complete && chikiImgEl.naturalWidth > 0) {
-    // 이미지를 캔버스 중앙에 cover 방식으로
-    const iw = chikiImgEl.naturalWidth;
-    const ih = chikiImgEl.naturalHeight;
-    const scale = Math.max(W / iw, H / ih);
-    const dw = iw * scale;
-    const dh = ih * scale;
-    const dx = (W - dw) / 2;
-    const dy = (H - dh) / 2;
-
-    ctx.save();
-    ctx.globalAlpha = imgOpacity;
-    ctx.drawImage(chikiImgEl, dx, dy, dw, dh);
-    ctx.restore();
+  // 구간별 치키 이미지
+  if (imgOpacity > 0) {
+    const chikiImgEl = CHIKI_IMGS[imgIndex];
+    if (chikiImgEl && chikiImgEl.complete && chikiImgEl.naturalWidth > 0) {
+      const iw = chikiImgEl.naturalWidth;
+      const ih = chikiImgEl.naturalHeight;
+      const scale = Math.max(W / iw, H / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      const dx = (W - dw) / 2;
+      const dy = (H - dh) / 2;
+      ctx.save();
+      ctx.globalAlpha = imgOpacity;
+      ctx.drawImage(chikiImgEl, dx, dy, dw, dh);
+      ctx.restore();
+    }
   }
 
   if (intensity <= 0) return;
@@ -221,24 +227,45 @@ function runNoiseIntro(timestamp) {
   const elapsed  = timestamp - noiseStart;
   const progress = Math.min(elapsed / NOISE_DURATION, 1.0);
 
-  // 노이즈: easeOut 점감
-  const intensity = 1.0 - Math.pow(progress, 0.55);
+  // 노이즈: easeOut 기본 점감 + 이미지 전환 시점 버스트
+  // 전환 구간: 0.25, 0.40, 0.55 → 각각 ±0.03 범위에서 강하게 튐
+  const baseIntensity = 1.0 - Math.pow(progress, 0.55);
+  const burstZones = [0.25, 0.40, 0.55];
+  const burstWidth = 0.06;
+  let burst = 0;
+  for (const zone of burstZones) {
+    const dist = Math.abs(progress - zone);
+    if (dist < burstWidth) {
+      burst = Math.max(burst, (1.0 - dist / burstWidth) * 1.5);
+    }
+  }
+  const intensity = Math.min(1.0, baseIntensity + burst);
 
-  // 이미지 투명도 곡선:
-  // 0~30%: 0 (아직 안보임)
-  // 30~60%: 0 → 0.42 (슬쩍 드러남)
-  // 60~85%: 0.42 → 0.42 (잠깐 유지)
-  // 85~100%: 0.42 → 0 (노이즈 걷히기 전 사라짐)
+  // 이미지 투명도 + 인덱스 곡선:
+  // 0~25%:  안 보임
+  // 25~40%: 기본(0) 등장
+  // 40~55%: 웃음(1) 등장
+  // 55~75%: 크게웃음(2) 등장
+  // 75~85%: 유지
+  // 85~100%: 사라짐
   let imgOpacity = 0;
-  if (progress >= 0.30 && progress < 0.60) {
-    imgOpacity = ((progress - 0.30) / 0.30) * 0.15;
-  } else if (progress >= 0.60 && progress < 0.85) {
-    imgOpacity = 0.15;
+  let imgIndex = 0;
+
+  if (progress >= 0.25 && progress < 0.40) {
+    imgOpacity = ((progress - 0.25) / 0.15) * 0.10;
+    imgIndex = 0;
+  } else if (progress >= 0.40 && progress < 0.55) {
+    imgOpacity = 0.10;
+    imgIndex = 1;
+  } else if (progress >= 0.55 && progress < 0.85) {
+    imgOpacity = 0.10;
+    imgIndex = 2;
   } else if (progress >= 0.85) {
-    imgOpacity = 0.15 * (1.0 - (progress - 0.85) / 0.15);
+    imgOpacity = 0.10 * (1.0 - (progress - 0.85) / 0.15);
+    imgIndex = 2;
   }
 
-  drawNoise(intensity, imgOpacity);
+  drawNoise(intensity, imgOpacity, imgIndex);
 
   if (progress < 1.0) {
     noiseRaf = requestAnimationFrame(runNoiseIntro);
