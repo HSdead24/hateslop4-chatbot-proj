@@ -281,8 +281,20 @@ async function recordButton(buttonId) {
 
 // 7단계 완료 → story 확정 → chatroom.html 이동
 async function finalizeAndNavigate() {
+  // 타이머가 이미 만료됐으면 chat이 아닌 suspect로
+  if (getRemainingSeconds() <= 0) {
+    sessionStorage.setItem('death_cause', 'timer');
+    const currentLoop = parseInt(sessionStorage.getItem('loop_num') || '1', 10);
+    sessionStorage.setItem('loop_num', String(currentLoop));
+    window.location.href = '/suspect';
+    return;
+  }
+
+  const session_id = GAME_STATE.sessionId || sessionStorage.getItem('session_id');
+  if (session_id) sessionStorage.setItem('session_id', session_id);
+  sessionStorage.setItem('last_button_id', String(GAME_STATE.lastButtonId));
+
   try {
-    const session_id = GAME_STATE.sessionId || sessionStorage.getItem('session_id');
     const res = await fetch('/finalize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -294,15 +306,8 @@ async function finalizeAndNavigate() {
     });
     const data = await res.json();
     console.log('[finalize]', data);
-    sessionStorage.setItem('session_id', session_id);
-
-    // ★ 추가: last_button_id를 sessionStorage에 저장 → suspect.js에서 범인 판별에 사용
-    sessionStorage.setItem('last_button_id', String(GAME_STATE.lastButtonId));
-
   } catch (e) {
     console.warn('[finalizeAndNavigate 실패]', e);
-    // 오프라인 모드에서도 last_button_id 저장
-    sessionStorage.setItem('last_button_id', String(GAME_STATE.lastButtonId));
   } finally {
     window.location.href = '/chat';
   }
@@ -359,10 +364,25 @@ function setSceneImage(url, speakerName) {
 // ─────────────────────────────────────────────
 function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) {
   if (imageUrl !== undefined) setSceneImage(imageUrl, speaker?.name);
-  if (speaker) {
-    document.getElementById('speakerName').textContent = speaker.name;
-    document.getElementById('speakerRole').textContent = speaker.role;
+
+  // speaker가 명시적으로 전달된 경우에만 UI 업데이트
+  if (speaker !== undefined) {
+    if (speaker) {
+      document.getElementById('speakerName').textContent = speaker.name ?? '';
+      document.getElementById('speakerRole').textContent = speaker.role ?? '';
+      const dot = document.querySelector('.speaker-dot');
+      if (dot) dot.style.display = '';
+    } else {
+      // speaker === null → 이전 씬 정보 초기화
+      document.getElementById('speakerName').textContent = '';
+      document.getElementById('speakerRole').textContent = '';
+      const dot = document.querySelector('.speaker-dot');
+      if (dot) dot.style.display = 'none';
+      const sceneImg = document.getElementById('sceneImage');
+      if (sceneImg) sceneImg.style.display = 'none';
+    }
   }
+
   if (dialogue) {
     document.getElementById('dialogueText').innerHTML = dialogue.replace(/\n/g, '<br>');
   }
@@ -387,7 +407,7 @@ function applyScene(nodeId, prefix = 'select_') {
   const applyUpdate = () => {
     updateScene({
       imageUrl: window.SCENE_IMAGE_MAP?.[key] || DEFAULT_CHARACTER_IMAGES[scene.speaker_name] || null,
-      speaker: { name: scene.speaker_name, role: scene.speaker_role },
+      speaker: scene.speaker_name ? { name: scene.speaker_name, role: scene.speaker_role } : null,
       dialogue: scene.dialogue,
       location: scene.location,
       place: scene.place,

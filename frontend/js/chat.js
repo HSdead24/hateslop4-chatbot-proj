@@ -133,9 +133,12 @@ async function reloadTriggersForLoop(newLoop) {
 function updateTimer() {
   const timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
   const TOTAL_SECONDS = parseInt(sessionStorage.getItem('timer_total_seconds') || String(17 * 60), 10);
-  const remaining = timerStart
-    ? Math.max(0, TOTAL_SECONDS - Math.floor((Date.now() - timerStart) / 1000))
-    : 0;
+  if (!timerStart) {
+    // timer_start 미설정 시 지금 시각으로 초기화 (즉시 사망 방지)
+    sessionStorage.setItem('timer_start', String(Date.now()));
+    return;
+  }
+  const remaining = Math.max(0, TOTAL_SECONDS - Math.floor((Date.now() - timerStart) / 1000));
 
   const h = Math.floor(remaining / 3600);
   const m = Math.floor((remaining % 3600) / 60);
@@ -505,7 +508,7 @@ function appendTypingRow() {
 
 function addNPCMsg(overrideText = null) {
   const npc = NPCs[currentNPC];
-  const text = overrideText ?? npc.responses[responseIdx % npc.responses.length];
+  const text = overrideText ?? (npc.responses?.[responseIdx % npc.responses?.length] ?? '...');
   responseIdx++;
 
   const row = document.createElement('div');
@@ -694,8 +697,10 @@ async function sendToBackend(text) {
         const loopData = await fetchAPI('/new-loop');
         lastLoopCount = nextLoop;
         const resolvedLoop = loopData?.loop_count ?? nextLoop;
-        document.getElementById('loop-num').textContent = resolvedLoop;
-        document.getElementById('loop-count').textContent = resolvedLoop;
+        const loopNumEl2 = document.getElementById('loop-num');
+        const loopCountEl2 = document.getElementById('loop-count');
+        if (loopNumEl2) loopNumEl2.textContent = resolvedLoop;
+        if (loopCountEl2) loopCountEl2.textContent = resolvedLoop;
 
         if (loopData?.is_game_over) {
           document.getElementById('game-over-overlay')?.classList.add('show');
@@ -747,11 +752,6 @@ function esc(s) {
 // ─────────────────────────────────────────────
 //  이벤트 바인딩
 // ─────────────────────────────────────────────
-document.getElementById('msg-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') sendMsg();
-});
-
-
 // ─────────────────────────────────────────────
 //  BGM 제어 로직 (자동 재생 시도 포함)
 // ─────────────────────────────────────────────
