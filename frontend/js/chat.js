@@ -615,7 +615,6 @@ async function triggerDeath(cause = 'timer') {
   sessionStorage.setItem('death_cause', cause);
   sessionStorage.setItem('loop_num', String(loopNum));
 
-  // 백엔드 사망 처리 후 바로 suspect.html 이동
   await fetchAPI('/player-dead');
   window.location.href = '/suspect';
 }

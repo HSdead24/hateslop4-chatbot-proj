@@ -83,11 +83,8 @@ const TOTAL_SECONDS = 17 * 60;  // 17분 — 기준값. chat.js는 sessionStorag
 sessionStorage.setItem('timer_total_seconds', String(TOTAL_SECONDS));
 
 // 이미 시작된 타이머가 있으면 이어받고, 없으면 새로 시작
-let timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
-if (!timerStart) {
-  timerStart = Date.now();
-  sessionStorage.setItem('timer_start', String(timerStart));
-}
+let timerStart = Date.now();
+sessionStorage.setItem('timer_start', String(timerStart));
 
 function getRemainingSeconds() {
   const elapsed = Math.floor((Date.now() - timerStart) / 1000);
@@ -527,16 +524,10 @@ function playScenes(scenes, nodeId, onDone) {
     };
 
     if (scene.popup_img) {
-      // popup_img: 이미지 + 계속 버튼을 choicesSection에 표시
+      // popup_img: 대사 표시 후 5초 뒤 오버레이 팝업, 닫기 버튼 → 다음 단계 진행
       getClueImgMap().then(imgMap => {
-        const url = imgMap[scene.popup_img] ?? null;
-        if (url) {
-          const img = document.createElement('img');
-          img.src = url;
-          img.style.cssText = 'max-width:100%;border-radius:8px;display:block;margin:0 auto 8px;';
-          sec.appendChild(img);
-        }
-        makeContinueBtn(sec, () => { sec.innerHTML = ''; proceed(); });
+        const url = imgMap[scene.popup_img] || null;
+        setTimeout(() => showImgPopup(url, proceed), 3000);
       });
     } else {
       proceed();
@@ -569,6 +560,29 @@ function playEventSound(eventText) {
     const audio = new Audio(EVENT_SOUND_BASE + soundFile);
     audio.play().catch(e => console.warn('[오디오 재생 실패]:', e));
   }
+}
+
+function showImgPopup(url, onClose) {
+  const overlay  = document.getElementById('imgPopupOverlay');
+  const imgEl    = document.getElementById('imgPopupImg');
+  const phEl     = document.getElementById('imgPopupPlaceholder');
+  const closeBtn = document.getElementById('imgPopupClose');
+
+  if (url) {
+    imgEl.src = url;
+    imgEl.style.display = 'block';
+    phEl.style.display = 'none';
+  } else {
+    imgEl.src = '';
+    imgEl.style.display = 'none';
+    phEl.style.display = 'block';
+  }
+
+  overlay.classList.add('show');
+  closeBtn.onclick = () => {
+    overlay.classList.remove('show');
+    onClose?.();
+  };
 }
 
 function showClueReveal(clue, imgUrl, callback) {
