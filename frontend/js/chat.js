@@ -246,10 +246,16 @@ function switchTab(tab) {
 function addClue(clue) {
   if (clues.some(c => c.title === clue.title)) return;
   clues.push({ ...clue, time: nowTime() });
-  // 단서 카운트 정보바 업데이트
+
+  // sessionStorage 동기화 (button.js 단서와 통합 관리)
+  const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
+  if (!stored.find(c => c.id === clue.title)) {
+    stored.push({ id: clue.title, title: clue.title, desc: clue.desc || '', img: clue.img || null });
+    sessionStorage.setItem('clues', JSON.stringify(stored));
+  }
+
   const infoCount = document.getElementById('clue-info-count');
-  if (infoCount) infoCount.textContent = clues.length;
-  // 폴더 버튼 배지
+  if (infoCount) infoCount.textContent = getClues().length;
   if (currentTab !== 'clue') {
     const badge = document.getElementById('folder-badge');
     if (badge) badge.style.display = '';
@@ -258,11 +264,12 @@ function addClue(clue) {
 }
 
 function renderClues() {
+  const allClues = getClues();
   const list = document.getElementById('clue-list');
   const count = document.getElementById('clue-count');
-  count.textContent = clues.length;
+  count.textContent = allClues.length;
 
-  if (clues.length === 0) {
+  if (allClues.length === 0) {
     list.innerHTML = `
       <div class="clue-empty">
         <div class="clue-empty-icon">🐰</div>
@@ -271,19 +278,18 @@ function renderClues() {
     return;
   }
 
-  list.innerHTML = clues.map((c, i) => `
+  list.innerHTML = allClues.map((c, i) => `
     <div class="clue-item">
       <div class="clue-item-top">
         <span class="clue-item-badge">단서 #${String(i + 1).padStart(2, '0')}</span>
       </div>
       <div class="clue-item-main">
-        <div class="clue-item-icon">${c.icon}</div>
+        ${c.img ? `<img src="${esc(c.img)}" class="clue-item-img" alt="" style="max-width:100%;border-radius:6px;margin-bottom:6px;">` : ''}
         <div class="clue-item-text">
           <div class="clue-item-title">${esc(c.title)}</div>
           <div class="clue-item-desc">${esc(c.desc)}</div>
         </div>
       </div>
-      <div class="clue-item-from">치키의 힌트</div>
     </div>`).join('');
 }
 

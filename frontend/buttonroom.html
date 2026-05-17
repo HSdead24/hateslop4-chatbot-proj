@@ -110,6 +110,20 @@
 
 </div><!-- /game-wrapper -->
 
+<!-- 단서 획득 오버레이 (game-wrapper 밖에 위치해야 fixed가 정상 동작) -->
+<div class="clue-reveal-overlay" id="clueRevealOverlay">
+  <div class="clue-reveal-card">
+    <div class="clue-reveal-label">단서 획득!</div>
+    <img class="clue-reveal-img" id="clueRevealImg" src="" alt="">
+    <div class="clue-reveal-info">
+      <div class="clue-reveal-title" id="clueRevealTitle"></div>
+      <div class="clue-reveal-desc" id="clueRevealDesc"></div>
+    </div>
+    <button class="clue-reveal-btn" id="clueRevealBtn">확인</button>
+  </div>
+</div>
+
+<script src="/frontend/js/clue.js"></script>
 <script src="/frontend/js/button.js"></script>
 </body>
 </html>
