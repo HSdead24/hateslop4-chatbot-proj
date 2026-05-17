@@ -110,6 +110,29 @@
 
 </div><!-- /game-wrapper -->
 
+<!-- 이미지 팝업 오버레이 (popup_img 씬용) -->
+<div class="img-popup-overlay" id="imgPopupOverlay">
+  <div class="img-popup-card">
+    <img class="img-popup-img" id="imgPopupImg" src="" alt="">
+    <div class="img-popup-placeholder" id="imgPopupPlaceholder">이미지 준비 중</div>
+    <button class="img-popup-close" id="imgPopupClose">닫기</button>
+  </div>
+</div>
+
+<!-- 단서 획득 오버레이 (game-wrapper 밖에 위치해야 fixed가 정상 동작) -->
+<div class="clue-reveal-overlay" id="clueRevealOverlay">
+  <div class="clue-reveal-card">
+    <div class="clue-reveal-label">단서 획득!</div>
+    <img class="clue-reveal-img" id="clueRevealImg" src="" alt="">
+    <div class="clue-reveal-info">
+      <div class="clue-reveal-title" id="clueRevealTitle"></div>
+      <div class="clue-reveal-desc" id="clueRevealDesc"></div>
+    </div>
+    <button class="clue-reveal-btn" id="clueRevealBtn">확인</button>
+  </div>
+</div>
+
+<script src="/frontend/js/clue.js"></script>
 <script src="/frontend/js/button.js"></script>
 </body>
 </html>

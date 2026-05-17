@@ -2,6 +2,98 @@
    buttonroom.css  —  Phase 1 버튼 선택 UI 스타일
    ════════════════════════════════════════════ */
 
+/* ── 이미지 팝업 오버레이 (popup_img 씬용) ── */
+.img-popup-overlay {
+  position: fixed; inset: 0; z-index: 540;
+  background: rgba(0,0,0,0.82);
+  display: none; align-items: center; justify-content: center;
+}
+.img-popup-overlay.show { display: flex; }
+
+.img-popup-card {
+  width: 88%; max-width: 320px;
+  background: #080e18;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px; overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  animation: clue-reveal-in 0.3s ease;
+}
+.img-popup-img {
+  width: 100%; display: block;
+}
+.img-popup-placeholder {
+  padding: 60px 0;
+  text-align: center;
+  color: rgba(255,255,255,0.22);
+  font-size: 12px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px dashed rgba(255,255,255,0.09);
+  display: none;
+}
+.img-popup-close {
+  margin: 12px 16px 14px; padding: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.13); border-radius: 6px;
+  color: rgba(255,255,255,0.55); font-size: 13px;
+  cursor: pointer; transition: background 0.15s;
+}
+.img-popup-close:hover { background: rgba(255,255,255,0.12); }
+
+/* ── 단서 획득 오버레이 ── */
+.clue-reveal-overlay {
+  position: fixed; inset: 0; z-index: 550;
+  background: rgba(0,0,0,0.88);
+  display: none; align-items: center; justify-content: center;
+}
+.clue-reveal-overlay.show { display: flex; }
+
+.clue-reveal-card {
+  width: 88%; max-width: 340px;
+  background: #080e18;
+  border: 1px solid rgba(0,200,170,0.28);
+  border-radius: 12px; overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  animation: clue-reveal-in 0.3s ease;
+}
+@keyframes clue-reveal-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.clue-reveal-label {
+  text-align: center; padding: 10px 16px;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(0,210,175,0.75);
+  background: rgba(0,60,50,0.45);
+  border-bottom: 1px solid rgba(0,200,170,0.15);
+}
+.clue-reveal-img {
+  width: 100%; max-height: 220px;
+  object-fit: cover; display: block;
+}
+.clue-reveal-img[src=""] { display: none; }
+.clue-reveal-info {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.clue-reveal-title {
+  font-size: 14px; font-weight: 700; color: #d4e0da;
+  margin-bottom: 6px; line-height: 1.4;
+}
+.clue-reveal-desc {
+  font-size: 12px; color: rgba(180,210,200,0.55);
+  line-height: 1.6; word-break: keep-all;
+}
+.clue-reveal-btn {
+  margin: 12px 16px 14px; padding: 10px;
+  background: rgba(0,200,170,0.12);
+  border: 1px solid rgba(0,200,170,0.3); border-radius: 6px;
+  color: rgba(0,210,175,0.9); font-size: 13px;
+  cursor: pointer; transition: background 0.15s;
+}
+.clue-reveal-btn:hover { background: rgba(0,200,170,0.22); }
+
 /* ── 리셋 ── */
 * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -450,6 +542,25 @@ body {
 .choice-btn.disabled {
   opacity:0.28; cursor:not-allowed; pointer-events:none;
   filter:grayscale(0.5);
+}
+
+/* 500번 이상 선택지: 세로 배열 */
+.choices-section.vertical {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.choices-section.vertical .choice-btn,
+.choice-btn.full-width {
+  flex: none;
+  width: 100%;
+  text-align: left;
+}
+
+.choices-section.vertical .choice-text {
+  text-align: left;
+  white-space: normal;
+  word-break: keep-all;
 }
 
 

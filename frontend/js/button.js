@@ -27,393 +27,25 @@ const GAME_STATE = {
   currentLocation: null,                // 현재 location (변경 감지용)
 };
 
-// ─────────────────────────────────────────────
-//  버튼 트리
-//  구조: { 부모ID(string): { 자식ID(string): "버튼텍스트" } }
-//  'root' = 게임 시작점 (선택1)
-//  리프 노드 = 자식이 없는 노드 → 7단계 완료 신호
-// ─────────────────────────────────────────────
-const BUTTON_TREE = {
-  "root": {
-    "100": "집에 있는다",
-    "101": "출근한다"
-  },
-  // ── Sheet1: 100 (집에 있는다) 루트 ──
-  "100": {
-    "200": "나가지 않고 '택배 두고가세요' 말만 한다",
-    "201": "나가서 택배를 받는다"
-  },
-  "200": {
-    "300": "출근을 한다",
-    "301": "핑계를 대며 출근을 안 하고 밥을 마저 먹는다"
-  },
-  "201": {
-    "302": "자신을 아냐고 직접 물어본다",
-    "303": "애써 웃으며 싸인만 한다"
-  },
-  "300": {
-    "400": "차서연에게 사무실이 왜 어질러져 있는지 물어본다",
-    "401": "물어보지 않는다"
-  },
-  "301": {
-    "402": "나한테 동생이 있었어? 라며 물어본다",
-    "403": "엄마의 말을 무시한다"
-  },
-  "302": {
-    "404": "USB 파일을 열어본다",
-    "405": "USB 파일을 열어보지 않고 밥을 먹으러 간다"
-  },
-  "303": {
-    "406": "나한테 동생이 있었어? 라며 물어본다",
-    "407": "엄마의 말을 무시한다"
-  },
-  "400": {
-    "500": "차서연이 전달한 인스타를 확인한다",
-    "501": "확인하지 않는다. 내담자와의 윤리를 지켜야한다"
-  },
-  "401": {
-    "502": "차서연이 전달한 인스타를 확인한다",
-    "503": "확인하지 않는다. 내담자와의 윤리를 지켜야한다"
-  },
-  "402": {
-    "504": "엄마에게 어릴 때의 자신에 대해 물어본다",
-    "505": "엄마에게 어릴 때의 자신에 대해 묻지 않는다"
-  },
-  "403": {
-    "506": "엄마에게 어릴 때의 자신에 대해 물어본다",
-    "507": "엄마에게 어릴 때의 자신에 대해 묻지 않는다"
-  },
-  "404": {
-    "508": "발신자 표시 제한 전화를 받는다",
-    "509": "전화를 받지 않는다"
-  },
-  "405": {
-    "510": "아무 일도 없었다고 잘 지낸다고 말한다",
-    "511": "요즘 살인현장에 관한 꿈을 꾼다고 말한다"
-  },
-  "406": {
-    "512": "엄마에게 어릴 때의 자신에 대해 물어본다",
-    "513": "엄마에게 어릴 때의 자신에 대해 묻지 않는다"
-  },
-  "407": {
-    "514": "엄마에게 어릴 때의 자신에 대해 물어본다",
-    "515": "엄마에게 어릴 때의 자신에 대해 묻지 않는다"
-  },
-  "500": {
-    "600": "김하윤이 누군데 이러세요? 김도현을 진정시키고 대화를 시작한다",
-    "601": "차서연씨!! 도와주세요. 함께 김도현을 내쫓는다"
-  },
-  "501": {
-    "602": "김하윤이 누군데 이러세요? 김도현을 진정시키고 대화를 시작한다",
-    "603": "차서연씨!! 도와주세요. 함께 김도현을 내쫓는다"
-  },
-  "502": {
-    "604": "김하윤이 누군데 이러세요? 김도현을 진정시키고 대화를 시작한다",
-    "605": "차서연씨!! 도와주세요. 함께 김도현을 내쫓는다"
-  },
-  "503": {
-    "606": "김하윤이 누군데 이러세요? 김도현을 진정시키고 대화를 시작한다",
-    "607": "차서연씨!! 도와주세요. 함께 김도현을 내쫓는다"
-  },
-  "504": {
-    "608": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "609": "카톡에 답하지 않는다"
-  },
-  "505": {
-    "610": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "611": "카톡에 답하지 않는다"
-  },
-  "506": {
-    "612": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "613": "카톡에 답하지 않는다"
-  },
-  "507": {
-    "614": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "615": "카톡에 답하지 않는다"
-  },
-  "508": {
-    "616": "내담자가 자신에게 달려드는 듯한 사진을 받았다고 이야기한다",
-    "617": "이상한 일 없으며 잘 지내고 있다고 말한다"
-  },
-  "509": {
-    "618": "내담자가 자신에게 달려드는 듯한 사진을 받았다고 이야기한다",
-    "619": "이상한 일 없으며 잘 지내고 있다고 말한다"
-  },
-  "510": {
-    "620": "엄마에게 주원에 대해 물어본다",
-    "621": "엄마에게 주원에 대해 물어보지 않는다"
-  },
-  "512": {
-    "622": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "623": "창문 쪽으로 가본다"
-  },
-  "513": {
-    "624": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "625": "창문 쪽으로 가본다"
-  },
-  "514": {
-    "626": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "627": "창문 쪽으로 가본다"
-  },
-  "515": {
-    "628": "카톡에 오늘 근무가 어려울 것 같다고 답한다",
-    "629": "창문 쪽으로 가본다"
-  },
-  "601": {
-    "700": "차서연에게 김하윤에 대해 묻는다",
-    "701": "차서연에게 김하윤에 대해 묻지 않는다"
-  },
-  "603": {
-    "702": "차서연에게 김하윤에 대해 묻는다",
-    "703": "차서연에게 김하윤에 대해 묻지 않는다"
-  },
-  "605": {
-    "704": "차서연에게 김하윤에 대해 묻는다",
-    "705": "차서연에게 김하윤에 대해 묻지 않는다"
-  },
-  "607": {
-    "706": "차서연에게 김하윤에 대해 묻는다",
-    "707": "차서연에게 김하윤에 대해 묻지 않는다"
-  },
-  "616": {
-    "708": "엄마에게 전에 김도현에 대해 어떻게 이야기 했었는지 말해달라 한다",
-    "709": "황급히 엄마한테 내일 무엇을 하는지 물어본다"
-  },
-  "617": {
-    "710": "엄마에게 전에 김도현에 대해 어떻게 이야기 했었는지 말해달라 한다",
-    "711": "황급히 엄마한테 내일 무엇을 하는지 물어본다"
-  },
-  "618": {
-    "712": "엄마에게 전에 김도현에 대해 어떻게 이야기 했었는지 말해달라 한다",
-    "713": "황급히 엄마한테 내일 무엇을 하는지 물어본다"
-  },
-  "619": {
-    "714": "엄마에게 전에 김도현에 대해 어떻게 이야기 했었는지 말해달라 한다",
-    "715": "황급히 엄마한테 내일 무엇을 하는지 물어본다"
-  },
-  "623": {
-    "716": "쫓아간다",
-    "717": "쫓아가지 않고 돌아가 엄마랑 마저 밥을 먹는다"
-  },
-  "625": {
-    "718": "쫓아간다",
-    "719": "쫓아가지 않고 돌아가 엄마랑 마저 밥을 먹는다"
-  },
-  "627": {
-    "720": "쫓아간다",
-    "721": "쫓아가지 않고 돌아가 엄마랑 마저 밥을 먹는다"
-  },
-  "629": {
-    "722": "쫓아간다",
-    "723": "쫓아가지 않고 돌아가 엄마랑 마저 밥을 먹는다"
-  },
-
-  // ── Sheet2: 101 (출근한다) 루트 ──
-  "101": {
-    "202": "커피를 마신다",
-    "203": "거절한다"
-  },
-  "202": {
-    "304": "인스타를 확인한다.",
-    "305": "김도현이 누구야? 확인하지 않는다."
-  },
-  "203": {
-    "306": "사무실로 이동한다",
-    "307": "거절한다"
-  },
-  "304": {
-    "408": "김하윤이 누군데 이러세요? 김도현과 대치한다",
-    "409": "차서연씨!! 도와주세요. 함께 김도현을 내쫓는다"
-  },
-  "305": {
-    "410": "김하윤이 누군데 이러세요? 김도현과 대치한다",
-    "411": "차서연씨!! 도와주세요. 함께 김도현을 내쫓는다"
-  },
-  "306": {
-    "412": "차서연에게 말을 건다",
-    "413": "무시하고 김도현과 대화한다"
-  },
-  "307": {
-    "414": "그 사람이 누군데 이러세요!!",
-    "415": "제가 무슨 사람을 죽여요!!!!"
-  },
-  "408": {
-    "516": "처음 듣는 일이에요",
-    "517": "아.. 맞아요.. 정말 안타깝네요.."
-  },
-  "409": {
-    "518": "차서연에게 김하윤에 대해 묻는다",
-    "519": "물어보지 않는다"
-  },
-  "410": {
-    "520": "(침묵)",
-    "521": "(당황하며) 하윤씨가... 그런 일이 있었다니 정말 안타깝네요.."
-  },
-  "411": {
-    "522": "차서연에게 김하윤에 대해 묻는다",
-    "523": "물어보지 않는다"
-  },
-  "412": {
-    "524": "뭐 찾고 있었던 거 아니냐고 물어본다",
-    "525": "믿어준다"
-  },
-  "413": {
-    "526": "무엇을 찾는지 물어본다",
-    "527": "별 반응 없이 지켜본다"
-  },
-  "414": {
-    "528": "김도현에게 공격적으로 대응, 내쫓는다",
-    "529": "김도현을 진정시킨다. 자발적으로 나간다"
-  },
-  "415": {
-    "530": "김도현에게 공격적으로 대응, 내쫓는다",
-    "531": "김도현을 진정시킨다. 자발적으로 나간다"
-  },
-  "516": {
-    "630": "몰러유",
-    "631": "기억 나는 것 같기도 하구요.. 뉴스에서 봤었나?"
-  },
-  "517": {
-    "632": "몰러유",
-    "633": "기억 나는 것 같기도 하구요.. 뉴스에서 봤었나?"
-  },
-  "518": {
-    "634": "인스타를 확인한다",
-    "635": "확인하지 않는다"
-  },
-  "519": {
-    "636": "(혼란스러워하며) 모르겠어요...",
-    "637": "기억 나는 것 같기도 하구요.. 뉴스에서 봤었나?"
-  },
-  "520": {
-    "638": "(혼란스러워하며) 모르겠어요...",
-    "639": "기억 나는 것 같기도 하구요.. 뉴스에서 봤었나?"
-  },
-  "521": {
-    "640": "모르겠어요...",
-    "641": "기억 나는 것 같기도 하구요.. 뉴스에서 봤었나?"
-  },
-  "522": {
-    "642": "인스타를 확인한다",
-    "643": "확인하지 않는다"
-  },
-  "523": {
-    "644": "(혼란스러워하며) 모르겠어요...",
-    "645": "기억 나는 것 같기도 하구요.. 뉴스에서 봤었나?"
-  },
-  "524": {
-    "646": "거절한다",
-    "647": "승인한다"
-  },
-  "525": {
-    "648": "거절한다",
-    "649": "승인한다"
-  },
-  "526": {
-    "650": "거절한다",
-    "651": "승인한다"
-  },
-  "527": {
-    "652": "거절한다",
-    "653": "승인한다"
-  },
-  "528": {
-    "654": "무시한다",
-    "655": "사과를 한다"
-  },
-  "529": {
-    "656": "차서연에게 말을 건다",
-    "657": "박도원에게 말을 건다"
-  },
-  "530": {
-    "658": "무시한다",
-    "659": "사과를 한다"
-  },
-  "531": {
-    "660": "차서연에게 말을 건다",
-    "661": "박도원에게 말을 건다"
-  },
-  "630": { "724": "머리가 복잡하다. 바람도 쐴 겸 병원 1층으로 가본다" },
-  "631": { "725": "머리가 복잡하다. 바람도 쐴 겸 병원 1층으로 가본다" },
-  "632": { "726": "네" },
-  "633": { "727": "아니요" },
-  "634": { "728": "네" },
-  "635": { "729": "아니요" },
-  "636": { "730": "머리가 복잡하다. 이 주인공은 왜 죽어야 했는지, 범인은 대체 누구인지...\n 일단 핸드폰을 열어 남아있는 문자 기록을 확인한다." },
-  "637": { "731": "머리가 복잡하다. 이 주인공은 왜 죽어야 했는지, 범인은 대체 누구인지...\n 일단 핸드폰을 열어 남아있는 문자 기록을 확인한다." },
-  "638": { "732": "머리가 복잡하다. 이 주인공은 왜 죽어야 했는지, 범인은 대체 누구인지...\n 일단 핸드폰을 열어 남아있는 문자 기록을 확인한다." },
-  "639": { "733": "머리가 복잡하다. 이 주인공은 왜 죽어야 했는지, 범인은 대체 누구인지...\n 일단 핸드폰을 열어 남아있는 문자 기록을 확인한다." },
-  "640": { "734": "차서연에게 김하윤에 대해 묻지 않는다" },
-  "641": { "735": "네" },
-  "642": { "736": "네" },
-  "643": { "737": "아니요" },
-  "644": { "738": "머리가 복잡하다. 바람도 쐴 겸 병원 1층으로 가본다" },
-  "645": { "739": "머리가 복잡하다. 바람도 쐴 겸 병원 1층으로 가본다" },
-  "646": { "740": "USB 파일을 열어본다" },
-  "647": {
-    "741": "모르겠어요",
-    "742": "본 거 같기도 한데 기억이 잘 안 나네요"
-  },
-  "648": { "743": "USB 파일을 열어본다" },
-  "649": {
-    "744": "모르겠어요",
-    "745": "본 거 같기도 한데 기억이 잘 안 나네요"
-  },
-  "650": { "746": "USB 파일을 열어본다" },
-  "651": {
-    "747": "모르겠어요",
-    "748": "본 거 같기도 한데 기억이 잘 안 나네요"
-  },
-  "652": { "749": "USB 파일을 열어본다" },
-  "653": {
-    "750": "모르겠어요",
-    "751": "본 거 같기도 한데 기억이 잘 안 나네요"
-  },
-  "654": {
-    "752": "박도원과 대화한다",
-    "753": "사무실에 들어간다"
-  },
-  "655": {
-    "754": "박도원과 대화한다",
-    "755": "사무실에 들어간다"
-  },
-  "656": { "756": "몰러유" },
-  "657": {
-    "757": "그런가요? 흉흉한지 몰랐어요",
-    "758": "에이 그래도 다 없어지는 건 너무 나쁜 생각 아닐까요~"
-  },
-  "658": {
-    "759": "박도원과 대화한다",
-    "760": "사무실에 들어간다"
-  },
-  "659": {
-    "761": "박도원과 대화한다",
-    "762": "사무실에 들어간다"
-  },
-  "660": { "763": "몰러유" },
-  "661": {
-    "764": "그런가요? 흉흉한지 몰랐어요",
-    "765": "에이 그래도 다 없어지는 건 너무 나쁜 생각 아닐까요~"
-  },
-};
 
 // ─────────────────────────────────────────────
 //  트리 탐색 헬퍼
 // ─────────────────────────────────────────────
 
-// 리프 노드 여부 (자식 없음 = 7단계 완료)
 function isLeafNode(nodeId) {
-  return !BUTTON_TREE[String(nodeId)];
+  const id = nodeId === 'root' ? '0' : String(nodeId);
+  return !window.SCENE_RAW?.[id];
 }
 
-// 현재 노드의 자식 버튼 배열 반환 (disabled 적용 포함)
 function getChildButtons(nodeId) {
-  const children = BUTTON_TREE[String(nodeId)];
-  if (!children) return [];
-  return Object.entries(children).map(([id, text]) => ({
-    id: Number(id),
-    text,
-    disabled: GAME_STATE.disabledIds.includes(Number(id)),
+  const id = nodeId === 'root' ? '0' : String(nodeId);
+  const node = window.SCENE_RAW?.[id];
+  if (!node?.choices) return [];
+  return node.choices.map(c => ({
+    id: c.id,
+    text: c.text,
+    disabled: GAME_STATE.disabledIds.includes(Number(c.id)),
+    clue: c.clue ?? null,
   }));
 }
 
@@ -451,11 +83,8 @@ const TOTAL_SECONDS = 17 * 60;  // 17분 — 기준값. chat.js는 sessionStorag
 sessionStorage.setItem('timer_total_seconds', String(TOTAL_SECONDS));
 
 // 이미 시작된 타이머가 있으면 이어받고, 없으면 새로 시작
-let timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
-if (!timerStart) {
-  timerStart = Date.now();
-  sessionStorage.setItem('timer_start', String(timerStart));
-}
+let timerStart = Date.now();
+sessionStorage.setItem('timer_start', String(timerStart));
 
 function getRemainingSeconds() {
   const elapsed = Math.floor((Date.now() - timerStart) / 1000);
@@ -489,34 +118,6 @@ function updateButtonTimer() {
 const btnTimerInterval = setInterval(updateButtonTimer, 1000);
 updateButtonTimer();  // 즉시 한 번 표시
 
-// ─────────────────────────────────────────────
-//  "▶ 계속" 버튼 표시 (씬 대사 읽은 후 선택지로 넘어가기)
-// ─────────────────────────────────────────────
-function showContinueBtn(nodeId) {
-  const sec = document.getElementById('choicesSection');
-  sec.innerHTML = '';
-
-  const btn = document.createElement('button');
-  btn.className = 'continue-btn';
-  btn.innerHTML = '<span>▶ &nbsp; 계속</span>';
-  btn.addEventListener('click', () => {
-    applyScene(nodeId, 'start_');
-    renderChoices(getChildButtons(nodeId));
-  });
-
-  sec.appendChild(btn);
-
-  // TODO: #progressBtn (>>) 버튼 — 프로듀서 측 기능 확정 후 구현 예정
-  // const progressBtn = document.getElementById('progressBtn');
-  // if (progressBtn) {
-  //   progressBtn.style.display = 'flex';
-  //   progressBtn.onclick = () => {
-  //     progressBtn.style.display = 'none';
-  //     applyScene(nodeId, 'start_');
-  //     renderChoices(getChildButtons(nodeId));
-  //   };
-  // }
-}
 
 // ─────────────────────────────────────────────
 //  선택지 렌더링
@@ -525,13 +126,33 @@ function renderChoices(choices) {
   const sec = document.getElementById('choicesSection');
   sec.innerHTML = '';
 
-  // TODO: progressBtn 연동 — 프로듀서 측 기능 확정 후 구현 예정
-  // const progressBtn = document.getElementById('progressBtn');
-  // if (progressBtn) progressBtn.style.display = 'none';
+  const isVertical = choices.some(c => Number(c.id) >= 500);
+
+  // 500번 이상 노드: NPC 이미지·대사·화자 영역 숨기고 배경만 표시
+  if (isVertical) {
+    const sceneImg = document.getElementById('sceneImage');
+    if (sceneImg) sceneImg.style.display = 'none';
+    const dlg = document.getElementById('dialogueText');
+    const spkName = document.getElementById('speakerName');
+    const spkRole = document.getElementById('speakerRole');
+    const spkDot = document.querySelector('.speaker-dot');
+    if (dlg) dlg.innerHTML = '';
+    if (spkName) spkName.textContent = '';
+    if (spkRole) spkRole.textContent = '';
+    if (spkDot) spkDot.style.display = 'none';
+  }
+
+  if (isVertical) {
+    sec.classList.add('vertical');
+  } else {
+    sec.classList.remove('vertical');
+    const spkDot = document.querySelector('.speaker-dot');
+    if (spkDot) spkDot.style.display = '';
+  }
 
   choices.forEach(c => {
     const btn = document.createElement('button');
-    btn.className = 'choice-btn' + (c.disabled ? ' disabled' : '');
+    btn.className = 'choice-btn' + (c.disabled ? ' disabled' : '') + (isVertical ? ' full-width' : '');
     btn.dataset.id = c.id;
     btn.innerHTML = `<span class="choice-text">${c.text}</span>`;
     if (!c.disabled) btn.addEventListener('click', () => onChoice(c, btn));
@@ -562,19 +183,36 @@ async function onChoice(choice, btn) {
   // 1) 백엔드에 버튼 클릭 기록
   await recordButton(choice.id);
 
-  // 2) 리프 노드 = 7단계 완료 → finalize 후 chatroom 이동
+  // 2) 최종 선택지(SCENE_RAW에 없는 노드) → clue 있으면 단서 공개, 없으면 꽝 → chat
   if (isLeafNode(choice.id)) {
-    await finalizeAndNavigate();
+    if (choice.clue) {
+      const imgMap = await getClueImgMap();
+      const imgUrl = imgMap[choice.clue.img] ?? null;
+      addClue({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
+      showClueReveal(choice.clue, imgUrl, () => finalizeAndNavigate());
+    } else {
+      showPopup(
+        { type: 'result', icon: '❌', label: '꽝!', sublabel: '이 단서는 아니야.', duration: 1800 },
+        () => finalizeAndNavigate()
+      );
+    }
     return;
   }
 
   // 3) after_ 씬 표시 (버튼 클릭 직후 반응 대사)
   GAME_STATE.currentNodeId = String(choice.id);
-  applyScene(choice.id, 'select_');
-  document.getElementById('choicesSection').innerHTML = '';
 
-  // 4) 2초 후 >> 진행 버튼 등장
-  setTimeout(() => showContinueBtn(choice.id), 2000);
+  if (choice.clue) {
+    getClueImgMap().then(imgMap => {
+      const imgUrl = imgMap[choice.clue.img] ?? null;
+      addClue({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
+    });
+  }
+
+  const nodeId = String(choice.id);
+  const nodeScenes = window.SCENE_RAW?.[nodeId]?.scenes ?? [];
+  document.getElementById('choicesSection').innerHTML = '';
+  playScenes(nodeScenes, nodeId, () => renderChoices(getChildButtons(choice.id)));
 }
 
 // ─────────────────────────────────────────────
@@ -754,6 +392,13 @@ function applyScene(nodeId, prefix = 'select_') {
       location: scene.location,
       place: scene.place,
     });
+    if (scene.sound) playEventSound(scene.sound);
+    if (scene.popup_img) {
+      getClueImgMap().then(imgMap => {
+        const url = imgMap[scene.popup_img] ?? null;
+        if (url) showPopup({ type: 'image', imgUrl: url, duration: 3000 });
+      });
+    }
   };
 
   const popupQueue = [];
@@ -808,6 +453,90 @@ function runQueue(queue, finalCallback) {
   next(() => runQueue(queue, finalCallback));
 }
 
+// SCENE_RAW의 개별 scene 객체를 화면에 반영
+function applySceneData(s, nodeId) {
+  const speakerName = s.speaker || '';
+  const imageUrl = window.SCENE_IMAGE_MAP?.['start_' + nodeId]
+    || DEFAULT_CHARACTER_IMAGES[speakerName]
+    || null;
+
+  const popupQueue = [];
+
+  if (s.location && s.location !== GAME_STATE.currentLocation) {
+    if (GAME_STATE.currentLocation !== null) {
+      popupQueue.push(cb => showPopup({ type: 'location', label: s.location, sublabel: s.place, duration: 2000 }, cb));
+    }
+    GAME_STATE.currentLocation = s.location;
+  }
+
+  if (s.event) {
+    popupQueue.push(cb => showPopup({ type: 'event', label: s.event, duration: 2000 }, cb));
+  }
+
+  runQueue(popupQueue, () => {
+    updateScene({
+      imageUrl,
+      speaker: speakerName ? { name: speakerName, role: s.speaker_role } : null,
+      dialogue: s.text,
+      location: s.location,
+      place: s.place,
+    });
+    if (s.sound) playEventSound(s.sound);
+  });
+}
+
+// scenes 배열을 순서대로 보여주고 마지막 씬 후 onDone 호출
+function playScenes(scenes, nodeId, onDone) {
+  if (!scenes || scenes.length === 0) { onDone(); return; }
+
+  const choices = getChildButtons(nodeId);
+  const isVertical = choices.some(c => Number(c.id) >= 500);
+  let idx = 0;
+
+  function makeContinueBtn(sec, callback) {
+    const btn = document.createElement('button');
+    btn.className = 'continue-btn';
+    btn.innerHTML = '<span>▶ &nbsp; 계속</span>';
+    btn.addEventListener('click', callback);
+    sec.appendChild(btn);
+  }
+
+  function advance() {
+    const isLast = idx === scenes.length - 1;
+    const scene = scenes[idx];
+    applySceneData(scene, nodeId);
+    idx++;
+
+    const sec = document.getElementById('choicesSection');
+    sec.innerHTML = '';
+
+    // 다음 단계 결정 (popup_img 여부와 무관하게 동일 로직)
+    const proceed = () => {
+      if (!isLast) {
+        makeContinueBtn(sec, advance);
+      } else if (isVertical) {
+        // 마지막 씬 + 500번 이상: 계속 → NPC 숨기고 choices
+        makeContinueBtn(sec, onDone);
+      } else {
+        // 마지막 씬 + 500번 미만: NPC 유지한 채 choices 바로 표시
+        renderChoices(choices);
+      }
+    };
+
+    if (scene.popup_img) {
+      // popup_img: 대사 표시 후 5초 뒤 오버레이 팝업, 닫기 버튼 → 다음 단계 진행
+      getClueImgMap().then(imgMap => {
+        const url = imgMap[scene.popup_img] || null;
+        setTimeout(() => showImgPopup(url, proceed), 3000);
+      });
+    } else {
+      proceed();
+    }
+  }
+
+  advance();
+}
+
 // ============= [음향 매핑 및 재생 함수] =============
 const EVENT_SOUND_BASE = '/frontend/audio/';
 const EVENT_SOUND_MAP = {
@@ -833,23 +562,67 @@ function playEventSound(eventText) {
   }
 }
 
+function showImgPopup(url, onClose) {
+  const overlay  = document.getElementById('imgPopupOverlay');
+  const imgEl    = document.getElementById('imgPopupImg');
+  const phEl     = document.getElementById('imgPopupPlaceholder');
+  const closeBtn = document.getElementById('imgPopupClose');
+
+  if (url) {
+    imgEl.src = url;
+    imgEl.style.display = 'block';
+    phEl.style.display = 'none';
+  } else {
+    imgEl.src = '';
+    imgEl.style.display = 'none';
+    phEl.style.display = 'block';
+  }
+
+  overlay.classList.add('show');
+  closeBtn.onclick = () => {
+    overlay.classList.remove('show');
+    onClose?.();
+  };
+}
+
+function showClueReveal(clue, imgUrl, callback) {
+  const overlay = document.getElementById('clueRevealOverlay');
+  const imgEl   = document.getElementById('clueRevealImg');
+  const titleEl = document.getElementById('clueRevealTitle');
+  const descEl  = document.getElementById('clueRevealDesc');
+  const btn     = document.getElementById('clueRevealBtn');
+
+  imgEl.src = imgUrl || '';
+  titleEl.textContent = clue.title || '';
+  descEl.textContent  = clue.desc  || '';
+
+  overlay.classList.add('show');
+
+  btn.onclick = () => {
+    console.log('[확인 버튼 클릭]');
+    overlay.classList.remove('show');
+    callback?.();
+  };
+}
+
 function showPopup(opts, callback) {
   const popup = document.getElementById('eventPopup');
   const iconEl = document.getElementById('eventIcon');
   const labelEl = document.getElementById('eventLabel');
   const subEl = document.getElementById('eventSublabel');
 
-  iconEl.textContent = opts.icon;
-  labelEl.textContent = opts.label;
-  
-  // ============= [팝업 뜰 때 소리 재생] =============
-  if (opts.type === 'event') {
-    playEventSound(opts.label);
-  }
-  
-  if (subEl) {
-    subEl.textContent = opts.sublabel || '';
-    subEl.style.display = opts.sublabel ? 'block' : 'none';
+  if (opts.type === 'image') {
+    iconEl.textContent = '';
+    labelEl.innerHTML = `<img src="${opts.imgUrl}" style="max-width:100%">`;
+    if (subEl) { subEl.textContent = ''; subEl.style.display = 'none'; }
+  } else {
+    iconEl.textContent = opts.icon || '';
+    labelEl.textContent = opts.label || '';
+    if (opts.type === 'event') playEventSound(opts.label);
+    if (subEl) {
+      subEl.textContent = opts.sublabel || '';
+      subEl.style.display = opts.sublabel ? 'block' : 'none';
+    }
   }
 
   popup.dataset.type = opts.type || 'event';
@@ -874,8 +647,9 @@ function showPopup(opts, callback) {
     const res = await fetch('/frontend/data/scenes.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    window.SCENE_DATA = data.scenes;
-    console.log('[씬 데이터 로드 성공]', Object.keys(window.SCENE_DATA).length, '개');
+    window.SCENE_RAW = data.nodes;
+    window.SCENE_DATA = data.scenes ?? null;
+    console.log('[씬 노드 로드 성공]', Object.keys(window.SCENE_RAW).length, '개');
   } catch (e) {
     console.error('[SCENE_DATA 로드 실패]', e.message);
   }
@@ -892,8 +666,8 @@ function showPopup(opts, callback) {
   }
 
   await startNewGame();
-  applyScene('root', 'select_');
-  setTimeout(() => showContinueBtn('root'), 3000);
+  const startScenes = window.SCENE_RAW?.['0']?.scenes ?? [];
+  playScenes(startScenes, '0', () => renderChoices(getChildButtons('root')));
   createDrips();
 })();
 
