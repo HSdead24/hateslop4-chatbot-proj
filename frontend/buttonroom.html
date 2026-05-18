@@ -73,25 +73,24 @@
     <div class="scene-fade"></div>
 
 
+
+    <!-- DIALOGUE + CHOICES wrapper: scene 하단에 고정 -->
+    <div class="bottom-panel">
+      <div class="dialogue-section">
+        <div class="speaker-row">
+          <span class="speaker-name" id="speakerName">박도원</span>
+          <div class="speaker-dot"></div>
+          <span class="speaker-role" id="speakerRole">택배 기사</span>
+        </div>
+        <div class="dialogue-text" id="dialogueText">
+          선생님... 택배 왔습니다.<br>늦은 시간에 죄송합니다.
+        </div>
+      </div>
+      <!-- CHOICES (JS가 동적으로 버튼 생성) -->
+      <div class="choices-section" id="choicesSection"></div>
+    </div>
+
   </div><!-- /scene-container -->
-
-  <!-- DIALOGUE -->
-  <div class="dialogue-section">
-    <div class="speaker-row">
-      <span class="speaker-name" id="speakerName">박도원</span>
-      <div class="speaker-dot"></div>
-      <span class="speaker-role" id="speakerRole">택배 기사</span>
-    </div>
-    <div class="dialogue-text" id="dialogueText">
-      선생님... 택배 왔습니다.<br>늦은 시간에 죄송합니다.
-    </div>
-    <!-- TODO: 진행 버튼 (>>) — 프로듀서 측 기능 확정 후 구현 예정
-    <div class="progress-btn" id="progressBtn" style="display:none;"></div>
-    -->
-  </div>
-
-  <!-- CHOICES (JS가 동적으로 버튼 생성) -->
-  <div class="choices-section" id="choicesSection"></div>
 
   <!-- BOTTOM HINT -->
   <div class="bottom-hint">
