@@ -22,7 +22,6 @@ const GAME_STATE = {
   buttonHistory: [],                  // 클릭한 버튼 ID 누적 → 백엔드 전달용
   contextHistory: [],                  // 클릭한 버튼 텍스트 누적 → 챗봇 맥락용
   lastButtonId: null,                // 가장 마지막 선택 ID
-  disabledIds: [],                  // 백엔드에서 수신한 비활성화 버튼 ID 목록
   sessionId: null,                // POST /new-game 에서 수신
   currentLocation: null,                // 현재 location (변경 감지용)
 };
@@ -41,10 +40,11 @@ function getChildButtons(nodeId) {
   const id = nodeId === 'root' ? '0' : String(nodeId);
   const node = window.SCENE_RAW?.[id];
   if (!node?.choices) return [];
+  const usedEntryIds = JSON.parse(sessionStorage.getItem('used_entry_ids') || '[]');
   return node.choices.map(c => ({
     id: c.id,
     text: c.text,
-    disabled: GAME_STATE.disabledIds.includes(Number(c.id)),
+    disabled: (Number(c.id) >= 400 && Number(c.id) <= 411) && usedEntryIds.includes(Number(c.id)),
     clue: c.clue ?? null,
   }));
 }
@@ -180,10 +180,14 @@ async function onChoice(choice, btn) {
 
   console.log('[선택]', choice.id, choice.text);
 
-  // 1) 백엔드에 버튼 클릭 기록
-  await recordButton(choice.id);
+  // 400번대 버튼 클릭 시 used_entry_ids에 저장 (비활성화 기준)
+  if (Number(choice.id) >= 400 && Number(choice.id) <= 411) {
+    const usedEntryIds = JSON.parse(sessionStorage.getItem('used_entry_ids') || '[]');
+    usedEntryIds.push(Number(choice.id));
+    sessionStorage.setItem('used_entry_ids', JSON.stringify(usedEntryIds));
+  }
 
-  // 2) 최종 선택지(SCENE_RAW에 없는 노드) → clue 있으면 단서 공개, 없으면 꽝 → chat
+  // 1) 최종 선택지(SCENE_RAW에 없는 노드) → clue 있으면 단서 공개, 없으면 꽝 → chat
   if (isLeafNode(choice.id)) {
     if (choice.clue) {
       const imgMap = await getClueImgMap();
@@ -199,7 +203,7 @@ async function onChoice(choice, btn) {
     return;
   }
 
-  // 3) after_ 씬 표시 (버튼 클릭 직후 반응 대사)
+  // 2) after_ 씬 표시 (버튼 클릭 직후 반응 대사)
   GAME_STATE.currentNodeId = String(choice.id);
 
   if (choice.clue) {
@@ -226,7 +230,6 @@ async function startNewGame() {
   if (existingSessionId) {
     GAME_STATE.sessionId = existingSessionId;
     console.log('[기존 세션 재사용] session_id:', existingSessionId);
-    await fetchDisabledButtons();
     return;
   }
 
@@ -243,39 +246,8 @@ async function startNewGame() {
     GAME_STATE.sessionId = data.session_id;
     sessionStorage.setItem('session_id', data.session_id);
     console.log('[새 게임] session_id:', data.session_id);
-
-    await fetchDisabledButtons();
   } catch (e) {
     console.warn('[백엔드 미연결] 오프라인 모드로 실행합니다.', e);
-  }
-}
-
-// 비활성화 버튼 목록 조회
-async function fetchDisabledButtons() {
-  try {
-    const session_id = GAME_STATE.sessionId || sessionStorage.getItem('session_id');
-    if (!session_id) return;
-    const res = await fetch(`/available-buttons?session_id=${session_id}`);
-    const data = await res.json();
-    GAME_STATE.disabledIds = data.disabled_button_ids || [];
-    console.log('[비활성화 버튼]', GAME_STATE.disabledIds);
-  } catch (e) {
-    console.warn('[fetchDisabledButtons 실패]', e);
-  }
-}
-
-// 버튼 클릭 기록 (매 선택마다)
-async function recordButton(buttonId) {
-  try {
-    const session_id = GAME_STATE.sessionId || sessionStorage.getItem('session_id');
-    if (!session_id) return;
-    await fetch('/record-button', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id, button_id: buttonId }),
-    });
-  } catch (e) {
-    console.warn('[recordButton 실패]', e);
   }
 }
 

@@ -1,12 +1,10 @@
 """
 게임 흐름 엔드포인트.
 
-POST /new-game           ← 게임 시작
-GET  /available-buttons  ← 비활성화 버튼 목록
-POST /record-button      ← 버튼 클릭 시마다 호출 (마지막 ID 기록)
-POST /finalize           ← 버튼 선택 완료 → 스토리/수치 확정
-POST /new-loop           ← 루프 리셋
-POST /player-dead        ← 타이머 만료 사망
+POST /new-game    ← 게임 시작
+POST /finalize    ← 버튼 선택 완료 → 스토리/수치 확정
+POST /new-loop    ← 루프 리셋
+POST /player-dead ← 타이머 만료 사망
 """
 
 import sys
@@ -18,15 +16,13 @@ from fastapi import APIRouter, HTTPException
 
 from models.schemas import (
     NewGameRequest, NewGameResponse,
-    AvailableButtonsResponse,
-    RecordButtonRequest,
     FinalizeRequest, FinalizeResponse,
     LoopResetRequest, LoopResetResponse,
     PlayerDeadRequest,
 )
 from session.manager import create_session, get_state, update_state
 
-from button_node import record_button, get_disabled_buttons, get_story, finalize_stats
+from button_node import record_button, get_story, finalize_stats
 from state import TOTAL_LOOPS
 
 import copy
@@ -54,46 +50,6 @@ def new_game(req: NewGameRequest):
 
 
 # ────────────────────────────────────────────
-# 비활성화 버튼 목록
-# ────────────────────────────────────────────
-
-@router.get("/available-buttons", response_model=AvailableButtonsResponse)
-def available_buttons(session_id: str):
-    """
-    used_stories 기반으로 비활성화할 버튼 ID 목록을 반환한다.
-    프론트는 이 목록의 버튼에 disabled 처리.
-    """
-    try:
-        state = get_state(session_id)
-    except KeyError:
-        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
-
-    disabled = list(get_disabled_buttons(state))
-    return AvailableButtonsResponse(disabled_button_ids=disabled)
-
-
-# ────────────────────────────────────────────
-# 버튼 클릭 기록 (선택지 진행 중)
-# ────────────────────────────────────────────
-
-@router.post("/record-button")
-def record_button_api(req: RecordButtonRequest):
-    """
-    유저가 선택지 버튼을 클릭할 때마다 호출.
-    마지막 버튼 ID만 button_history에 저장 (이전 기록 덮어씀).
-    stats_locked=True 상태(Phase 2)이면 무시.
-    """
-    try:
-        state = get_state(req.session_id)
-    except KeyError:
-        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
-
-    updated = record_button(state, req.button_id)
-    update_state(req.session_id, updated)
-    return {"ok": True}
-
-
-# ────────────────────────────────────────────
 # 버튼 선택 완료 → 스토리/수치 확정
 # ────────────────────────────────────────────
 
@@ -103,9 +59,7 @@ def finalize(req: FinalizeRequest):
     마지막 버튼 선택 완료 시 호출.
     1. last_button_id를 button_history에 기록
     2. context(버튼 텍스트 목록)를 state에 저장
-    3. BUTTON_STORY_MAP으로 story_id 확정
-    4. STORIES[story_id]로 npc_stats 확정 + phase → PHASE_CHAT 전환
-    5. 비활성화 버튼 목록 반환
+    3. 버튼 ID로 STORIES에서 직접 npc_stats 확정 + phase → PHASE_CHAT 전환
     """
     try:
         state = get_state(req.session_id)
@@ -128,12 +82,10 @@ def finalize(req: FinalizeRequest):
 
     story_id = state["current_story"]
     npc_stats = copy.deepcopy(STORIES.get(story_id, {}))
-    disabled  = list(get_disabled_buttons(state))
 
     return FinalizeResponse(
         story_id=story_id,
         npc_stats=npc_stats,
-        disabled_button_ids=disabled,
     )
 
 

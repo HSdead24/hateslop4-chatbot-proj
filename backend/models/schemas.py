@@ -19,11 +19,6 @@ class NewGameRequest(BaseModel):
     player_gender: str  # "남" / "여" 
 
 
-class RecordButtonRequest(BaseModel):
-    """버튼 클릭 시마다 호출 — 마지막 버튼 ID 기록"""
-    session_id: str
-    button_id: int
-
 class FinalizeRequest(BaseModel):
     """
     버튼 선택 완료(마지막 선택지 확정) 시 호출.
@@ -56,15 +51,9 @@ class NewGameResponse(BaseModel):
     session_id: str
 
 
-class AvailableButtonsResponse(BaseModel):
-    """비활성화할 버튼 ID 목록"""
-    disabled_button_ids: list[int]
-
-
 class FinalizeResponse(BaseModel):
-    story_id: str
+    story_id: int               # 확정된 버튼 ID (400~411)
     npc_stats: dict             # STORIES[story_id] — NPC별 수치 딕셔너리
-    disabled_button_ids: list[int]
 
 
 class ChatResponse(BaseModel):

@@ -86,12 +86,11 @@ class GameState(TypedDict):
         유저가 선택한 성별 ("남" / "여" / "무관").
         일부 캐릭터 프롬프트에서 호칭 분기에 사용.
 
-    current_story : str
-        현재 루프에서 확정된 스토리 ID (예: "story_1").
-        button_node.py에서 BUTTON_STORY_MAP 조회 후 설정됨.
-        루프 리셋 시 빈 문자열로 초기화.
+    current_story : int
+        현재 확정된 스토리 ID (400, 401, ...).
+        버튼 선택 시 button_history[0]을 키로 STORIES에서 조회하여 업데이트.
 
-    used_stories : list[str]
+    used_stories : list[int]
         이미 진행한 스토리 ID 목록. 중복 방지용.
         루프 리셋 시 초기화하지 않고 누적 유지.
         (3루프 동안 같은 스토리가 반복되지 않도록 관리)
@@ -99,7 +98,7 @@ class GameState(TypedDict):
     button_history : list[int]
         마지막으로 선택한 버튼 ID만 저장 (항상 길이 0 또는 1).
         버튼 클릭 시 [button_id]로 덮어씀.
-        스토리 확정 시 button_history[0]을 BUTTON_STORY_MAP 조회에 사용.
+        스토리 확정 시 button_history[0]을 STORIES 키로 직접 사용.
         루프 리셋 시 빈 리스트로 초기화.
 
     first_button : int
@@ -124,8 +123,8 @@ class GameState(TypedDict):
     is_loop_reset  : bool   # 치키 + __ALL__ 트리거 시 루프 강제 리셋 플래그
     player_name    : str
     player_gender  : str
-    current_story  : str
-    used_stories   : list   # list[str]
+    current_story  : int
+    used_stories   : list   # list[int]
     button_history : list   # list[int] — 마지막 버튼 ID 1개만 저장
     first_button   : int    # 첫 번째 선택지 버튼 ID. RAG route 필터에 사용.
     context        : list   # list[str] — 프론트에서 조합한 버튼 텍스트 목록
@@ -166,7 +165,7 @@ def create_initial_state(
         is_loop_reset  = False,
         player_name    = player_name,
         player_gender  = player_gender,
-        current_story  = "",
+        current_story  = 0,
         used_stories   = [],
         button_history = [],
         first_button   = 0,
