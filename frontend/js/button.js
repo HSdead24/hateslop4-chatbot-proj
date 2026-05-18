@@ -17,7 +17,7 @@ const DEFAULT_CHARACTER_IMAGES = {
 };
 
 const GAME_STATE = {
-  timer: { h: 0, m: 24, s: 0 },  // 24분 제한
+  timer: { h: 0, m: 17, s: 0 },  // 17분 제한
   currentNodeId: 'root',              // 현재 위치한 트리 노드
   buttonHistory: [],                  // 클릭한 버튼 ID 누적 → 백엔드 전달용
   contextHistory: [],                  // 클릭한 버튼 텍스트 누적 → 챗봇 맥락용
@@ -74,7 +74,7 @@ function createDrips() {
 }
 
 // ─────────────────────────────────────────────
-//  타이머 (24분) — chatroom과 공유
+//  타이머 (17분) — chatroom과 공유
 //  sessionStorage 'timer_start'에 시작 epoch(ms) 저장
 //  페이지 전환 후에도 남은 시간 이어받음
 // ─────────────────────────────────────────────
@@ -314,25 +314,22 @@ async function finalizeAndNavigate() {
 }
 
 // ─────────────────────────────────────────────
-//  배경 이미지 매핑 (location → bg 파일)
+//  배경 이미지 매핑 (scene.bg → Cloudinary URL)
 // ─────────────────────────────────────────────
-const LOCATION_BG_MAP = {
-  '주인공의 방':   'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550044/bg_room_yn5qfy.png',
-  '현관 앞':       'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_entrance_awsngo.png',
-  '거실':          'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
-  '거실 창가':     'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
-  '휴게실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lounge_rbdrz9.png',
-  '원장실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_director_mw2fno.png',
-  '원장실 앞':     'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
-  '진료실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550040/bg_consulting_cregzw.png',
-  '진료실 앞':     'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
-  '상담실':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550040/bg_consulting_cregzw.png',
-  '복도':          'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
-  '병원 1층 로비': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
+const BG_MAP = {
+  'room':            'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550044/bg_room_yn5qfy.png',
+  'entrance':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_entrance_awsngo.png',
+  'kitchen':         'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
+  'lounge':          'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lounge_rbdrz9.png',
+  'director':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_director_mw2fno.png',
+  'director_broken': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550046/office_window_broken_olziuh.png',
+  'corridor':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
+  'consulting':      'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550040/bg_consulting_cregzw.png',
+  'lobby':           'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
 };
 
-function setSceneBgImage(location) {
-  const url = LOCATION_BG_MAP[location];
+function setSceneBgImage(bg) {
+  const url = BG_MAP[bg];
   if (!url) return;
   const bgImg = document.getElementById('sceneBgImage');
   if (!bgImg) return;
@@ -362,7 +359,7 @@ function setSceneImage(url, speakerName) {
 // ─────────────────────────────────────────────
 //  씬 전체 업데이트 (외부에서 호출 가능)
 // ─────────────────────────────────────────────
-function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) {
+function updateScene({ imageUrl, speaker, dialogue, bg, location, place, choices }) {
   if (imageUrl !== undefined) setSceneImage(imageUrl, speaker?.name);
 
   // speaker가 명시적으로 전달된 경우에만 UI 업데이트
@@ -386,10 +383,8 @@ function updateScene({ imageUrl, speaker, dialogue, location, place, choices }) 
   if (dialogue) {
     document.getElementById('dialogueText').innerHTML = dialogue.replace(/\n/g, '<br>');
   }
-  if (location) {
-    setSceneBgImage(location);
-    document.querySelector('.loc-name').textContent = location;
-  }
+  if (bg) setSceneBgImage(bg);
+  if (location) document.querySelector('.loc-name').textContent = location;
   if (place) {
     document.querySelector('.loc-place-name .name').textContent = place;
   }
@@ -406,9 +401,10 @@ function applyScene(nodeId, prefix = 'select_') {
 
   const applyUpdate = () => {
     updateScene({
-      imageUrl: window.SCENE_IMAGE_MAP?.[key] || DEFAULT_CHARACTER_IMAGES[scene.speaker_name] || null,
+      imageUrl: (scene.npc && window.SCENE_IMAGE_MAP?.[scene.npc]) || DEFAULT_CHARACTER_IMAGES[scene.speaker_name] || null,
       speaker: scene.speaker_name ? { name: scene.speaker_name, role: scene.speaker_role } : null,
       dialogue: scene.dialogue,
+      bg: scene.bg,
       location: scene.location,
       place: scene.place,
     });
@@ -443,23 +439,6 @@ function applyScene(nodeId, prefix = 'select_') {
     }, callback));
   }
 
-  /*
-  // 3) 인물 변경
-  if (scene.speaker_name && scene.speaker_name !== GAME_STATE.currentSpeaker && scene.speaker_name !== '치키') {
-    if (GAME_STATE.currentSpeaker !== null) {
-      // 처음 로드가 아닐 때만 팝업
-      popupQueue.push((callback) => showPopup({
-        type:     'speaker_name',
-        icon:     '👤',
-        label:    scene.speaker_name,
-        sublabel: scene.speaker_role,
-        duration: 2000,
-      }, callback));
-    }
-    GAME_STATE.currentSpeaker = scene.speaker_name;
-  }
-  */
-
   // 큐 실행: 팝업들을 순서대로 실행하고, 마지막에 씬 적용
   runQueue(popupQueue, applyUpdate);
 }
@@ -476,7 +455,7 @@ function runQueue(queue, finalCallback) {
 // SCENE_RAW의 개별 scene 객체를 화면에 반영
 function applySceneData(s, nodeId) {
   const speakerName = s.speaker || '';
-  const imageUrl = window.SCENE_IMAGE_MAP?.['start_' + nodeId]
+  const imageUrl = (s.npc && window.SCENE_IMAGE_MAP?.[s.npc])
     || DEFAULT_CHARACTER_IMAGES[speakerName]
     || null;
 
@@ -498,6 +477,7 @@ function applySceneData(s, nodeId) {
       imageUrl,
       speaker: speakerName ? { name: speakerName, role: s.speaker_role } : null,
       dialogue: s.text,
+      bg: s.bg,
       location: s.location,
       place: s.place,
     });

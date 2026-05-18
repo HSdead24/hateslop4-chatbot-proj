@@ -277,7 +277,7 @@
         },
         {
           "id": "301-S8b",
-          "bg": "entrance",
+          "bg": null,
           "npc": "집앞택배",
           "speaker": null,
           "speaker_role": null,
