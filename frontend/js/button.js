@@ -36,42 +36,35 @@ function isLeafNode(nodeId) {
   return !window.SCENE_RAW?.[id];
 }
 
+// 해당 노드의 400번대 자식이 모두 used_entry_ids에 있으면 true
+function isNodeFullyUsed(nodeId) {
+  const node = window.SCENE_RAW?.[String(nodeId)];
+  if (!node?.choices) return false;
+  const usedEntryIds = JSON.parse(sessionStorage.getItem('used_entry_ids') || '[]');
+  const children400 = node.choices.filter(c => Number(c.id) >= 400 && Number(c.id) <= 411);
+  if (children400.length === 0) return false;
+  return children400.every(c => usedEntryIds.includes(Number(c.id)));
+}
+
 function getChildButtons(nodeId) {
   const id = nodeId === 'root' ? '0' : String(nodeId);
   const node = window.SCENE_RAW?.[id];
   if (!node?.choices) return [];
   const usedEntryIds = JSON.parse(sessionStorage.getItem('used_entry_ids') || '[]');
+
+  // 이 노드의 400번대 자식들이 모두 사용됐으면 전부 비활성화
+  const children400 = node.choices.filter(c => Number(c.id) >= 400 && Number(c.id) <= 411);
+  const allSiblingsUsed = children400.length > 0 && children400.every(c => usedEntryIds.includes(Number(c.id)));
+
   return node.choices.map(c => ({
     id: c.id,
     text: c.text,
-    disabled: (Number(c.id) >= 400 && Number(c.id) <= 411) && usedEntryIds.includes(Number(c.id)),
+    disabled: (Number(c.id) >= 400 && Number(c.id) <= 411) && (usedEntryIds.includes(Number(c.id)) || allSiblingsUsed)
+           || (Number(c.id) >= 300 && Number(c.id) <= 399) && isNodeFullyUsed(c.id),
     clue: c.clue ?? null,
   }));
 }
 
-// ─────────────────────────────────────────────
-//  피 방울 장식 생성
-// ─────────────────────────────────────────────
-function createDrips() {
-  const container = document.getElementById('dripContainer');
-  const drips = [
-    { left: '12%', len: '22px', dur: '7s', delay: '1.5s' },
-    { left: '28%', len: '14px', dur: '9s', delay: '4.2s' },
-    { left: '43%', len: '30px', dur: '11s', delay: '0.8s' },
-    { left: '61%', len: '18px', dur: '8s', delay: '3.0s' },
-    { left: '75%', len: '25px', dur: '10s', delay: '6.5s' },
-    { left: '88%', len: '12px', dur: '13s', delay: '2.1s' },
-  ];
-  drips.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'drip';
-    el.style.left = d.left;
-    el.style.setProperty('--len', d.len);
-    el.style.setProperty('--dur', d.dur);
-    el.style.setProperty('--delay', d.delay);
-    container.appendChild(el);
-  });
-}
 
 // ─────────────────────────────────────────────
 //  타이머 (17분) — chatroom과 공유
