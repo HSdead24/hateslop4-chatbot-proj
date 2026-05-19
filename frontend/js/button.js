@@ -36,42 +36,35 @@ function isLeafNode(nodeId) {
   return !window.SCENE_RAW?.[id];
 }
 
+// 해당 노드의 400번대 자식이 모두 used_entry_ids에 있으면 true
+function isNodeFullyUsed(nodeId) {
+  const node = window.SCENE_RAW?.[String(nodeId)];
+  if (!node?.choices) return false;
+  const usedEntryIds = JSON.parse(sessionStorage.getItem('used_entry_ids') || '[]');
+  const children400 = node.choices.filter(c => Number(c.id) >= 400 && Number(c.id) <= 411);
+  if (children400.length === 0) return false;
+  return children400.every(c => usedEntryIds.includes(Number(c.id)));
+}
+
 function getChildButtons(nodeId) {
   const id = nodeId === 'root' ? '0' : String(nodeId);
   const node = window.SCENE_RAW?.[id];
   if (!node?.choices) return [];
   const usedEntryIds = JSON.parse(sessionStorage.getItem('used_entry_ids') || '[]');
+
+  // 이 노드의 400번대 자식들이 모두 사용됐으면 전부 비활성화
+  const children400 = node.choices.filter(c => Number(c.id) >= 400 && Number(c.id) <= 411);
+  const allSiblingsUsed = children400.length > 0 && children400.every(c => usedEntryIds.includes(Number(c.id)));
+
   return node.choices.map(c => ({
     id: c.id,
     text: c.text,
-    disabled: (Number(c.id) >= 400 && Number(c.id) <= 411) && usedEntryIds.includes(Number(c.id)),
+    disabled: (Number(c.id) >= 400 && Number(c.id) <= 411) && (usedEntryIds.includes(Number(c.id)) || allSiblingsUsed)
+           || (Number(c.id) >= 300 && Number(c.id) <= 399) && isNodeFullyUsed(c.id),
     clue: c.clue ?? null,
   }));
 }
 
-// ─────────────────────────────────────────────
-//  피 방울 장식 생성
-// ─────────────────────────────────────────────
-function createDrips() {
-  const container = document.getElementById('dripContainer');
-  const drips = [
-    { left: '12%', len: '22px', dur: '7s', delay: '1.5s' },
-    { left: '28%', len: '14px', dur: '9s', delay: '4.2s' },
-    { left: '43%', len: '30px', dur: '11s', delay: '0.8s' },
-    { left: '61%', len: '18px', dur: '8s', delay: '3.0s' },
-    { left: '75%', len: '25px', dur: '10s', delay: '6.5s' },
-    { left: '88%', len: '12px', dur: '13s', delay: '2.1s' },
-  ];
-  drips.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'drip';
-    el.style.left = d.left;
-    el.style.setProperty('--len', d.len);
-    el.style.setProperty('--dur', d.dur);
-    el.style.setProperty('--delay', d.delay);
-    container.appendChild(el);
-  });
-}
 
 // ─────────────────────────────────────────────
 //  타이머 (17분) — chatroom과 공유
@@ -178,6 +171,11 @@ async function onChoice(choice, btn) {
   GAME_STATE.contextHistory.push(choice.text);
   GAME_STATE.lastButtonId = choice.id;
 
+  // 첫 번째 선택(100=집 / 101=출근)을 저장 — chat.js의 루트별 단서 분모 계산에 사용
+  if (GAME_STATE.buttonHistory.length === 1) {
+    sessionStorage.setItem('first_button', String(choice.id));
+  }
+
   console.log('[선택]', choice.id, choice.text);
 
   // 400번대 버튼 클릭 시 used_entry_ids에 저장 (비활성화 기준)
@@ -193,7 +191,7 @@ async function onChoice(choice, btn) {
     if (choice.clue) {
       const imgMap = await getClueImgMap();
       const imgUrl = imgMap[choice.clue.img] ?? null;
-      addClueToStorage({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
+      addClueToStorage({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1, source: 'button' });
       showClueReveal(choice.clue, imgUrl, () => finalizeAndNavigate());
     } else {
       showPopup(
@@ -210,7 +208,7 @@ async function onChoice(choice, btn) {
   if (choice.clue) {
     getClueImgMap().then(imgMap => {
       const imgUrl = imgMap[choice.clue.img] ?? null;
-      addClueToStorage({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
+      addClueToStorage({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1, source: 'button' });
     });
   }
 
@@ -348,8 +346,6 @@ function updateScene({ imageUrl, speaker, dialogue, bg, location, place, choices
       document.getElementById('speakerRole').textContent = '';
       const dot = document.querySelector('.speaker-dot');
       if (dot) dot.style.display = 'none';
-      const sceneImg = document.getElementById('sceneImage');
-      if (sceneImg) sceneImg.style.display = 'none';
     }
   }
 
@@ -357,6 +353,10 @@ function updateScene({ imageUrl, speaker, dialogue, bg, location, place, choices
     document.getElementById('dialogueText').innerHTML = dialogue.replace(/\n/g, '<br>');
   }
   if (bg) setSceneBgImage(bg);
+  else if (bg === null) {
+    const bgImg = document.getElementById('sceneBgImage');
+    if (bgImg) { bgImg.style.display = 'none'; bgImg.src = ''; }
+  }
   if (location) document.querySelector('.loc-name').textContent = location;
   if (place) {
     document.querySelector('.loc-place-name .name').textContent = place;
@@ -426,7 +426,7 @@ function runQueue(queue, finalCallback) {
 }
 
 // SCENE_RAW의 개별 scene 객체를 화면에 반영
-function applySceneData(s, nodeId) {
+function applySceneData(s, nodeId, onDone) {
   const speakerName = s.speaker || '';
   const imageUrl = (s.npc && window.SCENE_IMAGE_MAP?.[s.npc])
     || DEFAULT_CHARACTER_IMAGES[speakerName]
@@ -446,8 +446,10 @@ function applySceneData(s, nodeId) {
   }
 
   runQueue(popupQueue, () => {
+    const img = document.getElementById('sceneImage');
+    if (!s.npc) img.style.display = 'none';
     updateScene({
-      imageUrl,
+      imageUrl: s.npc ? imageUrl : undefined,
       speaker: speakerName ? { name: speakerName, role: s.speaker_role } : null,
       dialogue: s.text,
       bg: s.bg,
@@ -455,6 +457,7 @@ function applySceneData(s, nodeId) {
       place: s.place,
     });
     if (s.sound) playEventSound(s.sound);
+    onDone?.();
   });
 }
 
@@ -477,33 +480,30 @@ function playScenes(scenes, nodeId, onDone) {
   function advance() {
     const isLast = idx === scenes.length - 1;
     const scene = scenes[idx];
-    applySceneData(scene, nodeId);
     idx++;
 
     const sec = document.getElementById('choicesSection');
     sec.innerHTML = '';
 
-    // 다음 단계 결정 (popup_img 여부와 무관하게 동일 로직)
     const proceed = () => {
       if (!isLast) {
         makeContinueBtn(sec, advance);
       } else if (isVertical) {
-        // 마지막 씬 + 500번 이상: 계속 → NPC 숨기고 choices
         makeContinueBtn(sec, onDone);
       } else {
-        // 마지막 씬 + 500번 미만: NPC 유지한 채 choices 바로 표시
         renderChoices(choices);
       }
     };
 
     if (scene.popup_img) {
-      // popup_img: 대사 표시 후 3초 뒤 오버레이 팝업, 닫기 버튼 → 다음 단계 진행
-      getClueImgMap().then(imgMap => {
-        const url = imgMap[scene.popup_img] || null;
-        setTimeout(() => showImgPopup(url, proceed, scene.popup_link ?? null), 3000);
+      applySceneData(scene, nodeId, () => {
+        getClueImgMap().then(imgMap => {
+          const url = imgMap[scene.popup_img] || null;
+          setTimeout(() => showImgPopup(url, proceed, scene.popup_link ?? null), 3000);
+        });
       });
     } else {
-      proceed();
+      applySceneData(scene, nodeId, proceed);
     }
   }
 
@@ -591,6 +591,10 @@ function showPopup(opts, callback) {
   const labelEl = document.getElementById('eventLabel');
   const subEl = document.getElementById('eventSublabel');
 
+  // 팝업 동안 계속 버튼 비활성화
+  const continueBtn = document.querySelector('.continue-btn');
+  if (continueBtn) continueBtn.disabled = true;
+
   if (opts.type === 'image') {
     iconEl.textContent = '';
     labelEl.innerHTML = `<img src="${opts.imgUrl}" style="max-width:100%">`;
@@ -610,7 +614,12 @@ function showPopup(opts, callback) {
 
   setTimeout(() => {
     popup.classList.remove('show');
-    if (callback) setTimeout(callback, 250);
+    setTimeout(() => {
+      // 팝업 끝나면 계속 버튼 다시 활성화
+      const btn = document.querySelector('.continue-btn');
+      if (btn) btn.disabled = false;
+      if (callback) callback();
+    }, 250);
   }, opts.duration || 1500);
 }
 
@@ -648,7 +657,6 @@ function showPopup(opts, callback) {
   await startNewGame();
   const startScenes = window.SCENE_RAW?.['0']?.scenes ?? [];
   playScenes(startScenes, '0', () => renderChoices(getChildButtons('root')));
-  createDrips();
 })();
 
 // 전역 API

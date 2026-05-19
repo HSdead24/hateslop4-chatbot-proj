@@ -100,6 +100,10 @@ let isSending = false;
 let isSwitchingNPC = false;
 let isDeadProcessing = false;
 let lastLoopCount = 0;
+// 단서 총 개수 (백엔드 /clue-triggers 응답의 total_clues)
+let totalClues = 0;
+// 버튼룸 첫 선택 ID (sessionStorage 'first_button' — button.js에서 저장)
+const firstButton = sessionStorage.getItem('first_button') ?? '';
 
 // 대화 횟수 카운터 (NPC별 10회 × 2 = 통합 20회)
 let msgCount = 0;
@@ -135,15 +139,21 @@ async function loadTriggers() {
   try {
     const [chikiRes, clueRes] = await Promise.all([
       fetch(`/chiki-triggers?loop=${loop}`),
-      fetch(`/clue-triggers?loop=${loop}`)
+      fetch(`/clue-triggers?loop=${loop}&first_button=${firstButton}`),
     ]);
     if (!chikiRes.ok || !clueRes.ok) throw new Error('trigger fetch failed');
     const chikiData = await chikiRes.json();
     const clueData = await clueRes.json();
     CHIKI_TRIGGERS = chikiData.chiki_triggers ?? [];
     CLUE_TRIGGERS = clueData.clue_triggers ?? [];
+    totalClues = clueData.total_clues ?? 0;
     triggersLoaded = true;
-    console.log(`[triggers] 치키 ${CHIKI_TRIGGERS.length}개, 단서 ${CLUE_TRIGGERS.length}개 로드 (loop ${loop})`);
+
+    // 단서 총 개수 UI 반영
+    const totalEl = document.getElementById('clue-total-count');
+    if (totalEl) totalEl.textContent = totalClues;
+
+    console.log(`[triggers] 치키 ${CHIKI_TRIGGERS.length}개, 단서 ${CLUE_TRIGGERS.length}개 로드 (loop ${loop}, first_button ${firstButton || '미설정'}), 총 획득 가능: ${totalClues}`);
   } catch (err) {
     console.warn('[triggers] 백엔드 미연결:', err.message);
     CHIKI_TRIGGERS = [];
@@ -297,13 +307,13 @@ async function addClue(clue) {
     imgUrl = imgMap[clue.img] || null;
   }
 
-  clues.push({ ...clue, img: imgUrl, imgUrls: imgUrls || null, time: nowTime() });
+  clues.push({ ...clue, img: imgUrl, imgUrls: imgUrls || null, time: nowTime(), source: 'chat' });
 
   // sessionStorage 동기화 (button.js 단서와 통합 관리)
   const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
   const storeId = clue.imgs ? clue.imgs[0] : (clue.img ?? clue.title);
   if (!stored.find(c => c.id === storeId)) {
-    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: imgUrls || null });
+    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: imgUrls || null, source: 'chat' });
     sessionStorage.setItem('clues', JSON.stringify(stored));
   }
 
@@ -363,7 +373,13 @@ function renderClues() {
     return `
     <div class="clue-item${c.type === 'safe' ? ' clue-item--safe' : ''}">
       <div class="clue-item-top">
-        <span class="clue-item-badge">단서 #${String(i + 1).padStart(2, '0')}</span>
+        <span class="clue-item-badge">${(() => {
+          const src = c.source || 'chat';
+          const label = src === 'button' ? '버튼 단서' : '채팅 단서';
+          // 같은 source 내에서의 순번 계산
+          const sameSourceIdx = allClues.slice(0, i + 1).filter(x => (x.source || 'chat') === src).length;
+          return label + ' #' + String(sameSourceIdx).padStart(2, '0');
+        })()}</span>
       </div>
       ${imgBlock}
       <div class="clue-item-text">
@@ -1119,12 +1135,16 @@ function applyLbTransform() {
   if (loopNumEl) loopNumEl.textContent = loopNum;
   if (loopCountEl) loopCountEl.textContent = loopNum;
 
-  // ★ 버튼룸에서 획득한 단서 포함 — 미확인 단서 카운트 초기화
+  // ★ 버튼룸에서 획득한 단서 포함 — clues 배열 복원 + 미확인 카운트 초기화
   // clues_read 에 없는 id는 아직 단서탭에서 확인 안 한 것
   const existingClues = JSON.parse(sessionStorage.getItem('clues') || '[]');
   const readClues     = JSON.parse(sessionStorage.getItem('clues_read') || '[]');
+  // 페이지 재진입 시 인메모리 clues 배열 복원 (없으면 단서탭이 비는 버그 방지)
+  clues = existingClues.map(c => ({ ...c, time: '' }));
   unreadClueCount = existingClues.filter(c => !readClues.includes(c.id)).length;
   updateClueBadge();
+  // 이미 획득한 단서가 있으면 패널 즉시 렌더링 (탭 열기 전에도 데이터 준비)
+  renderClues();
 
   const HEADER_BG_MAP = {
     401: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
