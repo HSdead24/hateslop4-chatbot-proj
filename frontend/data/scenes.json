@@ -311,7 +311,7 @@
         },
         {
           "id": "400-S9a",
-          "bg": "entrance",
+          "bg": null,
           "npc": "문자_차서연_2",
           "speaker": "차서연",
           "speaker_role": "신경과 동료 의사",
@@ -456,7 +456,7 @@
         },
         {
           "id": "403-S9d",
-          "bg": "room",
+          "bg": null,
           "npc": "문자_차서연_1",
           "speaker": "차서연",
           "speaker_role": "신경과 동료 의사",

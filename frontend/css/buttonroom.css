@@ -258,7 +258,9 @@ body {
 .scene-container {
   position: relative;
   width: 100%;
-  flex: 1 1 0;
+  flex: 1;
+  height: auto;
+  min-height: 0;
   overflow: hidden;
   background: #030508;
 }
@@ -267,9 +269,9 @@ body {
 .scene-image {
   position: absolute;
   top: 0; left: 0; right: 0;
-  bottom: 160px;
+  bottom: auto;
+  height: 50vh;
   width: 100%;
-  height: calc(100% - 160px);
   object-fit: contain;
   object-position: center bottom;
   display: none;
@@ -280,14 +282,12 @@ body {
 .scene-bg-image {
   position: absolute;
   top: 0; left: 0; right: 0;
-  bottom: 160px;
+  bottom: auto;
+  height: 50vh;
   width: 100%;
-  height: calc(100% - 160px);
   object-fit: cover;
   display: none;
   z-index: 1;
-  opacity: 0;
-  transition: opacity 0.5s ease;
 }
 
 /* 플레이스홀더 배경 */
@@ -307,14 +307,18 @@ body {
 
 /* 하단 페이드 — 캐릭터가 다이얼로그 뒤로 비칠 수 있도록 하단 불투명도 완화 */
 .scene-fade {
-  position:absolute; bottom:0; left:0; right:0; height:50%;
-  background:linear-gradient(to bottom,
+  position: absolute;
+  top: 30vh;
+  bottom: 0; left: 0; right: 0;
+  height: auto;
+  background: linear-gradient(to bottom,
     transparent 0%,
-    rgba(5,7,13,0.20) 35%,
-    rgba(5,7,13,0.48) 68%,
-    rgba(5,7,13,0.62) 100%
+    rgba(3,5,8,0.7) 35%,
+    rgba(3,5,8,1) 55%,
+    rgba(3,5,8,1) 100%
   );
-  pointer-events:none; z-index:3;
+  pointer-events: none;
+  z-index: 3;
 }
 
 /* 왼쪽 가장자리 청록 안개 */
@@ -340,16 +344,22 @@ body {
 ══════════════════════════════════ */
 .bottom-panel {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
+  top: 45vh;
+  bottom: 0;
+  left: 0; right: 0;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-bottom: 24px;
 }
 /* ══════════════════════════════════
    DIALOGUE
 ══════════════════════════════════ */
 .dialogue-section {
-  background: rgba(5,7,13,0.30);
-  border-top: 1px solid rgba(0,160,130,0.08);
-  padding: 11px 14px 12px;
+  background: transparent;
+  border-top: none;
+  padding: 0 16px;
 }
 .speaker-row  { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
 .speaker-name { font-size:13px; font-weight:700; color:#cdd8d4; letter-spacing:.02em; }
@@ -398,9 +408,12 @@ body {
    CHOICES — 버튼 선택 영역 (핵심)
 ══════════════════════════════════ */
 .choices-section {
-  padding: 6px 12px 9px;
-  display: flex; flex-direction: row; gap: 8px;
-  background: #05070d;
+  background: transparent;
+  padding: 0 16px;
+  display: flex; flex-direction: row; gap: 20px;
+
+  margin-top: auto;    
+  margin-bottom: auto;
 }
 
 /* 가로 배열 시 버튼이 동일한 너비를 가지도록 */
@@ -452,7 +465,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 5px 15px;
+  padding: 14px 15px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
@@ -635,12 +648,13 @@ body {
    BOTTOM HINT
 ══════════════════════════════════ */
 .bottom-hint {
-  position:relative; z-index:10;
-  background:rgba(5,7,13,0.85);
-  padding:7px 14px 14px;
-  display:flex; align-items:center; justify-content:center; gap:5px;
+  position: relative; z-index: 10;
+  background: rgba(5,7,13,0.85);
+  padding: 7px 14px 14px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
   flex-shrink: 0;
-  border-top:1px solid rgba(0,160,130,0.07);
+  margin-top: auto;
+  border-top: 1px solid rgba(0,160,130,0.07);
 }
 .hint-arrow {
   color:rgba(0,200,170,0.35); font-size:11px;

@@ -192,7 +192,7 @@ async function onChoice(choice, btn) {
     if (choice.clue) {
       const imgMap = await getClueImgMap();
       const imgUrl = imgMap[choice.clue.img] ?? null;
-      addClue({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
+      addClueToStorage({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
       showClueReveal(choice.clue, imgUrl, () => finalizeAndNavigate());
     } else {
       showPopup(
@@ -209,7 +209,7 @@ async function onChoice(choice, btn) {
   if (choice.clue) {
     getClueImgMap().then(imgMap => {
       const imgUrl = imgMap[choice.clue.img] ?? null;
-      addClue({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
+      addClueToStorage({ id: choice.clue.img, title: choice.clue.title, img: imgUrl, desc: choice.clue.desc, loop: 1 });
     });
   }
 

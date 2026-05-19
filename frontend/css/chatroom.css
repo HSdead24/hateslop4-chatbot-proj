@@ -722,3 +722,61 @@ html, body {
   opacity:0; transition:opacity .8s ease 1.5s;
 }
 #game-over-overlay.show .game-over-sub { opacity:1; }
+
+/* ── 금고 비밀번호 입력 UI ── */
+.safe-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.safe-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-surface3);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 6px;
+  text-align: center;
+  padding: 8px 10px;
+  outline: none;
+  -webkit-appearance: none;
+}
+.safe-input::placeholder {
+  letter-spacing: 1px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.safe-input:focus {
+  border-color: rgba(192,57,43,.7);
+  box-shadow: 0 0 0 2px rgba(192,57,43,.15);
+}
+.safe-submit-btn {
+  background: var(--accent);
+  color: #f0e0d8;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity .15s;
+}
+.safe-submit-btn:active { opacity: .75; }
+.safe-hint {
+  width: 100%;
+  font-size: 11px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  min-height: 16px;
+  letter-spacing: .5px;
+}
+.clue-item--safe {
+  border-left-color: #8b6914;
+  border-color: rgba(139,105,20,.2);
+}
