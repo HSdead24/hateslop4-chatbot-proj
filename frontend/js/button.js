@@ -640,7 +640,6 @@ function showPopup(opts, callback) {
   await startNewGame();
   const startScenes = window.SCENE_RAW?.['0']?.scenes ?? [];
   playScenes(startScenes, '0', () => renderChoices(getChildButtons('root')));
-  createDrips();
 })();
 
 // 전역 API
