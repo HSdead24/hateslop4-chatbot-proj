@@ -7,23 +7,72 @@
 const BASE_URL = '';
 
 // ─────────────────────────────────────────────
-//  NPC 데이터 — 현재 차서연/엄마 쌍 구현
-//  다른 쌍으로 교체 시 이 배열만 수정하면 됨
+//  NPC 데이터 — final_node 기반 동적 선택
 // ─────────────────────────────────────────────
-const NPCs = [
-  {
+const ALL_NPCS = {
+  차서연: {
     id: 0, name: '차서연', sub: '32세 · 여성', tag: '신경과 의사',
     tagColor: '#5a8870',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595780/chat/%EC%B0%A8%EC%84%9C%EC%97%B0/%EC%B0%A8%EC%84%9C%EC%97%B0_%ED%94%84%EB%A1%9C%ED%95%84.png',
     choices: ['커피 안 마실게요', '박주원 알아요?', '사무실 뒤진 거예요?', '패턴이 뭔가요?'],
   },
-  {
+  엄마: {
     id: 1, name: '엄마', displayName: '윤미경', sub: '61세 · 여성', tag: '가족',
     tagColor: '#8a7040',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595815/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%9B%84%ED%9B%97%20%EB%82%98%EB%8F%84%20%EB%AD%94%ED%91%9C%EC%A0%95%EC%9D%B8%EC%A7%80%EB%AA%B0%EB%9D%BC%20%ED%9B%84%ED%9B%97%20%EB%A8%B9%EA%B8%88.png',
     choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
   },
-];
+  박도원: {
+    id: 2, name: '박도원', sub: '51세 · 남성', tag: '청소부',
+    tagColor: '#5a6070',
+    profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595793/chat/%EB%B0%95%EB%8F%84%EC%9B%90/%EB%B0%95%EB%8F%84%EC%9B%90_%ED%94%84%EB%A1%9C%ED%95%84.png',
+    choices: ['어디서 주운 거예요?', '전에 본 적 있어요?', '병원에 왜 있었어요?', '제 물건 건드렸어요?'],
+  },
+  김도현: {
+    id: 3, name: '김도현', sub: '29세 · 남성', tag: '내담자',
+    tagColor: '#6a4050',
+    profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595806/chat/%EA%B9%80%EB%8F%84%ED%98%84/%EA%B9%80%EB%8F%84%ED%98%84_%EA%B4%9C%EC%B0%AE%EC%9D%80%EB%93%AF%20%EC%9B%83%EC%9D%8C.png',
+    choices: ['하윤이가 누구예요?', '왜 화난 거예요?', '저 기억해요?', '약 얘기가 뭐예요?'],
+  },
+};
+
+const NPC_INIT_MSGS = {
+  차서연: [
+    '김도현 환자 오늘 진료 있는 거 잊었어요? 지금 화난 상태로 기다리고 있어요.',
+    '커피 드실래요? 오늘 상태 안 좋아 보여서요.',
+  ],
+  엄마: [
+    '밥은 먹었어? 얼굴이 왜 이렇게 상했어.',
+    '내일이 무슨 날인지 기억하니? 아니야, 됐다.',
+  ],
+  박도원: [
+    '아이고, 선생님. 안녕하십니까.',
+    '제가 청소 일 하는 박도원이라고 합니다.',
+  ],
+  김도현: [
+    '제가 화난 것처럼 보입니까? 선생님은 사람 감정을 읽는 게 그렇게 자신 있으신가요?',
+  ],
+};
+
+const NODE_NPC_MAP = {
+  400: ['차서연', '박도원'],
+  401: ['박도원', '엄마'],
+  402: ['박도원', '엄마'],
+  403: ['엄마', '차서연'],
+  404: ['차서연', '박도원'],
+  405: ['차서연', '박도원'],
+  406: ['차서연', '박도원'],
+  407: ['차서연', '김도현'],
+  408: ['차서연', '김도현'],
+  409: ['차서연', '김도현'],
+  410: ['차서연', '김도현'],
+  411: ['차서연', '김도현'],
+};
+const DEFAULT_NPCS = ['차서연', '엄마'];
+
+const finalNode = parseInt(sessionStorage.getItem('final_node') || '0', 10);
+const npcNames = NODE_NPC_MAP[finalNode] ?? DEFAULT_NPCS;
+const NPCs = npcNames.map((name, i) => ({ ...ALL_NPCS[name], id: i }));
 
 // ─────────────────────────────────────────────
 //  트리거 데이터
@@ -1076,6 +1125,43 @@ function applyLbTransform() {
   const readClues     = JSON.parse(sessionStorage.getItem('clues_read') || '[]');
   unreadClueCount = existingClues.filter(c => !readClues.includes(c.id)).length;
   updateClueBadge();
+
+  const HEADER_BG_MAP = {
+    401: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
+    402: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
+    400: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
+    404: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
+    405: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
+    406: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
+    403: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550044/bg_room_yn5qfy.png',
+  };
+  const headerBgUrl = HEADER_BG_MAP[finalNode];
+  if (headerBgUrl) {
+    const header = document.getElementById('header');
+    if (header) {
+      header.style.backgroundImage = `url('${headerBgUrl}')`;
+      header.style.backgroundSize = 'cover';
+      header.style.backgroundPosition = 'center';
+    }
+  }
+
+  const chatScroll = document.getElementById('chat-scroll');
+  NPCs.forEach((npc, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-messages';
+    wrap.id = `chat-npc-${i}`;
+    if (i !== 0) wrap.style.display = 'none';
+    const msgs = NPC_INIT_MSGS[npc.name] ?? [];
+    wrap.innerHTML = msgs.map(text => `
+    <div class="msg-row">
+      <div class="msg-col">
+        <div class="msg-name">${npc.displayName ?? npc.name}</div>
+        <div class="bubble">${text}</div>
+        <div class="msg-meta"><span class="msg-time">${nowTime()}</span></div>
+      </div>
+    </div>`).join('');
+    chatScroll.appendChild(wrap);
+  });
 
   await loadTriggers();
   switchNPC(0);

@@ -185,6 +185,7 @@ async function onChoice(choice, btn) {
     const usedEntryIds = JSON.parse(sessionStorage.getItem('used_entry_ids') || '[]');
     usedEntryIds.push(Number(choice.id));
     sessionStorage.setItem('used_entry_ids', JSON.stringify(usedEntryIds));
+    sessionStorage.setItem('final_node', String(choice.id));
   }
 
   // 1) 최종 선택지(SCENE_RAW에 없는 노드) → clue 있으면 단서 공개, 없으면 꽝 → chat
