@@ -78,6 +78,7 @@ html, body {
 .header-portrait-wrap {
   width:145px; flex-shrink:0;
   position:relative; overflow:hidden;
+  padding: 10px 0 10px 10px;
 }
 #header-portrait-img {
   width:100%; height:100%;
@@ -224,6 +225,10 @@ html, body {
 }
 #chat-scroll::-webkit-scrollbar       { width:2px; }
 #chat-scroll::-webkit-scrollbar-thumb { background:var(--bg-surface3); border-radius:2px; }
+
+/* 연속 메시지 - 이름/타임스탬프 숨김 */
+.msg-name--hidden { visibility: hidden; height: 0; margin: 0; overflow: hidden; }
+.msg-meta--hidden { visibility: hidden; height: 0; margin: 0; overflow: hidden; }
 
 /* 단서 카드 */
 .clue-card {

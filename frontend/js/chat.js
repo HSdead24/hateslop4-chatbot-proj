@@ -690,19 +690,23 @@ function addPlayerMsg(text) {
 
 function appendTypingRow() {
   const npc = NPCs[currentNPC];
+  const chatEl = currentChatEl();
+  const prevRows = chatEl.querySelectorAll('.msg-row:not(.player)');
+  const isContinuous = prevRows.length > 0;
+
   const row = document.createElement('div');
   row.className = 'msg-row';
   row.id = 'typing-row';
   row.innerHTML = `
     <div class="msg-col">
-      <div class="msg-name">${npc.name}</div>
+      <div class="msg-name${isContinuous ? ' msg-name--hidden' : ''}">${npc.name}</div>
       <div class="typing-bubble">
         <div class="typing-dot"></div>
         <div class="typing-dot"></div>
         <div class="typing-dot"></div>
       </div>
     </div>`;
-  currentChatEl().appendChild(row);
+  chatEl.appendChild(row);
   scrollToBottom();
 }
 
@@ -711,15 +715,28 @@ function addNPCMsg(overrideText = null) {
   const text = overrideText ?? (npc.responses?.[responseIdx % npc.responses?.length] ?? '...');
   responseIdx++;
 
+  const chatEl = currentChatEl();
+
+  // 직전 메시지가 같은 NPC인지 확인
+  const prevRows = chatEl.querySelectorAll('.msg-row:not(.player)');
+  const prevRow = prevRows.length > 0 ? prevRows[prevRows.length - 1] : null;
+  const isContinuous = prevRow !== null;
+
+  // 연속 메시지면: 직전 메시지의 타임스탬프 숨기기
+  if (isContinuous) {
+    const prevMeta = prevRow.querySelector('.msg-meta');
+    if (prevMeta) prevMeta.classList.add('msg-meta--hidden');
+  }
+
   const row = document.createElement('div');
   row.className = 'msg-row';
   row.innerHTML = `
     <div class="msg-col">
-      <div class="msg-name">${npc.name}</div>
+      <div class="msg-name${isContinuous ? ' msg-name--hidden' : ''}">${npc.displayName ?? npc.name}</div>
       <div class="bubble">${esc(text)}</div>
       <div class="msg-meta"><span class="msg-time">${nowTime()}</span></div>
     </div>`;
-  currentChatEl().appendChild(row);
+  chatEl.appendChild(row);
   scrollToBottom();
 
   checkClueTrigger(npc.name, text);
@@ -1192,14 +1209,19 @@ function applyLbTransform() {
     wrap.id = `chat-npc-${i}`;
     if (i !== 0) wrap.style.display = 'none';
     const msgs = NPC_INIT_MSGS[npc.name] ?? [];
-    wrap.innerHTML = msgs.map(text => `
+    const _initTime = nowTime();
+    wrap.innerHTML = msgs.map((text, idx) => {
+      const isLast = idx === msgs.length - 1;
+      const showName = idx === 0;
+      return `
     <div class="msg-row">
       <div class="msg-col">
-        <div class="msg-name">${npc.displayName ?? npc.name}</div>
+        <div class="msg-name${showName ? '' : ' msg-name--hidden'}">${npc.displayName ?? npc.name}</div>
         <div class="bubble">${text}</div>
-        <div class="msg-meta"><span class="msg-time">${nowTime()}</span></div>
+        <div class="msg-meta${isLast ? '' : ' msg-meta--hidden'}"><span class="msg-time">${_initTime}</span></div>
       </div>
-    </div>`).join('');
+    </div>`;
+    }).join('');
     chatScroll.appendChild(wrap);
   });
 
