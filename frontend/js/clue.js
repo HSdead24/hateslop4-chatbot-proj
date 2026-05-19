@@ -8,8 +8,8 @@ async function getClueImgMap() {
   return CLUE_IMG_MAP;
 }
 
-// 단서 추가 (중복 방지 포함)
-function addClue(clueObj) {
+// 단서 추가 (중복 방지 포함) — button.js 전용
+function addClueToStorage(clueObj) {
   const clues = JSON.parse(sessionStorage.getItem('clues') || '[]');
   if (!clues.find(c => c.id === clueObj.id)) {
     clues.push(clueObj);

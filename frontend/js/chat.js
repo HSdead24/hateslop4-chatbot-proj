@@ -31,26 +31,8 @@ const NPCs = [
 let CHIKI_TRIGGERS = [];
 let CLUE_TRIGGERS = [];
 
-const FALLBACK_CHIKI_TRIGGERS = [
-  {
-    id: 'hayun', words: ['김하윤', '하윤'],
-    toast: '🐰 …그 이름은 잠금 처리된 이름인데.',
-    msg: '김… 하… 윤? 어라라, 이상하다! 그 이름은 잠금 처리된 이름인데? 누가 열쇠를 주웠지? 🗝️🐰',
-    clue: { icon: '🗝️', title: '잠긴 이름 — 김하윤', desc: '치키가 반응했다. 이 이름은 시스템에서 잠금 처리된 이름이다.' }
-  },
-  {
-    id: 'safe', words: ['금고', '거울'],
-    toast: '🐰 그 문은 열면 안 돼…',
-    msg: '어라라? 그 문을 열려고? 음… 열면 이제 피해자인 척하기 조금 어려워질 텐데? 🐰🔒',
-    clue: { icon: '🔒', title: '금고 / 거울', desc: '치키가 접근을 막았다. 열면 피해자인 척하기 어려워진다고.' }
-  },
-  {
-    id: 'murder', words: ['죽었', '죽어', '살인', '범인'],
-    toast: '🐰 누가 죽였냐고? 히히…',
-    msg: '누가 널 죽였냐고? 그건 직접 찾아야 해! 🐰🔍',
-    clue: { icon: '🔍', title: '사망의 진실', desc: '치키는 범인을 알고 있지만 직접 말하지 않는다.' }
-  },
-];
+// FALLBACK_CHIKI_TRIGGERS 제거 — 백엔드 triggers.json 사용
+// getClueImgMap(), getClues() 는 clue.js에서 전역으로 제공
 
 // ─────────────────────────────────────────────
 //  상태 변수
@@ -114,8 +96,8 @@ async function loadTriggers() {
     triggersLoaded = true;
     console.log(`[triggers] 치키 ${CHIKI_TRIGGERS.length}개, 단서 ${CLUE_TRIGGERS.length}개 로드 (loop ${loop})`);
   } catch (err) {
-    console.warn('[triggers] 백엔드 미연결, 폴백 트리거 사용:', err.message);
-    CHIKI_TRIGGERS = FALLBACK_CHIKI_TRIGGERS;
+    console.warn('[triggers] 백엔드 미연결:', err.message);
+    CHIKI_TRIGGERS = [];
     CLUE_TRIGGERS = [];
     triggersLoaded = true;
   }
@@ -251,14 +233,28 @@ function switchTab(tab) {
 // ─────────────────────────────────────────────
 //  단서 추가 & 렌더링
 // ─────────────────────────────────────────────
-function addClue(clue) {
+async function addClue(clue) {
   if (clues.some(c => c.title === clue.title)) return;
-  clues.push({ ...clue, time: nowTime() });
+
+  const imgMap = await getClueImgMap();
+
+  // imgs 배열 처리 (USB처럼 여러 이미지 토글이 필요한 단서)
+  let imgUrls = null;
+  let imgUrl = null;
+  if (clue.imgs) {
+    imgUrls = clue.imgs.map(k => imgMap[k] || null).filter(Boolean);
+    imgUrl = imgUrls[0] || null;
+  } else if (clue.img) {
+    imgUrl = imgMap[clue.img] || null;
+  }
+
+  clues.push({ ...clue, img: imgUrl, imgUrls: imgUrls || null, time: nowTime() });
 
   // sessionStorage 동기화 (button.js 단서와 통합 관리)
   const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
-  if (!stored.find(c => c.id === clue.title)) {
-    stored.push({ id: clue.title, title: clue.title, desc: clue.desc || '', img: clue.img || null });
+  const storeId = clue.imgs ? clue.imgs[0] : (clue.img ?? clue.title);
+  if (!stored.find(c => c.id === storeId)) {
+    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: imgUrls || null });
     sessionStorage.setItem('clues', JSON.stringify(stored));
   }
 
@@ -269,6 +265,19 @@ function addClue(clue) {
     updateClueBadge();
   }
   if (currentTab === 'clue') renderClues();
+}
+
+// 이미지 토글 상태 (단서 인덱스 → 현재 이미지 인덱스)
+const _imgToggleState = {};
+
+function toggleClueImg(clueIdx) {
+  const c = getClues()[clueIdx];
+  if (!c?.imgUrls || c.imgUrls.length < 2) return;
+  _imgToggleState[clueIdx] = ((_imgToggleState[clueIdx] ?? 0) + 1) % c.imgUrls.length;
+  const imgEl = document.getElementById(`clue-img-${clueIdx}`);
+  const hintEl = document.getElementById(`clue-img-hint-${clueIdx}`);
+  if (imgEl) imgEl.src = c.imgUrls[_imgToggleState[clueIdx]];
+  if (hintEl) hintEl.textContent = _imgToggleState[clueIdx] === 0 ? '🔍 탭하여 확대 / 전환' : '🔄 탭하여 전환';
 }
 
 function renderClues() {
@@ -286,26 +295,88 @@ function renderClues() {
     return;
   }
 
-  list.innerHTML = allClues.map((c, i) => `
-    <div class="clue-item">
+  list.innerHTML = allClues.map((c, i) => {
+    const hasToggle = c.imgUrls && c.imgUrls.length > 1;
+    const currentImg = hasToggle ? (c.imgUrls[_imgToggleState[i] ?? 0] || null) : c.img;
+
+    let imgBlock = '';
+    if (currentImg) {
+      const onclickAttr = hasToggle
+        ? 'toggleClueImg(' + i + ')'
+        : 'openImgLightbox(\'' + esc(currentImg) + '\', \'' + esc(c.title) + '\')';
+      const hintText = hasToggle ? '🔄 탭하여 전환' : '🔍 탭하여 확대';
+      imgBlock = '<div class="clue-item-img-wrap" onclick="' + onclickAttr + '">'
+        + '<img src="' + esc(currentImg) + '" class="clue-item-img" id="clue-img-' + i + '" alt="">'
+        + '<div class="clue-item-img-hint" id="clue-img-hint-' + i + '">' + hintText + '</div>'
+        + '</div>';
+    }
+
+    return `
+    <div class="clue-item${c.type === 'safe' ? ' clue-item--safe' : ''}">
       <div class="clue-item-top">
         <span class="clue-item-badge">단서 #${String(i + 1).padStart(2, '0')}</span>
       </div>
-      ${c.img ? `
-      <div class="clue-item-img-wrap" onclick="openImgLightbox('${esc(c.img)}', '${esc(c.title)}')">
-        <img src="${esc(c.img)}" class="clue-item-img" alt="">
-        <div class="clue-item-img-hint">🔍 탭하여 확대</div>
-      </div>` : ''}
+      ${imgBlock}
       <div class="clue-item-text">
         <div class="clue-item-title">${esc(c.title)}</div>
         <div class="clue-item-desc">${esc(c.desc)}</div>
       </div>
-    </div>`).join('');
+      ${c.type === 'safe' && !c.unlocked ? `
+      <div class="safe-input-wrap" id="safe-wrap-${i}">
+        <input class="safe-input" id="safe-pw-${i}" type="text" maxlength="4" placeholder="비밀번호 4자리" inputmode="numeric">
+        <button class="safe-submit-btn" onclick="trySafePassword(${i})">확인</button>
+        <div class="safe-hint" id="safe-hint-${i}"></div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 // ─────────────────────────────────────────────
-//  NPC 전환 (switch 버튼: 현재↔상대 토글)
+//  금고 비밀번호 처리
 // ─────────────────────────────────────────────
+async function trySafePassword(idx) {
+  const input = document.getElementById(`safe-pw-${idx}`);
+  const hint  = document.getElementById(`safe-hint-${idx}`);
+  if (!input) return;
+
+  const pw = input.value.trim();
+  if (pw === '0902') {
+    // 정답 — 단서 카드 업데이트
+    const allClues = getClues();
+    const safeClue = allClues[idx];
+    if (safeClue) safeClue.unlocked = true;
+
+    // 금고_열림 이미지로 교체
+    const imgMap = await getClueImgMap();
+    const openImg = imgMap['금고_열림'] || null;
+    if (openImg) safeClue.img = openImg;
+
+    // sessionStorage 업데이트
+    const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
+    const target = stored.find(c => c.id === (safeClue.img_key ?? '금고_닫힘'));
+    if (target) { target.img = openImg; target.unlocked = true; }
+    sessionStorage.setItem('clues', JSON.stringify(stored));
+
+    // clue_safe_opened 이벤트 트리거
+    fireEventTrigger('safe_opened');
+
+    renderClues();
+    showChikiToast('🐰 열렸다.');
+    setTimeout(() => {
+      document.getElementById('chiki-popup-text').textContent =
+        '열렸네. 🐰 안에 뭐가 있는지 봤어? 테이프 여러 개. 그중 하나에만 이름이 적혀 있더라~';
+      openChiki();
+    }, 800);
+  } else {
+    if (hint) {
+      hint.textContent = '틀렸어.';
+      setTimeout(() => { if (hint) hint.textContent = ''; }, 1500);
+    }
+    showChikiToast('🐰 아닌 것 같은데.');
+  }
+}
+
+
 function switchNPCToggle() {
   if (isSwitchingNPC || isSending || isMsgLimitReached) return;
   switchNPC(currentNPC === 0 ? 1 : 0);
@@ -445,6 +516,24 @@ function filterChoicesByInput(query) {
 }
 
 // ─────────────────────────────────────────────
+//  스토리 무관 입력 감지
+//  — 게임 세계관과 관계없는 질문을 LLM에 넘기지 않음
+// ─────────────────────────────────────────────
+function isOffTopic(text) {
+  const OFF_TOPIC_PATTERNS = [
+    // AI/모델 관련
+    /클로드|챗.?지피티|gpt|openai|anthropic|gemini|제미나이|llm|인공지능|ai가|ai야/i,
+    // 게임 외부 일상
+    /오늘\s*점심|뭐\s*먹|맛집|배달|쇼핑|날씨가\s*어때|주식|코인|로또/i,
+    // 메타 질문
+    /너는\s*누구야|너\s*이름이\s*뭐야|몇\s*살이야|어느\s*회사|만든\s*사람/i,
+    // 게임 외부 정치·사회
+    /대통령|선거|전쟁|뉴스|정치/i,
+  ];
+  return OFF_TOPIC_PATTERNS.some(p => p.test(text));
+}
+
+// ─────────────────────────────────────────────
 //  메시지 전송 (★ 대화 횟수 카운트 추가)
 // ─────────────────────────────────────────────
 function sendMsg() {
@@ -471,6 +560,28 @@ function sendMsg() {
 
   checkChikiTrigger(text);
   addPlayerMsg(text);
+
+  // 스토리 무관 입력 차단 — LLM 전송 안 함
+  if (isOffTopic(text)) {
+    showChikiToast('🐰 그런 건 나한테 물어봐~');
+    setTimeout(() => {
+      document.getElementById('chiki-popup-text').textContent =
+        '지금 그런 거 생각할 때가 아니야. 🐰 오늘 자정까지 범인을 찾아야 한다고~';
+      openChiki();
+    }, 800);
+    // HP/카운트 원복
+    msgCount--;
+    npcHp[currentNPC] = Math.min(NPC_HP_MAX, npcHp[currentNPC] + 1);
+    updateHpBar();
+    if (npcHp[currentNPC] > 0 && !isMsgLimitReached) {
+      const input = document.getElementById('msg-input');
+      const sendBtn = document.getElementById('send-btn');
+      if (input) input.disabled = false;
+      if (sendBtn) sendBtn.disabled = false;
+    }
+    return;
+  }
+
   sendToBackend(text);
 
   // 20회 도달 시 → NPC 응답 받은 후 suspect.html 이동
@@ -547,12 +658,47 @@ function renderNPCImage(url, npcIdx = currentNPC) {
 }
 
 // ─────────────────────────────────────────────
-//  치키 트리거 감지 (유저 입력)
+//  택배 도착 연출
+//  — diary/clue_package/clue_seoyeon_watch 공통
+//  — 중복 방지: 이미 "수상한 택배" 단서가 있으면 발동 안 함
 // ─────────────────────────────────────────────
+async function triggerPackageDelivery() {
+  // 중복 방지
+  if (getClues().some(c => c.title === '수상한 택배')) return;
+
+  // 초인종 효과음
+  const sfx = new Audio('/frontend/audio/초인종.mp3');
+  sfx.play().catch(() => {});
+
+  // 치키 토스트
+  showChikiToast('🐰 택배 왔다.');
+
+  // 치키 팝업
+  setTimeout(() => {
+    document.getElementById('chiki-popup-text').textContent =
+      '택배가 왔네. 🐰 발신인이 없어. 열어볼 거야? 근데 있지, 안에 뭐가 들었는지는… 알 것 같기도 하고~';
+    openChiki();
+  }, 1300);
+
+  // 단서 저장
+  await addClue({
+    icon: '📦',
+    title: '수상한 택배',
+    desc: '발신인 없는 택배상자. 안에는 말라붙은 꽃 한 송이, 오래된 약 봉투, 그리고 일기장이 들어 있다.',
+    img: '수상한_택배',
+  });
+}
+
+
 function checkChikiTrigger(text) {
   if (!triggersLoaded) return;
   for (const trigger of CHIKI_TRIGGERS) {
     if (trigger.words.some(w => text.includes(w))) {
+      // package_delivery 트리거 — 택배 도착 연출
+      if (trigger.package_delivery) {
+        triggerPackageDelivery();
+        return;
+      }
       showChikiToast(trigger.toast || '🐰 치키가 반응했습니다…');
       setTimeout(() => {
         document.getElementById('chiki-popup-text').textContent = trigger.msg;
@@ -573,7 +719,13 @@ function checkClueTrigger(npcName, npcText) {
     if (trigger.source !== 'npc') continue;
     if (trigger.npc !== npcName) continue;
     const detected = (trigger.detect_words ?? []).some(w => npcText.includes(w));
-    if (detected && trigger.clue) {
+    if (!detected) continue;
+    // package_delivery 트리거 — 택배 도착 연출
+    if (trigger.package_delivery) {
+      triggerPackageDelivery();
+      return;
+    }
+    if (trigger.clue) {
       addClue(trigger.clue);
       return;
     }
