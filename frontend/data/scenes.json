@@ -93,8 +93,8 @@
         {
           "id": "200-S5",
           "bg": "kitchen",
-          "npc": "박도원_문막열었을때",
-          "speaker": "박도원",
+          "npc": null,
+          "speaker": "???",
           "speaker_role": "건물 청소부 / 택배 기사",
           "location": "부엌",
           "place": "집",
@@ -311,7 +311,7 @@
         },
         {
           "id": "400-S9a",
-          "bg": null,
+          "bg": "entrance",
           "npc": "문자_차서연_2",
           "speaker": "차서연",
           "speaker_role": "신경과 동료 의사",
@@ -334,7 +334,8 @@
           "id": 502,
           "text": "쓰레기 수거함을 확인해본다"
         }
-      ]
+      ],
+      "result_npc": "김도현"
     },
     "401": {
       "scenes": [
@@ -387,7 +388,8 @@
           "id": 505,
           "text": "의자를 확인한다"
         }
-      ]
+      ],
+      "result_npc": "박도원"
     },
     "402": {
       "scenes": [
@@ -440,7 +442,8 @@
           "id": 505,
           "text": "의자를 확인한다"
         }
-      ]
+      ],
+      "result_npc": "엄마"
     },
     "403": {
       "scenes": [
@@ -479,7 +482,8 @@
           "id": 508,
           "text": "옷 주머니를 확인한다"
         }
-      ]
+      ],
+      "result_npc": "박도원"
     },
     "101": {
       "scenes": [
@@ -550,7 +554,7 @@
         {
           "id": "202-S5",
           "bg": "director",
-          "npc": "박도원_하이",
+          "npc": "박도원_Usb4",
           "speaker": "박도원",
           "speaker_role": "건물 청소부 / 택배 기사",
           "location": "원장실",
@@ -560,7 +564,7 @@
         {
           "id": "202-S6",
           "bg": "director",
-          "npc": "박도원_하이",
+          "npc": "박도원_Usb4",
           "speaker": "박도원",
           "speaker_role": "건물 청소부 / 택배 기사",
           "location": "원장실",
@@ -687,7 +691,7 @@
         },
         {
           "id": "302-S3",
-          "bg": "director",
+          "bg": "director_broken",
           "npc": null,
           "speaker": null,
           "speaker_role": null,
@@ -698,7 +702,7 @@
         },
         {
           "id": "302-S4",
-          "bg": "director",
+          "bg": "director_broken",
           "npc": "차서연_무표정",
           "speaker": "차서연",
           "speaker_role": "신경과 동료 의사",

@@ -14,32 +14,6 @@ const BASE_URL = window.location.hostname === "localhost"
   ? "http://localhost:8000"
   : "https://hateslop4-dead24.onrender.com";
 
-// ─────────────────────────────────────────────
-//  범인 NPC → 사망 이미지 매핑
-// ─────────────────────────────────────────────
-const VILLAIN_MAP = {
-  511: '엄마', 608: '엄마', 609: '엄마', 610: '엄마', 611: '엄마',
-  612: '엄마', 613: '엄마', 614: '엄마', 615: '엄마', 620: '엄마',
-  600: '김도현', 602: '김도현', 604: '김도현', 606: '김도현',
-  708: '김도현', 709: '김도현', 710: '김도현', 711: '김도현',
-  712: '김도현', 713: '김도현', 714: '김도현', 715: '김도현',
-  724: '김도현', 725: '김도현', 728: '김도현', 731: '김도현',
-  732: '김도현', 733: '김도현', 739: '김도현', 746: '김도현',
-  747: '김도현', 749: '김도현', 750: '김도현', 752: '김도현',
-  753: '김도현', 754: '김도현', 755: '김도현', 759: '김도현',
-  760: '김도현', 761: '김도현', 762: '김도현', 764: '김도현',
-  621: '박도원', 622: '박도원', 624: '박도원', 626: '박도원', 628: '박도원',
-  716: '박도원', 717: '박도원', 718: '박도원', 719: '박도원',
-  720: '박도원', 721: '박도원', 722: '박도원', 723: '박도원',
-  742: '박도원', 745: '박도원', 748: '박도원', 751: '박도원',
-  758: '박도원', 765: '박도원',
-  700: '차서연', 701: '차서연', 702: '차서연', 703: '차서연',
-  704: '차서연', 705: '차서연', 706: '차서연', 707: '차서연',
-  726: '차서연', 727: '차서연', 729: '차서연', 730: '차서연',
-  734: '차서연', 735: '차서연', 736: '차서연', 737: '차서연',
-  738: '차서연', 740: '차서연', 741: '차서연', 743: '차서연',
-  744: '차서연', 756: '차서연', 757: '차서연', 763: '차서연',
-};
 
 const DEATH_IMAGE_MAP = {
   '김도현': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550922/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC_%E1%84%8E%E1%85%AE%E1%84%85%E1%85%A1%E1%86%A8%E1%84%89%E1%85%A1_leqyal.png',
@@ -59,7 +33,41 @@ const NPC_INFO = {
 //  상태
 // ─────────────────────────────────────────────
 let selectedSuspect = null;
-const ACTUAL_VILLAIN = VILLAIN_MAP[LAST_BTN_ID] || '김도현';
+let ACTUAL_VILLAIN = '차서연';
+
+// ─────────────────────────────────────────────
+//  진범 데이터 로드 함수 (scenes.json 기준)
+// ─────────────────────────────────────────────
+async function fetchActualVillain() {
+  try {
+    // BASE_URL이 로컬/배포 환경을 자동 판별하므로 절대 경로로 안전하게 요청
+    const response = await fetch(`${BASE_URL}/data/scenes.json`); 
+    
+    if (!response.ok) {
+      throw new Error(`서버 응답 오류: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // 진범 역추적 로직 (이전 답변과 동일)
+    if (data.nodes[LAST_BTN_ID] && data.nodes[LAST_BTN_ID].result_npc) {
+      ACTUAL_VILLAIN = data.nodes[LAST_BTN_ID].result_npc;
+    } else {
+      for (const nodeId in data.nodes) {
+        const node = data.nodes[nodeId];
+        if (node.choices && node.choices.some(choice => choice.id === LAST_BTN_ID)) {
+          ACTUAL_VILLAIN = node.result_npc || '김도현';
+          break;
+        }
+      }
+    }
+    
+    console.log("최종 확정된 진범:", ACTUAL_VILLAIN); 
+    
+  } catch (error) {
+    console.error('scenes.json을 불러오는데 실패했습니다.', error);
+  }
+}
 
 // ─────────────────────────────────────────────
 //  씬 전환
@@ -128,6 +136,56 @@ function selectSuspect(name, el) {
 }
 
 // ─────────────────────────────────────────────
+//  사망 씬 그레인 효과 — 처음엔 검게 덮고 서서히 걷힘
+// ─────────────────────────────────────────────
+let _grainRaf = null;
+
+function startDeathGrain() {
+  const cv = document.getElementById('death-grain');
+  if (!cv) return;
+
+  const scene = document.getElementById('scene-death');
+  cv.width  = scene.offsetWidth  || window.innerWidth;
+  cv.height = scene.offsetHeight || window.innerHeight;
+
+  const ctx = cv.getContext('2d');
+  const FADE_DURATION = 2200; // grain이 걷히는 시간 (ms)
+  const startTime = performance.now();
+
+  function drawGrain(now) {
+    const elapsed = now - startTime;
+    // 0 → 1 (완전 불투명 → 완전 투명)
+    const progress = Math.min(elapsed / FADE_DURATION, 1);
+    // easeInQuad로 처음엔 천천히, 나중엔 빠르게 걷힘
+    const eased = progress * progress;
+
+    const w = cv.width, h = cv.height;
+    const img = ctx.createImageData(w, h);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const v = (Math.random() * 60) | 0;
+      d[i] = d[i + 1] = d[i + 2] = v;
+      d[i + 3] = Math.random() > 0.42 ? 80 : 18;
+    }
+    ctx.putImageData(img, 0, 0);
+
+    // 차콜 틴트: 1.0(완전 검정)에서 0으로 서서히 감소
+    const tint = (1 - eased) * 0.92 + 0.38 * (1 - eased);
+    ctx.fillStyle = `rgba(18,18,18,${Math.min(tint, 1)})`;
+    ctx.fillRect(0, 0, w, h);
+
+    if (progress < 1) {
+      _grainRaf = requestAnimationFrame(drawGrain);
+    } else {
+      // grain 완전히 걷힌 뒤 canvas 숨김
+      cv.style.display = 'none';
+      _grainRaf = null;
+    }
+  }
+  _grainRaf = requestAnimationFrame(drawGrain);
+}
+
+// ─────────────────────────────────────────────
 //  확정 버튼 클릭
 // ─────────────────────────────────────────────
 function confirmSuspect() {
@@ -135,13 +193,8 @@ function confirmSuspect() {
   document.getElementById('chiki-confirm-text').innerHTML =
     `내가 <span class="highlight">${selectedSuspect}</span>으로부터 지켜줄게~! 🐰✨<br>걱정 마, 치키가 옆에 있을게.`;
   showScene('scene-confirm');
-  fadeToScene('scene-night', 3000);
-  loadImg(
-    document.getElementById('night-img'),
-    'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550920/%E1%84%89%E1%85%A1%E1%84%86%E1%85%A1%E1%86%BC_%E1%84%B0%E1%85%A1%E1%86%BC_wqnnyz.png',
-    document.getElementById('night-fallback')
-  );
-  setTimeout(() => { goToDeath(); }, 5500);
+  // 치키 확인 멘트 2500ms 후 바로 사망 씬
+  setTimeout(() => { goToDeath(); }, 2500);
 }
 
 // ─────────────────────────────────────────────
@@ -150,19 +203,23 @@ function confirmSuspect() {
 function goToDeath() {
   showScene('scene-death');
   const deathImg = DEATH_IMAGE_MAP[ACTUAL_VILLAIN] || DEATH_IMAGE_MAP['김도현'];
+  // 이미지 미리 로드
   loadImg(
     document.getElementById('death-img'),
     deathImg,
     document.getElementById('death-fallback')
   );
+  // grain 즉시 시작 (검정 → 이미지 드러남)
+  startDeathGrain();
   notifyDeath();
+  // 사망 씬 6000ms 유지
   setTimeout(() => {
     if (LOOP_NUM >= 3) {
       goToEnding();
     } else {
       goToMorning();
     }
-  }, 3500);
+  }, 6000);
 }
 
 // ─────────────────────────────────────────────
@@ -341,7 +398,9 @@ async function notifyDeath() {
 // ─────────────────────────────────────────────
 //  초기화
 // ─────────────────────────────────────────────
-(function init() {
+(async function init() {
+  await fetchActualVillain(); // 진범 데이터를 먼저 로드
+
   const deathCause = sessionStorage.getItem('death_cause');
   sessionStorage.removeItem('death_cause');
 
