@@ -262,7 +262,7 @@
           "speaker_role": null,
           "location": "부엌",
           "place": "집",
-          "text": "",
+          "text": "...",
           "sound": "유리"
         },
         {
@@ -307,7 +307,7 @@
           "speaker_role": null,
           "location": "현관 앞",
           "place": "집",
-          "text": ""
+          "text": "..."
         },
         {
           "id": "400-S9a",
@@ -399,7 +399,7 @@
           "speaker_role": null,
           "location": "부엌",
           "place": "집",
-          "text": ""
+          "text": "..."
         },
         {
           "id": "402-S9c",
@@ -693,7 +693,7 @@
           "speaker_role": null,
           "location": "원장실",
           "place": "안식 정신건강의학과",
-          "text": "쨍그랑!! 갑자기 원장실 창문이 깨졌다. 이게 무슨 일이지?",
+          "text": "... 갑자기 원장실 창문이 깨졌다. 이게 무슨 일이지?",
           "sound": "유리"
         },
         {
@@ -788,7 +788,7 @@
           "speaker_role": null,
           "location": "원장실",
           "place": "안식 정신건강의학과",
-          "text": "쨍그랑—!!\n뒤쪽 유리창이 산산조각 나며 깨진다.",
+          "text": "... 갑자기 원장실 창문이 깨졌다. 이게 무슨 일이지?",
           "sound": "유리"
         },
         {
