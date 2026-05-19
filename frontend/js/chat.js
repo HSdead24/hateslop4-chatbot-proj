@@ -623,8 +623,25 @@ function sendMsg() {
     if (sendBtn) sendBtn.disabled = true;
   }
 
-  checkChikiTrigger(text);
+  const isChikiTriggered = checkChikiTrigger(text);
   addPlayerMsg(text);
+
+  // 치키 트리거 발동 시 — LLM 전송 차단, HP/카운트 원복
+  if (isChikiTriggered) {
+    msgCount--;
+    npcHp[currentNPC] = Math.min(NPC_HP_MAX, npcHp[currentNPC] + 1);
+    updateHpBar();
+    const inp = document.getElementById('msg-input');
+    const sBtn = document.getElementById('send-btn');
+    // 한글 IME 조합 잔여 글자 방지: blur → value 재초기화 → 재활성화
+    if (inp) {
+      inp.blur();
+      inp.value = '';
+      inp.disabled = false;
+    }
+    if (sBtn) sBtn.disabled = false;
+    return;
+  }
 
   // 스토리 무관 입력 차단 — LLM 전송 안 함
   if (isOffTopic(text)) {
@@ -756,13 +773,13 @@ async function triggerPackageDelivery() {
 
 
 function checkChikiTrigger(text) {
-  if (!triggersLoaded) return;
+  if (!triggersLoaded) return false;
   for (const trigger of CHIKI_TRIGGERS) {
     if (trigger.words.some(w => text.includes(w))) {
       // package_delivery 트리거 — 택배 도착 연출
       if (trigger.package_delivery) {
         triggerPackageDelivery();
-        return;
+        return true;
       }
       showChikiToast(trigger.toast || '🐰 치키가 반응했습니다…');
       setTimeout(() => {
@@ -770,9 +787,10 @@ function checkChikiTrigger(text) {
         openChiki();
         if (trigger.clue) addClue(trigger.clue);
       }, 1300);
-      return;
+      return true;
     }
   }
+  return false;
 }
 
 // ─────────────────────────────────────────────
@@ -1190,7 +1208,7 @@ function applyLbTransform() {
 
   const msgInput = document.getElementById('msg-input');
   msgInput.addEventListener('input', (e) => { filterChoicesByInput(e.target.value); });
-  msgInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMsg(); });
+  msgInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) sendMsg(); });
 
   bgmAudio.play().then(() => {
     console.log('BGM 자동 재생 성공');
