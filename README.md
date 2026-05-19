@@ -6,20 +6,20 @@
  
 | 항목 | 상태 | 비고 |
 |---|---|---|
-| 버튼룸 & 채팅룸 UI/UX 수정 | 구현 | Figma 시안 기준, 추가된 기능 포함 |
+| 버튼룸 & 채팅룸 UI/UX 수정 | ✅ 완료 | Figma 시안 기준, 추가된 기능 포함 |
 | 튜토리얼 / 코치 마크 | ⬜ 미구현 | 최초 1회만 등장 |
-| NPC 2명 확정 & 단서 공개 → 채팅 흐름 구현 | ⬜ 미구현 | 
-| 단서 페이지 | ⬜ 미구현 | 추후 진행 |
+| NPC 2명 확정 & 단서 공개 → 채팅 흐름 구현 | ✅ 완료 | 장소별 채팅방 인물 연결, 단서 탭 구현 |
+| 단서 페이지 | ✅ 완료 | 채팅룸 단서 탭으로 구현 (버튼룸-채팅룸 연결) |
  
 ### 기획 미확정
  
 | 항목 | 상태 | 비고 |
 |---|---|---|
-| 단서 범위 정의 | ❓ 미확정 | 단서가 스토리(루트)별로 결정되는지, 전체 세계관 기준인지 미정 |
+| 단서 범위 정의 | ✅ 확정 | 채팅에서 획득 가능한 단서 수 = 루트별 트리거 단서 총합 |
  
 ---
  
-### Phase 15 — 버튼룸 시나리오 대공사 ⬜ 진행 중
+### Phase 15 — 버튼룸 시나리오 대공사 ✅ 완료
  
 **배경**
 기존 버튼룸 시나리오(7단계 구조)를 새 시나리오(엑셀 Sheet1 기준)로 전면 교체.
@@ -56,13 +56,75 @@ root
 4. `build_scene_image_map.py` 재실행 → `scene_image_map.json` 자동 갱신
 5. *(이후)* 500번대 단서 선택 + 채팅룸 진입 로직 설계 및 구현
 **완료 작업**
-- [ ] `scenes.json` root~400번대 교체
-- [ ] `button.js` `BUTTON_TREE` root~400번대 교체
-- [ ] `stories.py` NPC 확정 매핑 갱신
-- [ ] `scene_image_map.json` 재생성
-- [ ] 500번대 단서 선택 로직 구현
-- [ ] 채팅룸 NPC 2명 확정 흐름 연동
+- [x] `scenes.json` root~400번대 교체
+- [x] `button.js` `BUTTON_TREE` root~400번대 교체
+- [x] `stories.py` NPC 확정 매핑 갱신 (loop1 101번 오류 수정 포함)
+- [x] `scene_image_map.json` 재생성
+- [x] 500번대 단서 선택 로직 구현
+- [x] 채팅룸 NPC 2명 확정 흐름 연동
 
+
+### Phase 16 — 단서(Clue) 시스템 구축 ✅ 완료
+
+**브랜치**: `frontend` → `main` 머지 완료 (PR #92~#97)
+
+**구현 내용**
+- 버튼룸에서 씬 이동 시 해당 씬에 연결된 단서를 `sessionStorage`에 자동 저장
+- 채팅룸 단서 탭에서 버튼룸에서 수집한 단서 + 채팅 트리거 단서를 통합 표시
+- 단서별 이미지 Cloudinary URL 매핑 (`clue_image_map.json`) — 총 9종
+
+**추가된 파일**
+```
+frontend/
+├── js/clue.js                 ← 단서 로드/저장 유틸리티 (중복 방지 포함)
+└── data/clue_image_map.json   ← 단서 ID → Cloudinary 이미지 URL 매핑
+```
+
+**완료 작업**
+- [x] `clue.js` 작성 — `addClueToStorage()`, `getClues()`, `getClueImgMap()` 구현
+- [x] `clue_image_map.json` — 단서 이미지 9종 Cloudinary 업로드 및 매핑
+- [x] `button.js` — 씬 이동 시 단서 자동 저장 로직 추가
+- [x] `chat.js` — 채팅룸 단서 탭에서 `sessionStorage` 단서 로드 및 렌더링
+- [x] `triggers.json` — 채팅룸 단서 트리거 데이터 갱신
+
+---
+
+### Phase 17 — 버튼룸 UX 개선 ✅ 완료
+
+**브랜치**: `frontend`, `npc_stat`, `button_npc_img` → `main` 머지 완료 (PR #95~#97)
+
+**구현 내용**
+- 인스타그램 QR 팝업: 버튼룸에서 특정 씬 도달 시 인스타 팝업 표시 + 터치 시 주소 이동
+- 버튼 자동 비활성화 개선: 자식 버튼 2개가 모두 이미 선택된 경우 부모 노드도 비활성화
+- 버튼룸 UI/UX 전면 개선 (`buttonroom.css`)
+- 버튼 ID별 배경·NPC 이미지 연결 강화 및 이미지 크기 고정
+- 최종 스탯 삽입 및 스토리 매핑 로직 정리 (`stories.py`, `button_node.py`, `state.py`, `game.py`)
+
+**완료 작업**
+- [x] `button.js` — 인스타 팝업 로직 + 자식 모두 선택 시 부모 비활성화
+- [x] `buttonroom.css` — UI/UX 전면 개선 및 이미지 크기 고정
+- [x] `llm/stories.py` — 최종 스탯 삽입 및 스토리 매핑 갱신
+- [x] `llm/nodes/button_node.py` / `llm/state.py` — 버튼 노드 및 상태 로직 정리
+- [x] `backend/api/game.py` / `backend/models/schemas.py` — 스키마 및 게임 API 갱신
+
+---
+
+### Phase 18 — 채팅룸 UX 개선 ✅ 완료
+
+**브랜치**: `frontend`, `npc_stat` → `main` 머지 완료 (PR #98~#99)
+
+**구현 내용**
+- 장소에 따른 채팅방 인물 연결: 버튼룸에서 선택한 장소(씬)를 기반으로 채팅방에 표시될 NPC 자동 결정
+- 채팅 상단바 단서 개수 표시: 채팅에서 획득 가능한 단서의 총 개수로 표기 (`/clue-triggers` 백엔드 연동)
+- 채팅룸 NPC 프로필 이미지 경로 수정
+
+**완료 작업**
+- [x] `chat.js` / `chatroom.html` — 장소별 NPC 연결 로직 및 단서 개수 표시
+- [x] `button.js` — 선택 장소 정보 `sessionStorage` 전달
+- [x] `backend/api/triggers.py` — 채팅에서 획득 가능한 단서 총합 반환 로직 추가
+- [x] `chatroom.css` — 프로필 이미지 및 단서 탭 스타일 수정
+
+---
 
 # 엔지니어 파트 필수 구현 요구사항
 
@@ -395,6 +457,8 @@ llm/vector_store/
 - [x] → `suspect.html` 전환 (타이머 종료 또는 치키 범인 선택 시)
 - [x] NPC 이미지 화질 개선 및 배경 음악 자동 재생 처리
 - [x] 실제 화면 크기 계산 적용 (`100dvh`)
+- [x] 장소에 따른 채팅방 인물 자동 연결 (Phase 18)
+- [x] 채팅 상단바 단서 개수 표시 — 획득 가능 총합 (`/clue-triggers` 연동) (Phase 18)
 
 **버튼 선택 화면 — 씬 이미지 시스템** (`data/scene_image_map.json` + `build_scene_image_map.py`)
 - [x] 버튼 ID별 배경 이미지 + NPC 표정 이미지 매핑 데이터 (`scene_image_map.json`)
@@ -435,13 +499,15 @@ frontend/
 │   └── ending.css         ← 엔딩 화면 스타일 ★신규
 ├── js/
 │   ├── opening.js         ← 오프닝 흐름 + new-game 연동
-│   ├── button.js          ← 버튼 트리 탐색 + 백엔드 연동 + 씬 이미지 렌더링
+│   ├── button.js          ← 버튼 트리 탐색 + 백엔드 연동 + 씬 이미지 렌더링 + 단서 저장
 │   ├── chat.js            ← NPC 전환 / 타이머 / 치키 트리거 / 사망 연출 / 백엔드 연동
 │   ├── suspect.js         ← 범인 선택 + 씬 전환 + 루프 처리
-│   └── ending.js          ← 치키 대사 타이핑 + 이미지 전환 연출 ★신규
+│   ├── ending.js          ← 치키 대사 타이핑 + 이미지 전환 연출 ★신규
+│   └── clue.js            ← 단서 로드/저장 유틸리티 (중복 방지) ★신규
 ├── data/
-│   ├── scenes.json        ← 버튼 선택 화면 씬/장소/대사 데이터
-│   └── scene_image_map.json ← 버튼 ID별 배경 + NPC 이미지 매핑 ★신규
+│   ├── scenes.json        ← 버튼 선택 화면 씬/장소/대사 데이터 (Phase 15에서 전면 교체)
+│   ├── scene_image_map.json ← 버튼 ID별 배경 + NPC 이미지 매핑 ★신규
+│   └── clue_image_map.json  ← 단서 ID별 Cloudinary 이미지 URL 매핑 ★신규
 ├── audio/                 ← 음향 효과 폴더 ★신규
 │   ├── atlasaudio-horror-ambience-512255.mp3    ← 채팅방 배경 음악
 │   ├── konstantinpazuzustudio-horror-piano-488124.mp3 ← 채팅방 배경 음악
