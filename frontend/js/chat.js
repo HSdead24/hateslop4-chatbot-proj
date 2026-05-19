@@ -108,8 +108,8 @@ const firstButton = sessionStorage.getItem('first_button') ?? '';
 // 대화 횟수 카운터 (NPC별 10회 × 2 = 통합 20회)
 let msgCount = 0;
 const MSG_LIMIT = 20;
-const NPC_HP_MAX = 10;
-let npcHp = [NPC_HP_MAX, NPC_HP_MAX]; // NPC별 잔여 대화 횟수
+const NPC_HP_MAX = 20;
+let npcHp = NPC_HP_MAX; // 통합 잔여 대화 횟수
 let isMsgLimitReached = false;
 
 // ─────────────────────────────────────────────
@@ -204,7 +204,7 @@ timerInterval = setInterval(updateTimer, 1000);
 function updateHpBar() {
   const fill = document.getElementById('hp-bar-fill');
   if (!fill) return;
-  const hp = npcHp[currentNPC];
+  const hp = npcHp;
   const pct = (hp / NPC_HP_MAX) * 100;
   fill.style.width = pct + '%';
   fill.classList.remove('warn', 'empty');
@@ -490,7 +490,7 @@ function switchNPC(idx) {
   // 현재 NPC HP 소진 시 입력 비활성
   const input = document.getElementById('msg-input');
   const sendBtn = document.getElementById('send-btn');
-  if (npcHp[idx] <= 0 || isMsgLimitReached) {
+  if (npcHp <= 0 || isMsgLimitReached) {
     if (input) input.disabled = true;
     if (sendBtn) sendBtn.disabled = true;
   } else {
@@ -612,11 +612,11 @@ function sendMsg() {
 
   // 대화 횟수 증가 & HP 감소
   msgCount++;
-  npcHp[currentNPC] = Math.max(0, npcHp[currentNPC] - 1);
+  npcHp = Math.max(0, npcHp - 1);
   updateHpBar();
 
-  // 현재 NPC HP 소진 시 입력 비활성 (전환은 가능)
-  if (npcHp[currentNPC] <= 0 && !isMsgLimitReached) {
+  // HP 소진 시 입력 비활성 (전환은 가능)
+  if (npcHp <= 0 && !isMsgLimitReached) {
     const input = document.getElementById('msg-input');
     const sendBtn = document.getElementById('send-btn');
     if (input) input.disabled = true;
@@ -629,7 +629,7 @@ function sendMsg() {
   // 치키 트리거 발동 시 — LLM 전송 차단, HP/카운트 원복
   if (isChikiTriggered) {
     msgCount--;
-    npcHp[currentNPC] = Math.min(NPC_HP_MAX, npcHp[currentNPC] + 1);
+    npcHp = Math.min(NPC_HP_MAX, npcHp + 1);
     updateHpBar();
     const inp = document.getElementById('msg-input');
     const sBtn = document.getElementById('send-btn');
@@ -653,9 +653,9 @@ function sendMsg() {
     }, 800);
     // HP/카운트 원복
     msgCount--;
-    npcHp[currentNPC] = Math.min(NPC_HP_MAX, npcHp[currentNPC] + 1);
+    npcHp = Math.min(NPC_HP_MAX, npcHp + 1);
     updateHpBar();
-    if (npcHp[currentNPC] > 0 && !isMsgLimitReached) {
+    if (npcHp > 0 && !isMsgLimitReached) {
       const input = document.getElementById('msg-input');
       const sendBtn = document.getElementById('send-btn');
       if (input) input.disabled = false;
@@ -959,7 +959,7 @@ async function sendToBackend(text) {
     isSending = false;
     if (switchBtn) switchBtn.disabled = false;
     // 메시지 한도 도달 또는 현재 NPC HP 소진 시 입력창 비활성 유지
-    if (!isMsgLimitReached && npcHp[currentNPC] > 0) {
+    if (!isMsgLimitReached && npcHp > 0) {
       input.disabled = false;
       sendBtn.disabled = false;
       input.focus();
@@ -1003,7 +1003,8 @@ const bgmList = [
 ];
 
 let currentBgmIdx = 0; 
-let bgmAudio = new Audio(bgmList[currentBgmIdx]); 
+let bgmAudio = new Audio(bgmList[currentBgmIdx]);
+bgmAudio.volume = 0.3;
 
 let isSoundOn = false;
 let hasInteracted = false;
@@ -1012,6 +1013,7 @@ let hasInteracted = false;
 bgmAudio.addEventListener('ended', () => {
   currentBgmIdx = (currentBgmIdx + 1) % bgmList.length;
   bgmAudio.src = bgmList[currentBgmIdx];
+  bgmAudio.volume = 0.3;
   if (isSoundOn) {
       bgmAudio.play().catch(e => console.warn('다음 BGM 재생 실패:', e));
   }
