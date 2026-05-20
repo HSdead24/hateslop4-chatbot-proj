@@ -561,42 +561,43 @@ function selectChoice(text) {
 
 // ── NPC별 추천 문장 풀 ──
 // ALL_NPCS.choices 기반 + 맥락 보강 문장
+// ★ 트리거 유도 문장은 [trigger:id] 주석으로 표시 — 블락킹 패턴을 우회하도록 능동형으로 작성
 const NPC_SUGGESTIONS = {
   차서연: {
     1: [
-      '커피 안 마실게요',
+      '커피 안 마실게요',                      // [trigger:seoyeon] 커피 거절
       '사무실 뒤진 거예요?',
       '패턴이 뭔가요?',
       '오늘 이상한 일 없었어요?',
-      '서랍 안에 뭐가 있어요?',
-      '금고 알아요?',
-      '테이프 들어봤어요?',
-      '약 처방 기록 알아요?',
-      '가족사진 얼룩 보셨어요?',
-      '차서연 씨 수상하지 않아요?',
-      '누가 죽인 거예요?',
-      '범인이 누구예요?',
-      '자정에 무슨 일이 있어요?',
+      '서랍 안에 뭐가 있어요?',               // [trigger:drawer]
+      '금고 비밀번호 알아요?',                 // [trigger:safe]
+      '녹음 테이프 어디 있어요?',              // [trigger:tape]
+      '약 처방 기록 알아요?',                  // [trigger:medicine]
+      '졸피뎀 처방한 거예요?',                 // [trigger:medicine]
+      '가족사진 얼룩 뭐예요?',                 // [trigger:photo]
+      '누가 죽인 건지 알아요?',                // [trigger:murder]
+      '범인이 누군지 알아요?',                 // [trigger:murder]
+      '자정에 무슨 일이 생겨요?',              // [trigger:midnight]
     ],
     2: [
-      '박주원 알아요?',
-      '주원 씨 어떻게 된 거예요?',
+      '김하윤 알아요?',                        // [trigger:hayun] — 루프2 공개 정보
+      '박주원 어떻게 된 거예요?',              // [trigger:juwon]
+      '주원 씨 자살이 맞아요?',               // [trigger:juwon]
       '대학 때 친구 얘기 해줘요',
-      '박주원 씨 자살이에요?',
-      'USB 영상 봤어요?',
-      'CCTV 각도 이상하지 않아요?',
-      '기억이 왜 없는 거예요?',
-      '발신자 표시 제한 전화 받았어요?',
-      '0902가 무슨 날이에요?',
+      'USB 영상 본 적 있어요?',               // [trigger:usb]
+      'CCTV 각도가 왜 이상해요?',             // [trigger:usb]
+      '기억이 왜 안 나는 거예요?',             // [trigger:memory]
+      '발신자 표시 제한 전화 받았어요?',       // [trigger:phone]
+      '0902가 무슨 날이에요?',                // [trigger:password]
       '솔직하게 말해줄 수 있어요?',
       '그날 어디 있었어요?',
     ],
     3: [
-      '금고 안에 뭐가 있는 거예요?',
+      '금고 안에 뭐가 들어 있어요?',
       '약물 처방 기록이 왜 찢겨 있어요?',
-      '숨기는 거 있어요?',
+      '숨기는 게 있죠?',
       '진짜로 말해줄 수 있어요?',
-      '왜 아무것도 말 안 해요?',
+      '왜 아무것도 말 안 하는 거예요?',
       '박주원 씨 진짜 어떻게 된 거예요?',
     ],
   },
@@ -606,29 +607,32 @@ const NPC_SUGGESTIONS = {
       '내일이 기일이에요?',
       '동생 기억해요',
       '엄마 미안해요',
-      '가족사진 얼룩 뭐예요?',
-      '서랍 안에 뭐가 있어요?',
+      '가족사진 얼룩이 뭐예요?',              // [trigger:photo]
+      '서랍 안에 뭐가 들어 있어요?',           // [trigger:drawer]
+      '녹음 테이프 들어본 적 있어요?',         // [trigger:tape]
       '오늘 이상한 일 없었어요?',
-      '누가 죽인 거예요?',
-      '범인이 누구예요?',
-      '자정에 무슨 일이 있어요?',
+      '누가 죽인 건지 알아요?',               // [trigger:murder]
+      '범인이 누군지 알아요?',                // [trigger:murder]
+      '자정에 무슨 일이 생겨요?',             // [trigger:midnight]
+      '엄마가 알고 있는 거 있죠?',            // [trigger:mom]
+      '재희 씨 알아요?',                      // [trigger:mom]
     ],
     2: [
-      '나영 기억해요',
-      '동생 기일이 9월 2일이에요?',
-      '아빠 얘기 해줄 수 있어요?',
-      '기억이 왜 없는 거예요?',
-      '엄마 숨기는 거 있어요?',
+      '나영 기억해요',                        // [trigger:nayoung]
+      '동생 기일이 9월 2일이에요?',           // [trigger:nayoung / password]
+      '아빠 박도원 씨 얘기 해줄 수 있어요?',   // [trigger:father]
+      '기억이 왜 안 나는 거예요?',             // [trigger:memory]
+      '엄마 숨기는 게 있죠?',
       '아직도 그날 기억해요?',
       '왜 침묵하는 거예요?',
-      '0902가 무슨 날이에요?',
+      '0902가 무슨 날이에요?',               // [trigger:password]
     ],
     3: [
       '엄마 알고 있죠?',
-      '왜 말을 못 해요?',
+      '왜 말을 못 하는 거예요?',
       '진짜로 말해줄 수 있어요?',
-      '숨기는 거 있어요?',
-      '금고 안에 뭐가 있는 거예요?',
+      '숨기는 게 있죠?',
+      '금고 안에 뭐가 들어 있어요?',
     ],
   },
   박도원: {
@@ -637,56 +641,57 @@ const NPC_SUGGESTIONS = {
       '전에 본 적 있어요?',
       '병원에 왜 있었어요?',
       '제 물건 건드렸어요?',
-      '원래 무슨 일 하셨어요?',
-      '서랍 안에 뭐가 있어요?',
-      '금고 알아요?',
-      '누가 죽인 거예요?',
-      '범인이 누구예요?',
+      '원래 무슨 일 하셨어요?',               // [trigger:father]
+      '서랍 안에 뭐가 들어 있어요?',           // [trigger:drawer]
+      '금고 비밀번호 알아요?',                 // [trigger:safe]
+      '누가 죽인 건지 알아요?',               // [trigger:murder]
+      '범인이 누군지 알아요?',                // [trigger:murder]
     ],
     2: [
-      '딸 얘기 해줄 수 있어요?',
-      '박주원 씨 아버지세요?',
-      '택배 상자 열어봤어요?',
-      '일기장에 뭐가 있어요?',
-      '딸이 왜 죽었어요?',
+      '딸 얘기 해줄 수 있어요?',              // [trigger:father / nayoung]
+      '박주원 씨 아버지세요?',                // [trigger:juwon / father]
+      '택배 상자 뭐가 들었어요?',              // [trigger:diary]
+      '일기장에 뭐가 적혀 있어요?',           // [trigger:diary]
+      '딸이 왜 죽었어요?',                   // [trigger:murder]
       '복수하러 온 거예요?',
-      '0902가 무슨 날이에요?',
+      '0902가 무슨 날이에요?',               // [trigger:password]
       '그날 어디 있었어요?',
     ],
     3: [
       '진짜로 말해줄 수 있어요?',
-      '숨기는 거 있어요?',
-      '금고 안에 뭐가 있는 거예요?',
+      '숨기는 게 있죠?',
+      '금고 안에 뭐가 들어 있어요?',
       '왜 여기 있는 거예요?',
     ],
   },
   김도현: {
     1: [
-      '하윤이가 누구예요?',
+      '하윤이가 누구예요?',                   // [trigger:hayun]
       '왜 화난 거예요?',
       '저 기억해요?',
-      '약 얘기가 뭐예요?',
-      '서랍 안에 뭐가 있어요?',
-      '금고 알아요?',
-      '누가 죽인 거예요?',
-      '범인이 누구예요?',
+      '약 처방 기록 얘기가 뭐예요?',           // [trigger:medicine]
+      '졸피뎀 처방이 뭐예요?',               // [trigger:medicine]
+      '서랍 안에 뭐가 들어 있어요?',           // [trigger:drawer]
+      '금고 비밀번호 알아요?',                // [trigger:safe]
+      '누가 죽인 건지 알아요?',               // [trigger:murder]
+      '범인이 누군지 알아요?',               // [trigger:murder]
       '그날 뭘 봤어요?',
     ],
     2: [
-      '김하윤이 누구예요?',
+      '김하윤이 어떻게 된 거예요?',           // [trigger:hayun]
+      '김하윤이 동생이에요?',                 // [trigger:hayun] — 루프2 공개 정보
       '동생 얘기 해줄 수 있어요?',
-      '하윤이 어떻게 된 거예요?',
-      'USB 영상 봤어요?',
-      '기억이 왜 없는 거예요?',
-      '0902가 무슨 날이에요?',
-      '상담일지 내용이 뭐예요?',
+      'USB 영상 본 적 있어요?',              // [trigger:usb]
+      '기억이 왜 안 나는 거예요?',            // [trigger:memory]
+      '0902가 무슨 날이에요?',               // [trigger:password]
+      '상담일지에 뭐가 적혀 있어요?',
       '그 애 당신을 믿었잖아요',
     ],
     3: [
       '진짜로 말해줄 수 있어요?',
-      '숨기는 거 있어요?',
-      '금고 안에 뭐가 있는 거예요?',
-      '하윤이 죽음이 사고예요?',
+      '숨기는 게 있죠?',
+      '금고 안에 뭐가 들어 있어요?',
+      '하윤이 죽음이 사고예요?',              // [trigger:hayun / murder]
       '왜 나를 노리는 거예요?',
     ],
   },
@@ -695,24 +700,27 @@ const NPC_SUGGESTIONS = {
 // ── 공통 풀 (루프 무관, 전 NPC 공통) ──
 const COMMON_SUGGESTIONS = {
   1: [
-    '치키가 뭐예요?',
-    '루프가 뭔가요?',
-    '왜 반복되는 거예요?',
-    '자정에 무슨 일이 있어요?',
-    '녹음 테이프 들어봤어요?',
-    '가족사진 얼룩 뭐예요?',
+    '치키가 뭐예요?',                        // [trigger:chiki]
+    '루프가 왜 반복되는 거예요?',             // [trigger:loop]
+    '자정에 무슨 일이 생겨요?',              // [trigger:midnight]
+    '녹음 테이프 어디 있어요?',              // [trigger:tape]
+    '가족사진 얼룩이 뭐예요?',               // [trigger:photo]
+    '서랍 안에 뭐가 들어 있어요?',           // [trigger:drawer]
+    '엄마가 뭔가 알고 있죠?',               // [trigger:mom]
   ],
   2: [
-    '발신자 표시 제한 전화 받았어요?',
-    '9시에 거기 가야 해요?',
-    '기억이 왜 없는 거예요?',
-    '0902가 무슨 날이에요?',
-    '비밀번호 뭐예요?',
+    '발신자 표시 제한 전화 받았어요?',        // [trigger:phone]
+    '밤 9시에 거기 가야 해요?',              // [trigger:phone]
+    '기억이 왜 안 나는 거예요?',             // [trigger:memory]
+    '0902가 무슨 날이에요?',                // [trigger:password]
+    '금고 비밀번호가 0902예요?',             // [trigger:password / safe]
+    '박주원이 어떻게 된 거예요?',            // [trigger:juwon]
+    '아빠 박도원 씨가 왜 여기 있어요?',      // [trigger:father]
   ],
   3: [
-    '금고 안에 뭐가 있는 거예요?',
+    '금고 안에 뭐가 들어 있어요?',
     '약물 처방 기록이 왜 찢겨 있어요?',
-    '진짜 범인이 누구예요?',
+    '진짜 범인이 누구예요?',                // [trigger:murder]
   ],
 };
 
@@ -899,6 +907,9 @@ function sendMsg() {
     return;
   }
 
+  // 단서 트리거 감지 — 치키 미발동 + 스토리 관련 입력일 때만 체크
+  checkClueTrigger(text);
+
   sendToBackend(text);
 
   // 20회 도달 시 → NPC 응답 받은 후 suspect.html 이동
@@ -977,7 +988,6 @@ function addNPCMsg(overrideText = null) {
   chatEl.appendChild(row);
   scrollToBottom();
 
-  checkClueTrigger(npc.name, text);
 }
 
 // NPC 표정 이미지 → 상단 헤더 포트레이트 업데이트
@@ -1027,8 +1037,35 @@ async function triggerPackageDelivery() {
 }
 
 
+// ─────────────────────────────────────────────
+//  치키 트리거 블락킹 패턴
+//  — 유저가 트리거 워드를 반문·부정·인용 맥락으로 쓴 경우 차단
+//  — 예) "저를 살인자로 의심하는 건가요?" / "범인이라고 생각해요?"
+// ─────────────────────────────────────────────
+const CHIKI_BLOCK_PATTERNS = [
+  // 반문형 어미
+  /의심하는\s*(건가요|거예요|거죠|겁니까)/,
+  /(건가요|인가요|겁니까|건지요|는건가요)\s*[?？]?\s*$/,
+  // "~로/으로 보다/의심하다/생각하다"
+  /(?:로|으로)\s*(보는|의심|생각하는|몰다|모는)/,
+  // "~이라고/라고 생각/말하다"
+  /(?:이라고|라고)\s*(생각|봐요|봐|봐요\?|말하)/,
+  // 부정형
+  /(?:아닌가요|아니에요|아니야|아닌데|아닐|아니잖)/,
+  // "나를/저를/제가 ~ 한다는" 구조 (유저가 자신에게 향하는 의심을 언급)
+  /(?:나를|저를|제가|날)\s*.{0,8}(?:살인|범인|죽인|의심)/,
+];
+
+function isBlockedByContext(text) {
+  return CHIKI_BLOCK_PATTERNS.some(p => p.test(text));
+}
+
 function checkChikiTrigger(text) {
   if (!triggersLoaded) return false;
+
+  // 반문·부정·인용 맥락이면 치키 트리거 차단
+  if (isBlockedByContext(text)) return false;
+
   for (const trigger of CHIKI_TRIGGERS) {
     if (trigger.words.some(w => text.includes(w))) {
       // package_delivery 트리거 — 택배 도착 연출
@@ -1050,14 +1087,19 @@ function checkChikiTrigger(text) {
 }
 
 // ─────────────────────────────────────────────
-//  단서 트리거 감지 (NPC 발화)
+//  단서 트리거 감지 (유저 입력 + 현재 NPC 맥락 체크)
+//  — source: 'user' 트리거만 처리
+//  — trigger.npc 필드로 현재 대화 중인 NPC 일치 여부 확인
+//  — 치키 트리거 발동 시엔 호출되지 않음 (sendMsg에서 보장)
 // ─────────────────────────────────────────────
-function checkClueTrigger(npcName, npcText) {
+function checkClueTrigger(userText) {
   if (!triggersLoaded) return;
+  const currentNPCName = NPCs[currentNPC]?.name ?? '';
   for (const trigger of CLUE_TRIGGERS) {
-    if (trigger.source !== 'npc') continue;
-    if (trigger.npc !== npcName) continue;
-    const detected = (trigger.detect_words ?? []).some(w => npcText.includes(w));
+    if (trigger.source !== 'user') continue;
+    // npc 필드가 있으면 현재 대화 NPC와 일치해야 발동
+    if (trigger.npc && trigger.npc !== currentNPCName) continue;
+    const detected = (trigger.detect_words ?? []).some(w => userText.includes(w));
     if (!detected) continue;
     // package_delivery 트리거 — 택배 도착 연출
     if (trigger.package_delivery) {
