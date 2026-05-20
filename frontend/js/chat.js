@@ -692,47 +692,16 @@ const NPC_SUGGESTIONS = {
   },
 };
 
-// ── 공통 풀 (루프 무관, 전 NPC 공통) ──
-const COMMON_SUGGESTIONS = {
-  1: [
-    '치키가 뭐예요?',
-    '루프가 뭔가요?',
-    '왜 반복되는 거예요?',
-    '자정에 무슨 일이 있어요?',
-    '녹음 테이프 들어봤어요?',
-    '가족사진 얼룩 뭐예요?',
-  ],
-  2: [
-    '발신자 표시 제한 전화 받았어요?',
-    '9시에 거기 가야 해요?',
-    '기억이 왜 없는 거예요?',
-    '0902가 무슨 날이에요?',
-    '비밀번호 뭐예요?',
-  ],
-  3: [
-    '금고 안에 뭐가 있는 거예요?',
-    '약물 처방 기록이 왜 찢겨 있어요?',
-    '진짜 범인이 누구예요?',
-  ],
-};
-
 // 현재 NPC + 루프 기준으로 추천 풀 조합
 function buildSuggestionPool() {
   const npcName = NPCs[currentNPC]?.name ?? '';
   const loop = loopNum;
 
-  // 해당 루프 이하 문장 전부 누적 (루프1 문장은 루프2에서도 보임)
-  const npcPool = [];
-  const commonPool = [];
+  const pool = [];
   for (let l = 1; l <= loop; l++) {
-    const npcSugg = NPC_SUGGESTIONS[npcName]?.[l] ?? [];
-    const commSugg = COMMON_SUGGESTIONS[l] ?? [];
-    npcPool.push(...npcSugg);
-    commonPool.push(...commSugg);
+    pool.push(...(NPC_SUGGESTIONS[npcName]?.[l] ?? []));
   }
-
-  // NPC 풀 우선, 공통 풀 보완 (중복 제거)
-  return [...new Set([...npcPool, ...commonPool])];
+  return [...new Set(pool)];
 }
 
 // ── bigram 유사도 계산 ──
