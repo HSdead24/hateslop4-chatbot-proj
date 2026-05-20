@@ -148,14 +148,17 @@ async function loadTriggers() {
     const clueData = await clueRes.json();
     CHIKI_TRIGGERS = chikiData.chiki_triggers ?? [];
     CLUE_TRIGGERS = clueData.clue_triggers ?? [];
-    totalClues = clueData.total_clues ?? 0;
+    // ✅ Fix 2: 버튼룸에서 이미 획득한 단서 수를 합산하여 분자/분모 역전 방지
+    const buttonClueCount = JSON.parse(sessionStorage.getItem('clues') || '[]')
+      .filter(c => c.source === 'button').length;
+    totalClues = (clueData.total_clues ?? 0) + buttonClueCount;
     triggersLoaded = true;
 
     // 단서 총 개수 UI 반영
     const totalEl = document.getElementById('clue-total-count');
     if (totalEl) totalEl.textContent = totalClues;
 
-    console.log(`[triggers] 치키 ${CHIKI_TRIGGERS.length}개, 단서 ${CLUE_TRIGGERS.length}개 로드 (loop ${loop}, first_button ${firstButton || '미설정'}), 총 획득 가능: ${totalClues}`);
+    console.log(`[triggers] 치키 ${CHIKI_TRIGGERS.length}개, 단서 ${CLUE_TRIGGERS.length}개 로드 (loop ${loop}, first_button ${firstButton || '미설정'}), 총 획득 가능: ${totalClues} (채팅 ${clueData.total_clues ?? 0} + 버튼룸 ${buttonClueCount})`);
   } catch (err) {
     console.warn('[triggers] 백엔드 미연결:', err.message);
     CHIKI_TRIGGERS = [];
@@ -320,10 +323,11 @@ async function addChikiHint(clue) {
 }
 
 async function addClue(clue) {
-  // 1. 중복 획득 방지 및 조용한 실패(Silent Failure) 해결
-  if (clues.some(c => c.title === clue.title)) {
-    showChikiToast('🐰 이미 확인한 내용이야.');
-    return;
+  // ✅ Fix 1: sessionStorage 기준으로 중복 체크 (버튼룸 단서 포함)
+  const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
+  const storeId = clue.imgs ? clue.imgs[0] : (clue.img ?? clue.title);
+  if (stored.find(c => c.id === storeId || c.title === clue.title)) {
+    return; // 이미 있음 (버튼룸에서 획득했거나 이전에 추가됨)
   }
 
   const imgMap = await getClueImgMap();
@@ -341,12 +345,8 @@ async function addClue(clue) {
   clues.push({ ...clue, img: imgUrl, imgUrls: imgUrls || null, time: nowTime(), source: 'chat', loop: loopNum });
 
   // sessionStorage 동기화 (button.js 단서와 통합 관리)
-  const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
-  const storeId = clue.imgs ? clue.imgs[0] : (clue.img ?? clue.title);
-  if (!stored.find(c => c.id === storeId)) {
-    stored.push({ ...clue, id: storeId, img: imgUrl, imgUrls: imgUrls || null, source: 'chat', loop: loopNum });
-    sessionStorage.setItem('clues', JSON.stringify(stored));
-  }
+  stored.push({ ...clue, id: storeId, img: imgUrl, imgUrls: imgUrls || null, source: 'chat', loop: loopNum });
+  sessionStorage.setItem('clues', JSON.stringify(stored));
 
   // 2. 상단바 카운트 통합: source === 'chat' 대신 chiki 힌트만 제외하여 통합 집계
   const infoCount = document.getElementById('clue-info-count');
@@ -843,9 +843,9 @@ function sendMsg() {
   }
 
   const isChikiTriggered = checkChikiTrigger(text);
-  addPlayerMsg(text, isChikiTriggered);
+  addPlayerMsg(text, false);
 
-  // 치키 트리거 발동 시 — LLM 전송 차단, HP/카운트 원복
+  // 치키 트리거 발동 시 — 입력창 즉시 재활성화 후 LLM으로 계속 진행
   if (isChikiTriggered) {
     const inp = document.getElementById('msg-input');
     const sBtn = document.getElementById('send-btn');
@@ -856,7 +856,6 @@ function sendMsg() {
       if (npcHp > 0 && !isMsgLimitReached) inp.disabled = false;
     }
     if (sBtn && npcHp > 0 && !isMsgLimitReached) sBtn.disabled = false;
-    return;
   }
 
   // 스토리 무관 입력 차단 — LLM 전송 안 함
@@ -867,10 +866,6 @@ function sendMsg() {
         '지금 그런 거 생각할 때가 아니야. 🐰 오늘 자정까지 범인을 찾아야 한다고~';
       openChiki();
     }, 800);
-    // HP/카운트 원복
-    msgCount--;
-    npcHp = Math.min(NPC_HP_MAX, npcHp + 1);
-    updateHpBar();
     if (npcHp > 0 && !isMsgLimitReached) {
       const input = document.getElementById('msg-input');
       const sendBtn = document.getElementById('send-btn');

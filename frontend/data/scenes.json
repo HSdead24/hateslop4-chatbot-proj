@@ -277,7 +277,7 @@
         },
         {
           "id": "301-S8b",
-          "bg": null,
+          "bg": "entrance",
           "npc": "집앞택배",
           "speaker": null,
           "speaker_role": null,
@@ -459,7 +459,7 @@
         },
         {
           "id": "403-S9d",
-          "bg": null,
+          "bg": "room",
           "npc": "문자_차서연_1",
           "speaker": "차서연",
           "speaker_role": "신경과 동료 의사",

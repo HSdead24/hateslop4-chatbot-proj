@@ -81,7 +81,7 @@ const endingContent = document.getElementById('ending-content');
 const endingScroll  = document.getElementById('ending-scroll');
 const restartWrap   = document.getElementById('restart-wrap');
 const restartBtn    = document.getElementById('restart-btn');
-const ctx           = noiseCanvas.getContext('2d');
+const ctx = noiseCanvas.getContext('2d', { willReadFrequently: true });
 
 // ─────────────────────────────────────────────
 //  캔버스 크기 맞추기
