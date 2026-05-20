@@ -116,14 +116,16 @@ def get_chiki_triggers(loop: Optional[int] = Query(default=1, ge=1, le=3)):
     all_triggers = data.get("chiki_triggers", [])
 
     # loop_visible 필터: 값이 없으면 항상 공개
+    # loop_max 필터: loop_max가 있으면 해당 루프 미만까지만 공개
     visible = [
         t for t in all_triggers
         if t.get("loop_visible", 1) <= loop
+        and (t.get("loop_max") is None or loop < t["loop_max"])
     ]
 
     # 클라이언트에 불필요한 내부 필드 제거
     cleaned = [
-        {k: v for k, v in t.items() if k not in ("loop_visible",)}
+        {k: v for k, v in t.items() if k not in ("loop_visible", "loop_max")}
         for t in visible
     ]
 

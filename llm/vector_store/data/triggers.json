@@ -12,6 +12,7 @@
     {
       "id": "hayun",
       "loop_visible": 1,
+      "loop_max": 2,
       "words": [
         "김하윤",
         "하윤"
