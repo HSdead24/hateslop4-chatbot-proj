@@ -836,22 +836,19 @@ function sendMsg() {
   }
 
   const isChikiTriggered = checkChikiTrigger(text);
-  addPlayerMsg(text);
+  addPlayerMsg(text, isChikiTriggered);
 
   // 치키 트리거 발동 시 — LLM 전송 차단, HP/카운트 원복
   if (isChikiTriggered) {
-    msgCount--;
-    npcHp = Math.min(NPC_HP_MAX, npcHp + 1);
-    updateHpBar();
     const inp = document.getElementById('msg-input');
     const sBtn = document.getElementById('send-btn');
     // 한글 IME 조합 잔여 글자 방지: blur → value 재초기화 → 재활성화
     if (inp) {
       inp.blur();
       inp.value = '';
-      inp.disabled = false;
+      if (npcHp > 0 && !isMsgLimitReached) inp.disabled = false;
     }
-    if (sBtn) sBtn.disabled = false;
+    if (sBtn && npcHp > 0 && !isMsgLimitReached) sBtn.disabled = false;
     return;
   }
 
@@ -885,14 +882,17 @@ function sendMsg() {
   }
 }
 
-function addPlayerMsg(text) {
+function addPlayerMsg(text, failed = false) {
   const row = document.createElement('div');
   row.className = 'msg-row player';
+  const statusHtml = failed
+    ? `<span class="msg-failed">전송 실패</span>`
+    : `<span class="msg-read">읽음</span>`;
   row.innerHTML = `
     <div class="msg-col">
       <div class="bubble">${esc(text)}</div>
       <div class="msg-meta" style="justify-content:flex-end;">
-        <span class="msg-read">읽음</span>
+        ${statusHtml}
         <span class="msg-time">${nowTime()}</span>
       </div>
     </div>`;
