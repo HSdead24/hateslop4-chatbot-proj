@@ -292,6 +292,31 @@ function switchTab(tab) {
 // ─────────────────────────────────────────────
 //  단서 추가 & 렌더링
 // ─────────────────────────────────────────────
+// 치키 힌트 단서탭 등록 — 상단바 카운트(clue-info-count)에는 포함하지 않음
+async function addChikiHint(clue) {
+  if (clues.some(c => c.title === clue.title && c.source === 'chiki')) return;
+
+  const imgMap = await getClueImgMap();
+  const imgUrl = clue.img ? (imgMap[clue.img] || null) : null;
+
+  clues.push({ ...clue, img: imgUrl, imgUrls: null, time: nowTime(), source: 'chiki' });
+
+  // sessionStorage 동기화
+  const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
+  const storeId = 'chiki__' + (clue.img ?? clue.title);
+  if (!stored.find(c => c.id === storeId)) {
+    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: null, source: 'chiki' });
+    sessionStorage.setItem('clues', JSON.stringify(stored));
+  }
+
+  // 미확인 배지만 올림 (상단바 단서 개수는 건드리지 않음)
+  if (currentTab !== 'clue') {
+    unreadClueCount++;
+    updateClueBadge();
+  }
+  if (currentTab === 'clue') renderClues();
+}
+
 async function addClue(clue) {
   if (clues.some(c => c.title === clue.title)) return;
 
@@ -307,18 +332,19 @@ async function addClue(clue) {
     imgUrl = imgMap[clue.img] || null;
   }
 
-  clues.push({ ...clue, img: imgUrl, imgUrls: imgUrls || null, time: nowTime(), source: 'chat' });
+  clues.push({ ...clue, img: imgUrl, imgUrls: imgUrls || null, time: nowTime(), source: 'chat', loop: loopNum });
 
   // sessionStorage 동기화 (button.js 단서와 통합 관리)
   const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
   const storeId = clue.imgs ? clue.imgs[0] : (clue.img ?? clue.title);
   if (!stored.find(c => c.id === storeId)) {
-    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: imgUrls || null, source: 'chat' });
+    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: imgUrls || null, source: 'chat', loop: loopNum });
     sessionStorage.setItem('clues', JSON.stringify(stored));
   }
 
+  // 상단바 카운트: chiki 힌트 제외
   const infoCount = document.getElementById('clue-info-count');
-  if (infoCount) infoCount.textContent = getClues().length;
+  if (infoCount) infoCount.textContent = clues.filter(c => c.source === 'chat' && (c.loop ?? 1) <= loopNum).length;
   if (currentTab !== 'clue') {
     unreadClueCount++;
     updateClueBadge();
@@ -375,7 +401,7 @@ function renderClues() {
       <div class="clue-item-top">
         <span class="clue-item-badge">${(() => {
           const src = c.source || 'chat';
-          const label = src === 'button' ? '버튼 단서' : '채팅 단서';
+          const label = src === 'button' ? '버튼 단서' : src === 'chiki' ? '치키 힌트' : '채팅 단서';
           // 같은 source 내에서의 순번 계산
           const sameSourceIdx = allClues.slice(0, i + 1).filter(x => (x.source || 'chat') === src).length;
           return label + ' #' + String(sameSourceIdx).padStart(2, '0');
@@ -1014,7 +1040,8 @@ function checkChikiTrigger(text) {
       setTimeout(() => {
         document.getElementById('chiki-popup-text').textContent = trigger.msg;
         openChiki();
-        if (trigger.clue) addClue(trigger.clue);
+        // 치키 힌트 — 단서탭에 기록하되 상단바 카운트 제외
+        if (trigger.clue) addChikiHint(trigger.clue);
       }, 1300);
       return true;
     }
@@ -1392,8 +1419,10 @@ function applyLbTransform() {
   clues = existingClues.map(c => ({ ...c, time: '' }));
   unreadClueCount = existingClues.filter(c => !readClues.includes(c.id)).length;
   updateClueBadge();
-  // 이미 획득한 단서가 있으면 패널 즉시 렌더링 (탭 열기 전에도 데이터 준비)
   renderClues();
+  // 상단바 단서 카운트 복원 (chiki 힌트 제외)
+  const infoCountInit = document.getElementById('clue-info-count');
+  if (infoCountInit) infoCountInit.textContent = clues.filter(c => c.source === 'chat' && (c.loop ?? 1) <= loopNum).length;
 
   const HEADER_BG_MAP = {
     401: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
