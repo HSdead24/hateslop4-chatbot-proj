@@ -305,7 +305,7 @@ async function addChikiHint(clue) {
   const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
   const storeId = 'chiki__' + (clue.img ?? clue.title);
   if (!stored.find(c => c.id === storeId)) {
-    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: null, source: 'chiki' });
+    stored.push({ ...clue, id: storeId, img: imgUrl, imgUrls: null, source: 'chiki' });
     sessionStorage.setItem('clues', JSON.stringify(stored));
   }
 
@@ -318,7 +318,11 @@ async function addChikiHint(clue) {
 }
 
 async function addClue(clue) {
-  if (clues.some(c => c.title === clue.title)) return;
+  // 1. 중복 획득 방지 및 조용한 실패(Silent Failure) 해결
+  if (clues.some(c => c.title === clue.title)) {
+    showChikiToast('🐰 이미 확인한 내용이야.');
+    return;
+  }
 
   const imgMap = await getClueImgMap();
 
@@ -338,13 +342,14 @@ async function addClue(clue) {
   const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
   const storeId = clue.imgs ? clue.imgs[0] : (clue.img ?? clue.title);
   if (!stored.find(c => c.id === storeId)) {
-    stored.push({ id: storeId, title: clue.title, desc: clue.desc || '', img: imgUrl, imgUrls: imgUrls || null, source: 'chat', loop: loopNum });
+    stored.push({ ...clue, id: storeId, img: imgUrl, imgUrls: imgUrls || null, source: 'chat', loop: loopNum });
     sessionStorage.setItem('clues', JSON.stringify(stored));
   }
 
-  // 상단바 카운트: chiki 힌트 제외
+  // 2. 상단바 카운트 통합: source === 'chat' 대신 chiki 힌트만 제외하여 통합 집계
   const infoCount = document.getElementById('clue-info-count');
-  if (infoCount) infoCount.textContent = clues.filter(c => c.source === 'chat' && (c.loop ?? 1) <= loopNum).length;
+  if (infoCount) infoCount.textContent = clues.filter(c => c.source !== 'chiki' && (c.loop ?? 1) <= loopNum).length;
+  
   if (currentTab !== 'clue') {
     unreadClueCount++;
     updateClueBadge();
@@ -444,7 +449,7 @@ async function trySafePassword(idx) {
 
     // sessionStorage 업데이트
     const stored = JSON.parse(sessionStorage.getItem('clues') || '[]');
-    const target = stored.find(c => c.id === (safeClue.img_key ?? '금고_닫힘'));
+    const target = stored.find(c => c.title === safeClue.title); // 명확하게 이름으로 찾도록 수정
     if (target) { target.img = openImg; target.unlocked = true; }
     sessionStorage.setItem('clues', JSON.stringify(stored));
 
@@ -1463,8 +1468,9 @@ function applyLbTransform() {
   updateClueBadge();
   renderClues();
   // 상단바 단서 카운트 복원 (chiki 힌트 제외)
+  // 상단바 단서 카운트 복원 (chiki 힌트를 제외한 모든 정식 단서 통합)
   const infoCountInit = document.getElementById('clue-info-count');
-  if (infoCountInit) infoCountInit.textContent = clues.filter(c => c.source === 'chat' && (c.loop ?? 1) <= loopNum).length;
+  if (infoCountInit) infoCountInit.textContent = clues.filter(c => c.source !== 'chiki' && (c.loop ?? 1) <= loopNum).length;
 
   const HEADER_BG_MAP = {
     401: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550042/bg_living_sv1swh.png',
