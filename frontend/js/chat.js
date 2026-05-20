@@ -96,6 +96,8 @@ let currentTab = 'chat';
 let clues = [];
 let unreadClueCount = 0;
 let triggersLoaded = false;
+// 이미 발동된 치키 트리거 id — 세션 내 중복 발동 방지
+const _firedChikiIds = new Set(JSON.parse(sessionStorage.getItem('fired_chiki_ids') || '[]'));
 let isSending = false;
 let isSwitchingNPC = false;
 let isDeadProcessing = false;
@@ -881,13 +883,7 @@ function sendMsg() {
   // 단서 트리거 감지 — 치키 미발동 + 스토리 관련 입력일 때만 체크
   checkClueTrigger(text);
 
-  sendToBackend(text);
-
-  // 20회 도달 시 → NPC 응답 받은 후 suspect.html 이동
-  if (msgCount >= MSG_LIMIT) {
-    // sendToBackend 완료(약 2~3초) 후 triggerMsgLimit 호출
-    setTimeout(() => triggerMsgLimit(), 3000);
-  }
+  sendToBackend(text, msgCount >= MSG_LIMIT);
 }
 
 function addPlayerMsg(text, failed = false) {
@@ -1038,7 +1034,12 @@ function checkChikiTrigger(text) {
   if (isBlockedByContext(text)) return false;
 
   for (const trigger of CHIKI_TRIGGERS) {
+    if (_firedChikiIds.has(trigger.id)) continue;
     if (trigger.words.some(w => text.includes(w))) {
+      // 발동 기록 — 이후 동일 트리거 재발동 차단
+      _firedChikiIds.add(trigger.id);
+      sessionStorage.setItem('fired_chiki_ids', JSON.stringify([..._firedChikiIds]));
+
       // package_delivery 트리거 — 택배 도착 연출
       if (trigger.package_delivery) {
         triggerPackageDelivery();
@@ -1136,7 +1137,7 @@ async function triggerDeath(cause = 'timer') {
 // ─────────────────────────────────────────────
 //  백엔드 채팅 전송
 // ─────────────────────────────────────────────
-async function sendToBackend(text) {
+async function sendToBackend(text, isLastMsg = false) {
   const input = document.getElementById('msg-input');
   const sendBtn = document.getElementById('send-btn');
 
@@ -1173,6 +1174,11 @@ async function sendToBackend(text) {
     if (tr) tr.remove();
     addNPCMsg(data.response);
     if (data.image_url) renderNPCImage(data.image_url, npcIndexAtSend);
+
+    // HP 소진(20회 도달) → NPC 답변을 읽을 시간을 준 뒤 치키 등장
+    if (isLastMsg && !data.is_dead) {
+      setTimeout(() => triggerMsgLimit(), 4000);
+    }
 
     if (data.is_dead) {
       // 대화 중 사망 → 치키 등장 후 suspect.html로 (death-overlay 없이)
@@ -1224,6 +1230,9 @@ async function sendToBackend(text) {
     const tr = document.getElementById('typing-row');
     if (tr) tr.remove();
     addNPCMsg();
+    if (isLastMsg) {
+      setTimeout(() => triggerMsgLimit(), 4000);
+    }
   } finally {
     isSending = false;
     if (switchBtn) switchBtn.disabled = false;

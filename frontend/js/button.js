@@ -139,8 +139,6 @@ function renderChoices(choices) {
     sec.classList.add('vertical');
   } else {
     sec.classList.remove('vertical');
-    const spkDot = document.querySelector('.speaker-dot');
-    if (spkDot) spkDot.style.display = '';
   }
 
   choices.forEach(c => {
