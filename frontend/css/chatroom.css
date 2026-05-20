@@ -781,3 +781,43 @@ html, body {
   border-left-color: #8b6914;
   border-color: rgba(139,105,20,.2);
 }
+
+/* ── 자동 추천 문장 칩 영역 ── */
+#suggestion-area {
+  position: relative; z-index: 10; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 0 10px 6px;
+  max-height: 152px; overflow-y: auto;
+  background: transparent;
+}
+#suggestion-area:empty { display: none; }
+#suggestion-area::-webkit-scrollbar { display: none; }
+
+.suggestion-chip {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 9px 13px;
+  background: rgba(22, 23, 26, 0.9);
+  border: 1px solid rgba(212, 32, 24, 0.2);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px; font-family: var(--font-main);
+  text-align: left; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.suggestion-chip svg {
+  width: 12px; height: 12px;
+  flex-shrink: 0; opacity: 0.45;
+}
+.suggestion-chip:active {
+  background: rgba(212, 32, 24, 0.12);
+  border-color: rgba(212, 32, 24, 0.45);
+  color: var(--text-primary);
+}
+.suggestion-chip--direct {
+  color: var(--text-dim);
+  border-color: var(--border);
+  background: transparent;
+  font-style: italic;
+}
+.suggestion-chip--direct svg { opacity: 0.7; }

@@ -500,7 +500,7 @@ function switchNPC(idx) {
     }
   }
 
-  renderChoices(npc.choices);
+  clearSuggestionChips();
   scrollToBottom();
   isSwitchingNPC = false;
 }
@@ -529,55 +529,267 @@ function selectChoice(text) {
 }
 
 // ─────────────────────────────────────────────
+//  자동 추천 문장 시스템
+//  NPC별 + 루프별 분기 + bigram 자카드 유사도
+// ─────────────────────────────────────────────
+
+// ── NPC별 추천 문장 풀 ──
+// ALL_NPCS.choices 기반 + 맥락 보강 문장
+const NPC_SUGGESTIONS = {
+  차서연: {
+    1: [
+      '커피 안 마실게요',
+      '사무실 뒤진 거예요?',
+      '패턴이 뭔가요?',
+      '오늘 이상한 일 없었어요?',
+      '서랍 안에 뭐가 있어요?',
+      '금고 알아요?',
+      '테이프 들어봤어요?',
+      '약 처방 기록 알아요?',
+      '가족사진 얼룩 보셨어요?',
+      '차서연 씨 수상하지 않아요?',
+      '누가 죽인 거예요?',
+      '범인이 누구예요?',
+      '자정에 무슨 일이 있어요?',
+    ],
+    2: [
+      '박주원 알아요?',
+      '주원 씨 어떻게 된 거예요?',
+      '대학 때 친구 얘기 해줘요',
+      '박주원 씨 자살이에요?',
+      'USB 영상 봤어요?',
+      'CCTV 각도 이상하지 않아요?',
+      '기억이 왜 없는 거예요?',
+      '발신자 표시 제한 전화 받았어요?',
+      '0902가 무슨 날이에요?',
+      '솔직하게 말해줄 수 있어요?',
+      '그날 어디 있었어요?',
+    ],
+    3: [
+      '금고 안에 뭐가 있는 거예요?',
+      '약물 처방 기록이 왜 찢겨 있어요?',
+      '숨기는 거 있어요?',
+      '진짜로 말해줄 수 있어요?',
+      '왜 아무것도 말 안 해요?',
+      '박주원 씨 진짜 어떻게 된 거예요?',
+    ],
+  },
+  엄마: {
+    1: [
+      '밥 먹었어요',
+      '내일이 기일이에요?',
+      '동생 기억해요',
+      '엄마 미안해요',
+      '가족사진 얼룩 뭐예요?',
+      '서랍 안에 뭐가 있어요?',
+      '오늘 이상한 일 없었어요?',
+      '누가 죽인 거예요?',
+      '범인이 누구예요?',
+      '자정에 무슨 일이 있어요?',
+    ],
+    2: [
+      '나영 기억해요',
+      '동생 기일이 9월 2일이에요?',
+      '아빠 얘기 해줄 수 있어요?',
+      '기억이 왜 없는 거예요?',
+      '엄마 숨기는 거 있어요?',
+      '아직도 그날 기억해요?',
+      '왜 침묵하는 거예요?',
+      '0902가 무슨 날이에요?',
+    ],
+    3: [
+      '엄마 알고 있죠?',
+      '왜 말을 못 해요?',
+      '진짜로 말해줄 수 있어요?',
+      '숨기는 거 있어요?',
+      '금고 안에 뭐가 있는 거예요?',
+    ],
+  },
+  박도원: {
+    1: [
+      '어디서 주운 거예요?',
+      '전에 본 적 있어요?',
+      '병원에 왜 있었어요?',
+      '제 물건 건드렸어요?',
+      '원래 무슨 일 하셨어요?',
+      '서랍 안에 뭐가 있어요?',
+      '금고 알아요?',
+      '누가 죽인 거예요?',
+      '범인이 누구예요?',
+    ],
+    2: [
+      '딸 얘기 해줄 수 있어요?',
+      '박주원 씨 아버지세요?',
+      '택배 상자 열어봤어요?',
+      '일기장에 뭐가 있어요?',
+      '딸이 왜 죽었어요?',
+      '복수하러 온 거예요?',
+      '0902가 무슨 날이에요?',
+      '그날 어디 있었어요?',
+    ],
+    3: [
+      '진짜로 말해줄 수 있어요?',
+      '숨기는 거 있어요?',
+      '금고 안에 뭐가 있는 거예요?',
+      '왜 여기 있는 거예요?',
+    ],
+  },
+  김도현: {
+    1: [
+      '하윤이가 누구예요?',
+      '왜 화난 거예요?',
+      '저 기억해요?',
+      '약 얘기가 뭐예요?',
+      '서랍 안에 뭐가 있어요?',
+      '금고 알아요?',
+      '누가 죽인 거예요?',
+      '범인이 누구예요?',
+      '그날 뭘 봤어요?',
+    ],
+    2: [
+      '김하윤이 누구예요?',
+      '동생 얘기 해줄 수 있어요?',
+      '하윤이 어떻게 된 거예요?',
+      'USB 영상 봤어요?',
+      '기억이 왜 없는 거예요?',
+      '0902가 무슨 날이에요?',
+      '상담일지 내용이 뭐예요?',
+      '그 애 당신을 믿었잖아요',
+    ],
+    3: [
+      '진짜로 말해줄 수 있어요?',
+      '숨기는 거 있어요?',
+      '금고 안에 뭐가 있는 거예요?',
+      '하윤이 죽음이 사고예요?',
+      '왜 나를 노리는 거예요?',
+    ],
+  },
+};
+
+// ── 공통 풀 (루프 무관, 전 NPC 공통) ──
+const COMMON_SUGGESTIONS = {
+  1: [
+    '치키가 뭐예요?',
+    '루프가 뭔가요?',
+    '왜 반복되는 거예요?',
+    '자정에 무슨 일이 있어요?',
+    '녹음 테이프 들어봤어요?',
+    '가족사진 얼룩 뭐예요?',
+  ],
+  2: [
+    '발신자 표시 제한 전화 받았어요?',
+    '9시에 거기 가야 해요?',
+    '기억이 왜 없는 거예요?',
+    '0902가 무슨 날이에요?',
+    '비밀번호 뭐예요?',
+  ],
+  3: [
+    '금고 안에 뭐가 있는 거예요?',
+    '약물 처방 기록이 왜 찢겨 있어요?',
+    '진짜 범인이 누구예요?',
+  ],
+};
+
+// 현재 NPC + 루프 기준으로 추천 풀 조합
+function buildSuggestionPool() {
+  const npcName = NPCs[currentNPC]?.name ?? '';
+  const loop = loopNum;
+
+  // 해당 루프 이하 문장 전부 누적 (루프1 문장은 루프2에서도 보임)
+  const npcPool = [];
+  const commonPool = [];
+  for (let l = 1; l <= loop; l++) {
+    const npcSugg = NPC_SUGGESTIONS[npcName]?.[l] ?? [];
+    const commSugg = COMMON_SUGGESTIONS[l] ?? [];
+    npcPool.push(...npcSugg);
+    commonPool.push(...commSugg);
+  }
+
+  // NPC 풀 우선, 공통 풀 보완 (중복 제거)
+  return [...new Set([...npcPool, ...commonPool])];
+}
+
+// ── bigram 유사도 계산 ──
+function getBigrams(str) {
+  const s = str.replace(/\s+/g, '');
+  const set = new Set();
+  for (let i = 0; i < s.length - 1; i++) set.add(s[i] + s[i + 1]);
+  return set;
+}
+
+function jaccardSimilarity(a, b) {
+  const ba = getBigrams(a), bb = getBigrams(b);
+  if (ba.size === 0 && bb.size === 0) return 0;
+  let intersection = 0;
+  ba.forEach(g => { if (bb.has(g)) intersection++; });
+  const union = ba.size + bb.size - intersection;
+  return union === 0 ? 0 : intersection / union;
+}
+
+function containsScore(query, candidate) {
+  return candidate.toLowerCase().includes(query.trim().toLowerCase()) ? 0.5 : 0;
+}
+
+function getSuggestions(query) {
+  if (!query || query.trim().length < 2) return [];
+  const pool = buildSuggestionPool();
+  return pool
+    .map(s => ({ text: s, score: jaccardSimilarity(query.trim(), s) + containsScore(query, s) }))
+    .filter(s => s.score > 0.05)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map(s => s.text);
+}
+
+// ── 추천 칩 렌더링 ──
+function renderSuggestionChips(suggestions, rawQuery) {
+  const area = document.getElementById('suggestion-area');
+  if (!area) return;
+  area.innerHTML = '';
+
+  // 직접 입력 칩
+  if (rawQuery && rawQuery.trim().length > 0) {
+    const directChip = document.createElement('button');
+    directChip.className = 'suggestion-chip suggestion-chip--direct';
+    directChip.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+    </svg>직접 입력: "${esc(rawQuery.trim())}"`;
+    directChip.onclick = () => sendMsg();
+    area.appendChild(directChip);
+  }
+
+  // 유사도 추천 칩
+  suggestions.forEach(text => {
+    const chip = document.createElement('button');
+    chip.className = 'suggestion-chip';
+    chip.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+    </svg>${esc(text)}`;
+    chip.onclick = () => {
+      document.getElementById('msg-input').value = text;
+      clearSuggestionChips();
+      sendMsg();
+    };
+    area.appendChild(chip);
+  });
+}
+
+function clearSuggestionChips() {
+  const area = document.getElementById('suggestion-area');
+  if (area) area.innerHTML = '';
+}
+
+// ─────────────────────────────────────────────
 //  입력 키워드 기반 추천 문구 필터링
 // ─────────────────────────────────────────────
 function filterChoicesByInput(query) {
-  const npc = NPCs[currentNPC];
-  if (!npc) return;
-
-  const area = document.getElementById('choices-area');
   const q = query.trim();
-
-  // 입력 없으면 원래 선택지 복원
   if (!q) {
-    renderChoices(npc.choices);
+    clearSuggestionChips();
     return;
   }
-
-  // 현재 NPC choices에서 키워드 포함 항목 필터링
-  const matched = npc.choices.filter(c =>
-    c.toLowerCase().includes(q.toLowerCase())
-  );
-
-  area.innerHTML = '';
-
-  if (matched.length > 0) {
-    // 매칭된 항목: 일치 부분 빨간 하이라이트
-    matched.forEach(text => {
-      const btn = document.createElement('button');
-      btn.className = 'choice-btn choice-btn--suggest';
-
-      const highlighted = text.replace(
-        new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
-        '<mark>$1</mark>'
-      );
-
-      btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
-      </svg>${highlighted}`;
-      btn.onclick = () => selectChoice(text);
-      area.appendChild(btn);
-    });
-  } else {
-    // 매칭 없으면 "직접 입력" 안내 버튼
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn choice-btn--suggest choice-btn--direct';
-    btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-    </svg>직접 입력: "${esc(q)}"`;
-    btn.onclick = () => sendMsg();
-    area.appendChild(btn);
-  }
+  const suggestions = getSuggestions(q);
+  renderSuggestionChips(suggestions, q);
 }
 
 // ─────────────────────────────────────────────
@@ -607,8 +819,8 @@ function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
-  // 전송 후 추천 문구 → 원래 선택지 복원
-  renderChoices(NPCs[currentNPC].choices);
+  // 전송 후 추천 칩 초기화
+  clearSuggestionChips();
 
   // 대화 횟수 증가 & HP 감소
   msgCount++;
