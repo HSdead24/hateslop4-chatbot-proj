@@ -292,9 +292,9 @@ const BG_MAP = {
   'lounge':          'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lounge_rbdrz9.png',
   'director':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_director_mw2fno.png',
   'director_broken': 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1779201835/director_broken_2_odhyck.png',
-  'corridor':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
+  'lobby':        'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550041/bg_corridor_pyjgzz.png',
   'consulting':      'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550040/bg_consulting_cregzw.png',
-  'lobby':           'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
+  'corridor':           'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550043/bg_lobby_dbpizb.png',
 };
 
 function setSceneBgImage(bg) {
