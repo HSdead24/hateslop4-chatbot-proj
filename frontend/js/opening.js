@@ -412,8 +412,7 @@ function startNarration() {
 //  PHASE 3 → buttonroom.html
 // ────────────────────────────────────────────
 async function goGame() {
-  // 새 게임: 이전 플레이의 기록(단서, 치키 트리거, 루프 정보 등)을 전부 지운다
-  sessionStorage.clear();
+  // 이전 플레이 기록은 오프닝이 화면에 보일 때(pageshow) 이미 지웠다
 
   // sessionStorage에 이름·성별 저장 (button.js에서 읽음)
   sessionStorage.setItem('player_name',   STATE.name);
@@ -446,6 +445,19 @@ async function goGame() {
 // ────────────────────────────────────────────
 //  초기화 — DOM 로드 후 이벤트 연결
 // ────────────────────────────────────────────
+// ────────────────────────────────────────────
+//  새 게임 초기화 — 오프닝(닉네임·성별 입력 화면)이 보일 때마다 이전 플레이 기록을 전부 지운다
+//  - pageshow는 처음 열릴 때뿐 아니라 뒤로/앞으로 가기 캐시(bfcache)로 복원될 때도 실행된다
+//  - 캐시로 복원되면 이전 화면 단계(영상·나레이션 등)가 그대로 보이므로 새로 불러와 입력 화면부터 시작
+// ────────────────────────────────────────────
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    location.reload();
+    return;
+  }
+  sessionStorage.clear();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('playerName').addEventListener('input', checkInput);
 
