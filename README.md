@@ -7,7 +7,7 @@
 
 👉 **[지금 플레이하기](https://hateslop4-dead24.onrender.com)**
 
-> 📱 모바일 화면에 맞춰 디자인했습니다. 스마트폰으로 플레이하거나, PC에서는 브라우저 개발자 도구의 모바일 화면 모드로 접속하는 것을 권장합니다.
+> 📱 모바일 우선으로 개발되었습니다.
 
 <p align="center">
   <img src="documents/images/dead24_bttnroom.png" alt="하루 선택 화면" width="280">

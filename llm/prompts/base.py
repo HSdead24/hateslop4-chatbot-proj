@@ -468,7 +468,7 @@ def build_system_prompt(
     stats           : 확정된 NPC 수치 딕셔너리
     few_shot        : 캐릭터 모범 대화 예시 문자열 (각 prompts/*.py에서 정의)
     loop_count      : 현재 루프 회차
-    clues           : 유저 보유 단서 목록
+    clues           : (사용하지 않음) NPC는 플레이어가 획득한 단서를 알 필요가 없어 프롬프트에 넣지 않는다
     player_name     : 유저 닉네임 (예: "정재희")
     player_gender   : 유저 성별 ("남성" / "여성")
     loop_restriction: 루프별 정보 공개 제한 지침 (None일 경우 자동 조회)
@@ -500,7 +500,6 @@ def build_system_prompt(
     # ── 프롬프트 조립 (OpenAI 공식 가이드 구조) ─────
     # Identity → Instructions → Examples → Context 순서, Markdown 제목 + XML 태그로 구분
     # RAG 참고 정보는 rag_inject.py가 Context 맨 끝에 <reference_story>로 덧붙인다
-    clues_str    = ", ".join(clues) if clues else "없음"
     examples_xml = few_shot_to_xml(few_shot, npc_name, loop_count)
 
     prompt = f"""# Identity
@@ -559,7 +558,6 @@ def build_system_prompt(
 - 루프 회차: {loop_count}회
 - 대화 상대 이름: {player_name}
 - 대화 상대 성별: {player_gender}
-- 대화 상대가 가진 단서: {clues_str}
 </game_state>
 {today_situation}
 """

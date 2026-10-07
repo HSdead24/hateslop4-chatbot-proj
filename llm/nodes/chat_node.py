@@ -164,11 +164,11 @@ def generate_npc_response(
 
 
 def _today_situation(state: GameState, npc_name: str) -> str:
-    """버튼룸 최종 장면(current_story)과 고른 버튼 경로(context)로 '오늘의 상황' 블록을 만든다."""
+    """버튼룸 최종 장면(current_story)으로 이 NPC 시점의 '오늘의 상황' 블록을 만든다."""
     return build_today_situation(
         final_node  = state.get("current_story", 0) or 0,
-        button_path = state.get("context", []) or [],
         npc_name    = npc_name,
+        player_name = state.get("player_name", ""),
     )
 
 

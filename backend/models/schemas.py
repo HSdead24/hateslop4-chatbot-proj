@@ -66,6 +66,9 @@ class ChatResponse(BaseModel):
 class ChatOpeningRequest(BaseModel):
     session_id: str
     npc_name: str       # "김도현" | "차서연" | "엄마" | "박도원"
+    # 화면이 시간 초과로 대체 문구를 보여줬을 때 보낸다.
+    # 있으면 LLM을 호출하지 않고, 서버 기록의 첫 메시지를 이 문구로 맞춘다.
+    fallback_text: Optional[str] = None
 
 
 class ChatOpeningResponse(BaseModel):

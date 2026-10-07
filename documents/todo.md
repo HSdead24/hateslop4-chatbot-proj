@@ -8,10 +8,11 @@
 | 튜토리얼 / 코치 마크 | ⬜ 미구현 | 최초 1회만 등장 |
 | NPC 2명 확정 & 단서 공개 → 채팅 흐름 구현 | ✅ 완료 | 장소별 채팅방 인물 연결, 단서 탭 구현 |
 | 단서 페이지 | ✅ 완료 | 채팅룸 단서 탭으로 구현 (버튼룸-채팅룸 연결) |
-| iPhone 실기기 확인 | ⬜ 확인 필요 | 오프닝 정렬, 페이지 스크롤, 키보드, 음악 재생 팝업, 엔딩 음원 (PR #118~#119 배포 후) |
+| iPhone 실기기 확인 | ⬜ 확인 필요 | 오프닝 정렬, 페이지 스크롤, 키보드, 음악 재생 팝업, 엔딩 음원 (PR #118~#119 배포 후), 뒤로 가기로 오프닝 복귀 시 입력 화면부터 시작 (PR #123) |
 | 범인 지목 화면 문구 정리 | ⬜ 미구현 | `suspect.html`, 쓰이지 않는 SCENE 6("모든 루프가 끝났다") 포함 |
 | README 스크린샷 교체 | ⬜ 미구현 | 현재 이미지에 수정 전 문구("신경과 의사", "32세")가 보임 |
 | 엔딩 음원 용량 줄이기 | ⬜ 검토 | `ending-static.mp3` 9.6MB(256kbps) → 128kbps면 약 4.8MB |
+| 배포 서버에서 첫 메시지 확인 | ⬜ 확인 필요 | 15초 안에 생성되는지, NPC가 오늘의 상황을 자기 시점으로 말하는지 (PR #123 머지 후) |
 | 백엔드 테스트 4개 실패 | ⬜ 미해결 | TestAvailableButtons, TestRecordButton, TestFinalize (2026-10-07 작업 전부터 실패) |
  
 ### 기획 미확정
@@ -209,7 +210,7 @@ frontend/
 
 ### Phase 23 — 닉네임 · 성별 처리 ✅ 완료
 
-**브랜치**: `npc_stat` (커밋 `066c6d0`, PR 전)
+**브랜치**: `npc_stat` (PR #121)
 
 **구현 내용**
 - 닉네임은 완성형 한글만 허용, 입력칸 아래 안내 문구 표시
@@ -227,7 +228,7 @@ frontend/
 
 ### Phase 24 — LLM 모델 교체 · 프롬프트 개선 ✅ 완료
 
-**브랜치**: `npc_stat` (PR 전)
+**브랜치**: `npc_stat` (PR #121)
 
 > 자세한 내용: [llm-model-selection.md](llm-model-selection.md), [prompt-engineering.md](prompt-engineering.md)
 
@@ -243,3 +244,27 @@ frontend/
 - [x] `llm/vector_store/rag_inject.py` — `<reference_story>`로 Context 끝에 추가
 - [x] `llm/prompts/executor.py` — 미사용 파일임을 주석으로 명시
 - [ ] 실제 플레이로 루프별 말투·정보 노출·응답 속도 확인
+
+---
+
+### Phase 25 — 채팅방 '오늘의 상황' · LLM 첫 메시지 · 추천 문장 ✅ 완료 (배포 확인 필요)
+
+**브랜치**: `npc_stat` (PR #122 머지, PR #123 리뷰 대기)
+
+**구현 내용**
+- 최종 장면(400~411)별 오늘의 상황: 화면에는 SYSTEM 나레이션 카드, NPC에게는 NPC 시점 문장(`npc_view`)만 전달 (버튼 경로는 전달하지 않음)
+- NPC 첫 메시지를 LLM이 생성 (`POST /chat/opening`), 15초 시간 초과 시 대체 문구를 쓰고 서버 기록도 맞춤
+- 추천 문장 120개 (NPC당 30개, 루프별 10개), 입력칸이 비면 2개 표시, 이미 보낸 문장과 이미 얻은 단서만 여는 문장은 제외
+- 대화 개수: 두 NPC 합쳐 플레이어 메시지 20회로 화면·서버 통일
+- 오프닝 화면이 보일 때마다 이전 플레이 기록 초기화 (`pageshow`, bfcache 대응)
+
+**완료 작업**
+- [x] `frontend/data/today_situations.json` — 장소·나레이션·NPC별 한 줄·`npc_view`
+- [x] `llm/today_situation.py` / `llm/prompts/base.py` — `<today_situation>` 블록, "대화 상대가 가진 단서" 항목 삭제
+- [x] `llm/nodes/chat_node.py` — `generate_opening()`, 대화 개수 기준(`MAX_CHAT_TURNS` 20, 전체 NPC 합계)
+- [x] `backend/api/chat.py` / `backend/models/schemas.py` — `POST /chat/opening`, `fallback_text`
+- [x] `frontend/js/chat.js` — 상황 카드, 첫 메시지 병렬 요청, 추천 문장 필터, 고정 추천 버튼 코드 정리
+- [x] `frontend/js/button.js` — `/finalize`에 400번대 최종 장면 ID 전송 (스토리 오확정 버그 수정)
+- [x] `frontend/js/opening.js` — `pageshow`에서 기록 초기화, bfcache 복원 시 새로 불러오기
+- [ ] 배포 서버에서 첫 메시지 생성과 NPC 시점 확인
+- [ ] iPhone에서 뒤로/앞으로 가기 후 오프닝 초기화 확인
