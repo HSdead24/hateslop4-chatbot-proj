@@ -12,63 +12,62 @@
 // ═══════════════════════════════════════════════
 
 // ─────────────────────────────────────────────
-//  사용자 이름 로드 (opening에서 sessionStorage에 저장한 값)
+//  수감번호 — 엔딩에서 가해자는 이름 대신 수감번호로만 부른다
+//  0903 = 사망일, 4127 = 의미 없는 관리 번호
 // ─────────────────────────────────────────────
-const USER_NAME = sessionStorage.getItem('player_name') || '000';
+const PRISONER_NO = '0903-4127';
+
+// 피해자 규모: 숫자가 보이지 않도록 계속 깨지는 글자 (startCorruptLoop에서 갱신)
+const CORRUPT_COUNT = '<span class="corrupt" data-len="3">███</span>';
 
 // ─────────────────────────────────────────────
-//  대사 시퀀스 (확정본)
+//  대사 시퀀스
+//  speaker: 'system' → 게임 시스템의 판정·기록 (차갑고 사무적인 톤)
+//           'notice' → 형벌 집행 통지서 (문서 상자 디자인)
+//           생략     → 관리자(사실은 집행자) 치키의 대사
+//  구성: [SYSTEM] 판정 → [치키] 등장 → [SYSTEM] 사건 기록
+//        → [통지서] 형벌 집행 → [치키] 남겨진 사람들의 회복 (이모지 없이 담담하게)
+//        → [SYSTEM] 기억 삭제 · LOOP 1
 // ─────────────────────────────────────────────
 const SCRIPT = [
   {
-    text: '……아아.\n결국 또 여기까지 왔네 🐰',
-    speed: 45,
-  },
-  {
-    text: '몇 번째인지 기억해?\n치키는 기억해. 너는… 아마 모르겠지.',
-    speed: 40,
-  },
-  {
-    text: '매번 그래.\n아침에 눈 뜨고, 또 누군가를 찾아가고,\n같은 방식으로 파고들고, 무너뜨리고.\n그러다 또 끝나.',
-    speed: 38,
-  },
-  {
-    text: '치키가 루프를 만들었다고 생각해?\n치키가 없었어도 결국 이렇게 됐을 것 같은데. ☁️',
-    speed: 42,
-  },
-  {
-    pauseBeforeType: 400,
-    text: '넌 원래 그렇게 살았어.\n죄책감도, 미안함도, 반성도 없이.\n매일 똑같이. 그냥.\n\n그 수많은 하루 중에\n딱 하루 네가 죽은 날을 반복한다고 해서\n뭐가 달라질 것 같아?',
-    speed: 38,
-  },
-  {
-    pauseBeforeType: 300,
-    text: '그게 형벌이라고 생각해?\n\n…아니면 그냥 네 평소 하루랑\n똑같은 것 같아? ☁️',
-    speed: 40,
-  },
-  {
-    pauseBeforeType: 300,
-    text: '<span class="name-em">김하윤</span> — 약물 조작. 상담 중 사망.\n<span class="name-em">박주원</span> — 심리 조종. 추락으로 위장.\n<span class="name-em">나영</span>   — 절벽으로 유도. 직접 살해.',
-    speed: 52,
-    isEvidence: true,
-  },
-  {
-    text: '치키는 처음부터 다 알고 있었어.\n네가 어떤 사람이었는지. 무슨 짓을 했는지.',
-    speed: 38,
-  },
-  {
-    text: '왜냐하면—\n\n치키는 이 루프의 <span class="ominous">관리자</span>니까.\n죽은 사람들을 대신해서 너를 여기 붙잡아두는 <span class="ominous">집행자</span> 🐰\n\n도망치게 하면 안 되거든.',
-    speed: 40,
+    speaker: 'system',
+    text: '판정 — 생존 실패.\n남은 기회: 0 / 3\n\n9월 3일 오전 0시. 침입 확인.\n9월 3일 오전 7시. 사망 확인.\n\n세 번의 하루 동안,\n대상은 단 한 번도 자신을 의심하지 않았습니다.',
+    speed: 30,
   },
   {
     pauseBeforeType: 600,
-    text: '이제 알겠어? 왜 아무도 널 구해주지 않았는지.\n왜 넌 매번 죽어야 했는지.\n왜 치키가 계속 웃고 있었는지 🐰',
-    speed: 38,
+    text: '……아아. 결국 또 여기까지 왔네 🐰',
+    speed: 45,
   },
   {
+    speaker: 'system',
     pauseBeforeType: 500,
-    text: `또 만나, ${USER_NAME}. 🐰`,
-    speed: 52,
+    text: `사건 기록 조회.\n대상: 수감번호 ${PRISONER_NO}\n\n<span class="name-em">나영</span> — 친동생. 가족 여행 중 절벽 끝으로 유도, 추락.\n당시 대상 13세. 사고로 종결.\n\n<span class="name-em">김하윤</span> — 대학원 실습 당시 내담자.\n상담실 밖 사적 접촉, 약물 조작. 치사량 복용으로 위장. 자살로 종결.\n\n<span class="name-em">박주원</span> — 전 연인. 고립, 가스라이팅.\n진료 기록과 약물로 '불안정한 사람'을 만듦. 강릉에서 추락. 자살로 종결.\n\n그 외 기록 — 표시 생략.\n피해자 규모: ${CORRUPT_COUNT}명`,
+    speed: 26,
+  },
+  {
+    speaker: 'notice',
+    pauseBeforeType: 900,
+    text: `<span class="notice-title">형벌 집행 통지서</span>\n<span class="nf">수감번호</span>${PRISONER_NO}\n<span class="nf">죄명</span>연쇄 살인 및 심리적 살해\n<span class="nf">피해자 규모</span>${CORRUPT_COUNT}명\n<span class="nf">형벌</span>사망 전 24시간의 무기한 반복\n\n<span class="nf">집행 방법</span>\n1. 매 회차, 기억이 삭제된 상태로 9월 2일 오전 7시에 눈을 뜬다.\n2. 대상은 스스로를 피해자로 믿는다.\n3. 대상이 해친 사람들의 원한 속에서 하루를 보낸다.\n4. 9월 3일 오전 7시, 사망한다.\n5. 1로 돌아간다.\n\n<span class="nf">기한</span>없음\n<span class="nf">비고</span><span class="notice-stamp">집행자 — 치키</span>`,
+    speed: 20,
+  },
+  {
+    pauseBeforeType: 900,
+    text: '너희 엄마는 요즘 나영이 사진을 다시 꺼내 봐.\n처음으로, 마음 놓고 우는 기일을 보냈어.\n김도현은 하윤이 이름을 부르면서 웃을 수 있게 됐고,\n박도원은 걸레를 내려놓고 딸의 일기장을 덮었어.\n차서연은 주원이한테 꽃을 들고 갔어. 이번엔 손이 떨리지 않았어.',
+    speed: 48,
+  },
+  {
+    speaker: 'system',
+    pauseBeforeType: 1200,
+    text: '기억을 삭제합니다.\n▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%',
+    speed: 110,
+  },
+  {
+    speaker: 'system',
+    pauseBeforeType: 800,
+    text: '9월 2일 오전 7시.\n<span class="loop-reset">LOOP 1</span>',
+    speed: 70,
     isLast: true,
   },
 ];
@@ -286,6 +285,7 @@ let glitchInterval = null;
 function startTypingSequence() {
   // 글리치 루프 시작 (정기적으로 모든 블록에 발동)
   startGlitchLoop();
+  startCorruptLoop();
   runBlock(0);
 }
 
@@ -298,7 +298,7 @@ function runBlock(idx) {
   setTimeout(() => {
     // 새 블록 생성
     const block = document.createElement('div');
-    block.className = 'type-block' + (line.isEvidence ? ' evidence' : '');
+    block.className = 'type-block' + (line.speaker ? ` ${line.speaker}` : '');
     block.setAttribute('data-raw', line.text);
     endingScroll.appendChild(block);
 
@@ -315,6 +315,7 @@ function runBlock(idx) {
         // 마지막 대사 → 버튼 표시
         setTimeout(() => {
           restartWrap.style.display = 'block';
+          endingScroll.scrollTop = endingScroll.scrollHeight;
         }, 800);
       } else {
         // 다음 블록 (블록 간 호흡)
@@ -370,6 +371,22 @@ function typeBlock(el, rawText, speed, onDone) {
   }
 
   next();
+}
+
+// ─────────────────────────────────────────────
+//  피해자 규모 — .corrupt 글자를 계속 깨뜨려 숫자가 보이지 않게
+// ─────────────────────────────────────────────
+function startCorruptLoop() {
+  setInterval(() => {
+    document.querySelectorAll('.corrupt').forEach(el => {
+      const len = Number(el.dataset.len) || 3;
+      let out = '';
+      for (let k = 0; k < len; k++) {
+        out += JUNK_CHARS[Math.floor(Math.random() * JUNK_CHARS.length)];
+      }
+      el.textContent = out;
+    });
+  }, 90);
 }
 
 // ─────────────────────────────────────────────

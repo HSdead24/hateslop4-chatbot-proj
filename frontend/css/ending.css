@@ -130,6 +130,86 @@ html, body {
 .type-block .name-em  { color: #c01010; font-weight: 700; }
 .type-block .ominous  { color: #8c0a0a; font-weight: 700; }
 
+/* ── 시스템 블록: 판정·사건 기록·리셋 (감정 없는 기록 톤) ── */
+.type-block.system {
+  font-family: var(--font-mono), var(--font-main);
+  font-size: 12.5px;
+  line-height: 1.9;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  padding-left: 12px;
+  padding-bottom: 0;
+  margin-bottom: 28px;
+  border-left: 1px solid rgba(122, 128, 125, 0.35);
+}
+.type-block.system::before {
+  content: 'SYSTEM';
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(122, 128, 125, 0.6);
+  margin-bottom: 4px;
+}
+.type-block.system .name-em { font-weight: 500; }
+/* 피해자 규모: 계속 깨지는 글자 */
+.type-block .corrupt {
+  display: inline-block;
+  color: #c01010;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  animation: chromaShift 0.4s steps(1) infinite;
+}
+
+/* ── 형벌 집행 통지서: 다른 SYSTEM 블록과 구분되는 공문서 디자인 ── */
+.type-block.notice {
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+  line-height: 1.95;
+  color: #d8d2c4;
+  background: rgba(216, 210, 196, 0.03);
+  border: 1px solid rgba(216, 210, 196, 0.35);
+  outline: 1px solid rgba(216, 210, 196, 0.12);
+  outline-offset: 3px;
+  padding: 18px 16px 16px;
+  margin: 8px 0 36px;
+}
+.type-block.notice .notice-title {
+  display: block;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(216, 210, 196, 0.25);
+}
+.type-block.notice .nf {
+  display: inline-block;
+  width: 6.5em;
+  color: var(--text-dim);
+  font-family: var(--font-main);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.type-block.notice .notice-stamp {
+  display: inline-block;
+  color: #c01010;
+  font-weight: 800;
+  letter-spacing: 2px;
+  border: 1.5px solid #c01010;
+  padding: 0 8px;
+  transform: rotate(-4deg);
+}
+
+.type-block .loop-reset {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: var(--text-primary);
+}
+
 /* ════════════════════════════════════════════
    A+C 텍스트 글리치
    — .glitch-ac 클래스가 붙으면 발동
