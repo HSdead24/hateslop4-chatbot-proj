@@ -51,11 +51,16 @@
 /* ── 리셋 ── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* 화면 높이에 고정, 페이지 스크롤 없음
+   (100vh는 iOS Safari에서 툴바에 가려지는 부분까지 포함해 페이지가 스크롤되던 문제) */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
 body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-main);
-  min-height: 100vh;
   display: flex;
   justify-content: center;
 }
