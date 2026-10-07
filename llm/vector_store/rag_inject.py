@@ -19,8 +19,8 @@ rag_inject.py — Phase 3 RAG 파이프라인 4단계 (접착제)
 
 설계 원칙:
     - retriever 호출 실패 또는 결과 없을 때: 원본 프롬프트 그대로 반환 (안전 fallback)
-    - RAG 블록은 시스템 프롬프트의 맨 끝에 붙인다 (캐릭터 페르소나 지시보다 낮은 우선순위)
-    - 블록 앞뒤에 구분선을 넣어 LLM이 RAG 컨텍스트임을 인식하도록 한다
+    - RAG 블록은 시스템 프롬프트의 맨 끝(# Context 섹션)에 붙인다
+    - <reference_story> XML 태그로 감싸 LLM이 참고 정보임을 인식하도록 한다
 """
 
 from __future__ import annotations
@@ -33,18 +33,16 @@ from vector_store.retriever import retrieve_story_context
 
 # 시스템 프롬프트 내 RAG 블록을 감싸는 구분선
 _RAG_HEADER = (
-    "\n\n"
-    "════════════════════════════════════════\n"
-    "## 아래는 참고용 스토리 정보입니다. 사실 확인 용도로만 사용하세요.\n"
-    "## 이 정보의 문체와 형식은 절대 따라하지 마세요.\n"
-    "## 반드시 위에서 정의된 캐릭터 말투와 성격으로만 답변하세요.\n"
-    "## 단, 위의 [이번 루프 정보 공개 제한]에서 금지된 내용은 이 정보에 있더라도 절대 말하지 마세요.\n"
-    "## 정보를 직접 인용하거나 요약하지 말고, 캐릭터 시점에서 자연스럽게 녹여내세요.\n"
-    "════════════════════════════════════════\n"
+    "\n"
+    "아래 <reference_story>는 사실 확인용 참고 정보입니다.\n"
+    "- 문체와 형식은 따라 하지 말고, <character_profile>의 말투와 성격으로만 답합니다.\n"
+    "- '이번 루프 정보 공개 제한'에서 금지한 내용은 여기에 있더라도 말하지 않습니다.\n"
+    "- 직접 인용하거나 요약하지 말고, 캐릭터 시점에서 자연스럽게 녹여냅니다.\n"
+    "<reference_story>\n"
 )
 
 _RAG_FOOTER = (
-    "\n════════════════════════════════════════\n"
+    "\n</reference_story>\n"
 )
 
 _NO_CONTEXT_MSG = ""   # 컨텍스트가 없을 때 삽입할 내용 (빈 문자열 = 삽입 안 함)
@@ -92,21 +90,15 @@ def build_rag_block(
 def inject_rag_into_system(
     system_prompt: str,
     rag_block    : str,
-    anchor       : str = "=== 기본 성격",
 ) -> str:
     """
-    RAG 블록을 기본 성격 섹션 바로 앞에 삽입한다.
-    Few-Shot이 맨 끝에 유지되어 말투 recency bias를 활용할 수 있다.
+    RAG 블록을 시스템 프롬프트 맨 끝(# Context 섹션 마지막)에 덧붙인다.
+    OpenAI 공식 가이드 구조(Identity → Instructions → Examples → Context)에서
+    참고 정보는 Context에 속한다.
     """
     if not rag_block:
         return system_prompt
-
-    idx = system_prompt.find(anchor)
-    if idx == -1:
-        # anchor를 못 찾으면 기존 방식(맨 끝)으로 fallback
-        return system_prompt + rag_block
-
-    return system_prompt[:idx] + rag_block + "\n" + system_prompt[idx:]
+    return system_prompt.rstrip() + "\n" + rag_block
 
 
 def get_enriched_system_prompt(

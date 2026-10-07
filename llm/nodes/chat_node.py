@@ -17,7 +17,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from state import GameState, NPC_EXECUTOR, NPC_KIM, NPC_CHA, NPC_MOM, NPC_PARK, TOTAL_LOOPS
 from config import (
-    LLM_MODEL_DEFAULT, LLM_MODEL_HEAVY, LLM_TEMPERATURE, LLM_MAX_TOKENS,
+    LLM_MODEL_DEFAULT, LLM_MODEL_HEAVY,
+    LLM_REASONING_EFFORT_DEFAULT, LLM_REASONING_EFFORT_HEAVY,
+    LLM_MAX_TOKENS_DEFAULT, LLM_MAX_TOKENS_HEAVY,
     MAX_CHAT_TURNS
 )
 from death_triggers import check_death_trigger, check_chiki_loop_reset
@@ -65,8 +67,17 @@ def get_llm(loop_count: int) -> ChatOpenAI:
     -------
     ChatOpenAI 인스턴스
     """
-    model = LLM_MODEL_HEAVY if loop_count >= TOTAL_LOOPS else LLM_MODEL_DEFAULT
-    return ChatOpenAI(model=model, temperature=LLM_TEMPERATURE, max_tokens=LLM_MAX_TOKENS)
+    if loop_count >= TOTAL_LOOPS:
+        return ChatOpenAI(
+            model=LLM_MODEL_HEAVY,
+            reasoning_effort=LLM_REASONING_EFFORT_HEAVY,
+            max_completion_tokens=LLM_MAX_TOKENS_HEAVY,
+        )
+    return ChatOpenAI(
+        model=LLM_MODEL_DEFAULT,
+        reasoning_effort=LLM_REASONING_EFFORT_DEFAULT,
+        max_completion_tokens=LLM_MAX_TOKENS_DEFAULT,
+    )
 
 
 # ────────────────────────────────────────────

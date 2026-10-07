@@ -1,4 +1,10 @@
 """
+⚠️ 현재 게임에서 사용하지 않는 파일 (2026-10-07 확인)
+   프론트 채팅룸의 대화 상대 목록(chat.js)에 치키가 없어서 /chat으로 '치키'가 전달되지 않는다.
+   게임 속 치키 대사는 모두 미리 정해둔 문구다 (triggers.json, scenes.json, 각 화면 JS/HTML).
+   나중에 치키와 직접 대화하는 기능을 넣을 때를 위해 남겨둔다.
+   (연결 경로: backend/api/chat.py → llm/nodes/chat_node.py의 NPC_EXECUTOR 분기)
+
 치키(집행자) 캐릭터의 기본 성격 정의와 Few-Shot 예시 모음 파일.
 
 치키는 수치 시스템 대상이 아니므로 base.py의 stats_to_tone_guidance()를

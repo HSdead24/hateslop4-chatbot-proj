@@ -222,3 +222,24 @@ frontend/
 - [x] `llm/prompts/base.py` — `get_first_name`, `get_call_name`, `get_child_term`, `get_sibling_term`, `get_gender_guidance`
 - [x] `umma.py` / `cha_seoyeon.py` — `{call_name}` 적용 / `executor.py` — 성별 중립 지침
 - [x] `세계관.md` / `loop3.md` — 성별 중립 표현 + 벡터스토어 재빌드
+
+---
+
+### Phase 24 — LLM 모델 교체 · 프롬프트 개선 ✅ 완료
+
+**브랜치**: `npc_stat` (PR 전)
+
+> 자세한 내용: [llm-model-selection.md](llm-model-selection.md), [prompt-engineering.md](prompt-engineering.md)
+
+**구현 내용**
+- 모델: `gpt-4o-mini` / `gpt-4o`(legacy) → `gpt-6-luna` (1~2루프 추론 `none`, 3루프 추론 `medium`)
+- 프롬프트: OpenAI 공식 가이드 구조(Identity → Instructions → Examples → Context), few-shot XML 변환, 예시 7개로 정리 + 루프 표시
+- 조사 자동 보정, 엄마 호칭 정리, RAG 참고 정보 위치 변경
+
+**완료 작업**
+- [x] `llm/config.py` / `llm/nodes/chat_node.py` — 모델·추론 강도·토큰 한도
+- [x] `llm/prompts/base.py` — 프롬프트 구조, `few_shot_to_xml()`, `fix_josa()`
+- [x] `llm/prompts/{umma,cha_seoyeon,kim_dohyun,park_dowon}.py` — few-shot 정리, 원본은 `few_shot_archive/`
+- [x] `llm/vector_store/rag_inject.py` — `<reference_story>`로 Context 끝에 추가
+- [x] `llm/prompts/executor.py` — 미사용 파일임을 주석으로 명시
+- [ ] 실제 플레이로 루프별 말투·정보 노출·응답 속도 확인

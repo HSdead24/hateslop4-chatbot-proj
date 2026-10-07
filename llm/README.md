@@ -123,9 +123,10 @@ LangGraph 전체 노드가 공유하는 TypedDict. 주요 필드:
 
 | 상수 | 기본값 | 설명 |
 |------|--------|------|
-| `LLM_MODEL_DEFAULT` | `gpt-3.5-turbo` | 1~2루프 사용 모델 |
-| `LLM_MODEL_HEAVY` | `gpt-4o` | 마지막 루프 사용 모델 |
-| `LLM_TEMPERATURE` | `0.7` | LLM 온도 |
+| `LLM_MODEL_DEFAULT` | `gpt-6-luna` | 1~2루프 사용 모델 |
+| `LLM_MODEL_HEAVY` | `gpt-6-luna` | 마지막 루프 사용 모델 (추론 강도만 높임) |
+| `LLM_REASONING_EFFORT_DEFAULT` / `_HEAVY` | `none` / `medium` | 추론 강도 |
+| `LLM_MAX_TOKENS_DEFAULT` / `_HEAVY` | `800` / `4000` | 응답 최대 토큰 (추론 토큰 포함) |
 | `MAX_CHAT_TURNS` | `20` | NPC별 대화 턴 초과 시 자동 사망 |
 | `SESSION_TIMEOUT` | `960` | 타이머 제한 (초, 프론트 타이머) |
 | `MESSAGE_SUMMARY_THRESHOLD` | `10` | 대화 기록 자동 요약 기준 턴 수 |
@@ -216,6 +217,6 @@ OPENAI_API_KEY=sk-xxxx
 
 | 루프 | 모델 | 이유 |
 |------|------|------|
-| 1~2루프 | `gpt-3.5-turbo` | 토큰 비용 절약 |
-| 3루프 (마지막) | `gpt-4o` | 진실 접근 장면 품질 확보 |
+| 1~2루프 | `gpt-6-luna` (추론 `none`) | 가장 효율적인 모델, 빠른 응답 ($0.10 / $0.50 per 1M) |
+| 3루프 (마지막) | `gpt-6-luna` (추론 `medium`) | 진실 접근 장면의 규칙 준수. sol 대비 빠르고 약 1/19 비용 |
 | 임베딩 | `text-embedding-3-small` | RAG + 이미지 검색 공통 |
