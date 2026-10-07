@@ -63,6 +63,16 @@ class ChatResponse(BaseModel):
     is_loop_reset: bool
 
 
+class ChatOpeningRequest(BaseModel):
+    session_id: str
+    npc_name: str       # "김도현" | "차서연" | "엄마" | "박도원"
+
+
+class ChatOpeningResponse(BaseModel):
+    response: str                    # NPC가 먼저 건네는 첫 메시지
+    image_url: Optional[str] = None
+
+
 class LoopResetResponse(BaseModel):
     loop_count: int
     is_game_over: bool          # loop_count > TOTAL_LOOPS(3) 이면 True

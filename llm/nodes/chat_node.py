@@ -26,6 +26,7 @@ from death_triggers import check_death_trigger, check_chiki_loop_reset
 
 from prompts.base import build_message_history, build_chat_prompt
 from prompts.executor import build_executor_prompt
+from today_situation import build_today_situation
 from prompts.kim_dohyun import build_kim_prompt
 from prompts.cha_seoyeon import build_cha_prompt
 from prompts.umma import build_umma_prompt
@@ -136,11 +137,12 @@ def generate_npc_response(
         if builder is None:
             raise ValueError(f"알 수 없는 NPC: {npc_name}")
         system_prompt = builder(
-            stats         = stats,
-            loop_count    = loop_count,
-            clues         = clues,
-            player_name   = player_name,
-            player_gender = player_gender,
+            stats           = stats,
+            loop_count      = loop_count,
+            clues           = clues,
+            player_name     = player_name,
+            player_gender   = player_gender,
+            today_situation = _today_situation(state, npc_name),
         )
 
     # 3. RAG 주입
@@ -159,6 +161,72 @@ def generate_npc_response(
     # 6. LLM 호출
     response = llm.invoke(messages).content
     return response
+
+
+def _today_situation(state: GameState, npc_name: str) -> str:
+    """버튼룸 최종 장면(current_story)과 고른 버튼 경로(context)로 '오늘의 상황' 블록을 만든다."""
+    return build_today_situation(
+        final_node  = state.get("current_story", 0) or 0,
+        button_path = state.get("context", []) or [],
+        npc_name    = npc_name,
+    )
+
+
+# NPC가 먼저 말을 거는 첫 메시지 생성용 지시 (대화 기록에는 저장하지 않음)
+_OPENING_INSTRUCTION = (
+    "(지시: 대화가 막 시작됐다. <today_situation>의 장소와 상황, 당신의 현재 상태에 맞게 "
+    "당신이 먼저 상대에게 건네는 첫마디를 1~2문장으로 말하라. 인사나 설명조가 아니라, "
+    "지금 이 순간에 자연스럽게 나올 대사만 출력한다.)"
+)
+
+
+def generate_opening(state: GameState, npc_name: str) -> tuple[GameState, str, str | None]:
+    """
+    채팅방 입장 시 NPC가 먼저 건네는 첫 메시지를 생성하고 대화 기록에 저장한다.
+
+    - 이미 이 NPC와의 대화 기록이 있으면(새로고침 등) 새로 만들지 않고 첫 NPC 발화를 돌려준다.
+    - 생성한 첫 메시지는 assistant 발화로만 저장한다 → 대화 개수(플레이어 메시지 수)에 포함되지 않는다.
+
+    Returns
+    -------
+    (업데이트된 GameState, 첫 메시지, 이미지 URL 또는 None)
+    """
+    existing = state["messages"].get(npc_name, [])
+    if existing:
+        first = next((m["content"] for m in existing if m.get("role") == "assistant"), "")
+        return state, first, None
+
+    builder = NPC_PROMPT_BUILDERS.get(npc_name)
+    if builder is None:
+        raise ValueError(f"알 수 없는 NPC: {npc_name}")
+
+    system_prompt = builder(
+        stats           = state["npc_stats"].get(npc_name, {}),
+        loop_count      = state["loop_count"],
+        clues           = state["clues"],
+        player_name     = state["player_name"],
+        player_gender   = state["player_gender"],
+        today_situation = _today_situation(state, npc_name),
+    )
+    llm = get_llm(state["loop_count"])
+    response = llm.invoke([
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=_OPENING_INSTRUCTION),
+    ]).content.strip()
+
+    updated_messages = copy.deepcopy(state["messages"])
+    updated_messages.setdefault(npc_name, []).append({"role": "assistant", "content": response})
+    updated_state = dict(state)
+    updated_state["messages"] = updated_messages
+
+    # 표정 이미지는 부가 기능 — 검색이 실패해도(예: 두 요청이 동시에 이미지 DB를 처음 열 때)
+    # 첫 메시지는 정상적으로 돌려준다
+    try:
+        image_url = retrieve_image(response, character=npc_name)
+    except Exception as e:
+        print(f"[generate_opening] 이미지 검색 실패 ({npc_name}): {e}")
+        image_url = None
+    return GameState(**updated_state), response, image_url
 
 
 # ────────────────────────────────────────────
@@ -228,8 +296,12 @@ def chat_node(state: GameState, user_input: str) -> tuple[GameState, str, str]:
         is_dead       = False
         is_loop_reset = True
 
-    # 대화 턴 수 초과 감지
-    if len(state["messages"].get(npc_name, [])) >= MAX_CHAT_TURNS:
+    # 대화 개수 초과 감지 — 두 NPC 합계 기준, 플레이어 메시지만 센다
+    # (이전 메시지 수가 MAX_CHAT_TURNS 이상이면 이번이 21번째 이상)
+    user_turns = sum(
+        1 for msgs in state["messages"].values() for m in msgs if m.get("role") == "user"
+    )
+    if user_turns >= MAX_CHAT_TURNS:
         is_dead = True
 
     # 2. LLM 선택

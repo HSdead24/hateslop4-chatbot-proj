@@ -111,6 +111,7 @@ def build_cha_prompt(
     clues        : list,
     player_name  : str,
     player_gender: str,
+    today_situation: str = "",
 ) -> str:
     """
     차서연 전용 SystemMessage 문자열을 조립해 반환한다.
@@ -133,4 +134,5 @@ def build_cha_prompt(
         clues           = clues,
         player_name     = player_name,
         player_gender   = player_gender,
+        today_situation = today_situation,
     )

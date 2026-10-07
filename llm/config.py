@@ -126,8 +126,9 @@ FLESHY_THRESHOLD = 67
 # 두 조건 + 사망 트리거는 동시에 적용된다.
 
 # 대화 개수 제한
-# NPC별 대화 턴이 이 값 이상이 되면 자동 사망 처리
-# chat_node.py에서 messages[npc_name] 길이로 체크
+# 한 루프에서 플레이어가 보낸 메시지 수(두 NPC 합계)가 이 값을 넘으면 자동 사망 처리
+# 프론트 HP 바(chat.js MSG_LIMIT = 20)와 같은 기준 — 20번째 대답까지는 정상, 21번째부터 사망
+# chat_node.py에서 messages 전체의 user 메시지 수로 체크 (NPC 첫 메시지는 세지 않음)
 MAX_CHAT_TURNS = 20
 
 # 시간 제한 (초 단위)

@@ -263,13 +263,18 @@ async function finalizeAndNavigate() {
   if (session_id) sessionStorage.setItem('session_id', session_id);
   sessionStorage.setItem('last_button_id', String(GAME_STATE.lastButtonId));
 
+  // 스토리 확정용 버튼 ID — 400번대 최종 장면(final_node)을 보낸다.
+  // (마지막 클릭은 500·600번대 단서 탐색 버튼이라 STORIES에 없어서, 그대로 보내면
+  //  서버가 '아직 안 쓴 첫 스토리'로 대체해 엉뚱한 NPC 수치와 '오늘의 상황'이 적용됐다)
+  const storyButtonId = Number(sessionStorage.getItem('final_node')) || GAME_STATE.lastButtonId;
+
   try {
     const res = await fetch('/finalize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         session_id,
-        last_button_id: GAME_STATE.lastButtonId,
+        last_button_id: storyButtonId,
         context: GAME_STATE.contextHistory,
       }),
     });
