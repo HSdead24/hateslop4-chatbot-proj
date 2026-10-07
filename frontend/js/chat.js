@@ -14,44 +14,32 @@ const ALL_NPCS = {
     id: 0, name: '차서연', sub: '34세 · 여성', tag: '정신건강의학과 의사',
     tagColor: '#5a8870',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595780/chat/%EC%B0%A8%EC%84%9C%EC%97%B0/%EC%B0%A8%EC%84%9C%EC%97%B0_%ED%94%84%EB%A1%9C%ED%95%84.png',
-    choices: ['커피 안 마실게요', '박주원 알아요?', '사무실 뒤진 거예요?', '패턴이 뭔가요?'],
   },
   엄마: {
     id: 1, name: '엄마', displayName: '윤미경', sub: '61세 · 여성', tag: '가족',
     tagColor: '#8a7040',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595815/chat/%EC%97%84%EB%A7%88/%EC%97%84%EB%A7%88_%ED%9B%84%ED%9B%97%20%EB%82%98%EB%8F%84%20%EB%AD%94%ED%91%9C%EC%A0%95%EC%9D%B8%EC%A7%80%EB%AA%B0%EB%9D%BC%20%ED%9B%84%ED%9B%97%20%EB%A8%B9%EA%B8%88.png',
-    choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
   },
   박도원: {
     id: 2, name: '박도원', sub: '64세 · 남성', tag: '청소부',
     tagColor: '#5a6070',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595793/chat/%EB%B0%95%EB%8F%84%EC%9B%90/%EB%B0%95%EB%8F%84%EC%9B%90_%ED%94%84%EB%A1%9C%ED%95%84.png',
-    choices: ['어디서 주운 거예요?', '전에 본 적 있어요?', '병원에 왜 있었어요?', '제 물건 건드렸어요?'],
   },
   김도현: {
     id: 3, name: '김도현', sub: '36세 · 남성', tag: '내담자',
     tagColor: '#6a4050',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595806/chat/%EA%B9%80%EB%8F%84%ED%98%84/%EA%B9%80%EB%8F%84%ED%98%84_%EA%B4%9C%EC%B0%AE%EC%9D%80%EB%93%AF%20%EC%9B%83%EC%9D%8C.png',
-    choices: ['하윤이가 누구예요?', '왜 화난 거예요?', '저 기억해요?', '약 얘기가 뭐예요?'],
   },
 };
 
-const NPC_INIT_MSGS = {
-  차서연: [
-    '김도현 환자 오늘 진료 있는 거 잊었어요? 지금 화난 상태로 기다리고 있어요.',
-    '커피 드실래요? 오늘 상태 안 좋아 보여서요.',
-  ],
-  엄마: [
-    '밥은 먹었어? 얼굴이 왜 이렇게 상했어.',
-    '내일이 무슨 날인지 기억하니? 아니야, 됐다.',
-  ],
-  박도원: [
-    '아이고, 선생님. 안녕하십니까.',
-    '제가 청소 일 하는 박도원이라고 합니다.',
-  ],
-  김도현: [
-    '제가 화난 것처럼 보입니까? 선생님은 사람 감정을 읽는 게 그렇게 자신 있으신가요?',
-  ],
+// 첫 메시지는 '오늘의 상황'을 바탕으로 서버(LLM)가 생성한다 (/chat/opening).
+// 생성이 실패하거나 OPENING_TIMEOUT_MS를 넘기면 장면과 상관없이 어울리는 짧은 대체 문구를 쓴다.
+const OPENING_TIMEOUT_MS = 6000;
+const FALLBACK_OPENERS = {
+  차서연: '선생님, 잠깐 얘기 좀 할 수 있어요?',
+  엄마: '왜 그렇게 멍하니 있어.',
+  박도원: '아이고, 선생님.',
+  김도현: '…선생님, 잠깐 시간 되십니까?',
 };
 
 const NODE_NPC_MAP = {
@@ -262,7 +250,6 @@ function switchTab(tab) {
   currentTab = tab;
 
   const chatScroll = document.getElementById('chat-scroll');
-  const choicesArea = document.getElementById('choices-area');
   const cluePanel = document.getElementById('clue-panel');
   const folderBtn = document.getElementById('folder-btn');
   const folderBadge = document.getElementById('folder-badge');
@@ -271,7 +258,6 @@ function switchTab(tab) {
 
   if (tab === 'chat') {
     chatScroll.style.display = '';
-    choicesArea.style.display = '';
     cluePanel.classList.remove('active');
     folderBtn.classList.remove('active');
     if (!isMsgLimitReached) {
@@ -280,7 +266,6 @@ function switchTab(tab) {
     }
   } else {
     chatScroll.style.display = 'none';
-    choicesArea.style.display = 'none';
     cluePanel.classList.add('active');
     folderBtn.classList.add('active');
     // 현재 단서 전체를 읽음 처리
@@ -539,181 +524,184 @@ function switchNPC(idx) {
 }
 
 // ─────────────────────────────────────────────
-//  선택지 버튼 렌더링
-// ─────────────────────────────────────────────
-function renderChoices(choices) {
-  const area = document.getElementById('choices-area');
-  area.innerHTML = '';
-
-  choices.forEach(text => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-    </svg>${esc(text)}`;
-    btn.onclick = () => selectChoice(text);
-    area.appendChild(btn);
-  });
-}
-
-function selectChoice(text) {
-  document.getElementById('msg-input').value = text;
-  sendMsg();
-}
-
-// ─────────────────────────────────────────────
 //  자동 추천 문장 시스템
 //  NPC별 + 루프별 분기 + bigram 자카드 유사도
 // ─────────────────────────────────────────────
 
-// ── NPC별 추천 문장 풀 ──
-// ALL_NPCS.choices 기반 + 맥락 보강 문장
-// ★ 트리거 유도 문장은 [trigger:id] 주석으로 표시 — 블락킹 패턴을 우회하도록 능동형으로 작성
+// ── NPC별 추천 문장 (2026-10-07 새로 작성 · NPC당 30개 = 루프별 10개) ──
+//  loop  : 이 루프부터 추천 (루프별 공개 범위)
+//  nodes : 이 최종 장면(버튼룸 400~411)에서만 추천. 없으면 모든 장면
+//  트리거 키워드(triggers.json)가 들어간 문장은 단서·치키 트리거를 여는 통로 역할을 한다.
+//  ※ "~건가요/인가요/겁니까"로 끝나거나 부정형이면 치키 트리거가 막히므로 트리거 문장에는 쓰지 않는다.
+const CLINIC_NODES = [404, 405, 406, 407, 408, 409, 410, 411];
 const NPC_SUGGESTIONS = {
-  차서연: {
-    1: [
-      '커피 안 마실게요',                      // [trigger:seoyeon] 커피 거절
-      '사무실 뒤진 거예요?',
-      '패턴이 뭔가요?',
-      '오늘 이상한 일 없었어요?',
-      '서랍 안에 뭐가 있어요?',               // [trigger:drawer]
-      '금고 비밀번호 알아요?',                 // [trigger:safe]
-      '녹음 테이프 어디 있어요?',              // [trigger:tape]
-      '약 처방 기록 알아요?',                  // [trigger:medicine]
-      '졸피뎀 처방한 거예요?',                 // [trigger:medicine]
-      '가족사진 얼룩 뭐예요?',                 // [trigger:photo]
-      '누가 죽인 건지 알아요?',                // [trigger:murder]
-      '범인이 누군지 알아요?',                 // [trigger:murder]
-      '자정에 무슨 일이 생겨요?',              // [trigger:midnight]
-    ],
-    2: [
-      '김하윤 알아요?',                        // [trigger:hayun] — 루프2 공개 정보
-      '박주원 어떻게 된 거예요?',              // [trigger:juwon]
-      '주원 씨 자살이 맞아요?',               // [trigger:juwon]
-      '대학 때 친구 얘기 해줘요',
-      'USB 영상 본 적 있어요?',               // [trigger:usb]
-      'CCTV 각도가 왜 이상해요?',             // [trigger:usb]
-      '기억이 왜 안 나는 거예요?',             // [trigger:memory]
-      '발신자 표시 제한 전화 받았어요?',       // [trigger:phone]
-      '0903이 무슨 날이에요?',                // [trigger:password]
-      '솔직하게 말해줄 수 있어요?',
-      '그날 어디 있었어요?',
-    ],
-    3: [
-      '금고 안에 뭐가 들어 있어요?',
-      '약물 처방 기록이 왜 찢겨 있어요?',
-      '숨기는 게 있죠?',
-      '진짜로 말해줄 수 있어요?',
-      '왜 아무것도 말 안 하는 거예요?',
-      '박주원 씨 진짜 어떻게 된 거예요?',
-    ],
-  },
-  엄마: {
-    1: [
-      '밥 먹었어요',
-      '내일이 기일이에요?',
-      '동생 기억해요',
-      '엄마 미안해요',
-      '가족사진 얼룩이 뭐예요?',              // [trigger:photo]
-      '서랍 안에 뭐가 들어 있어요?',           // [trigger:drawer]
-      '녹음 테이프 들어본 적 있어요?',         // [trigger:tape]
-      '오늘 이상한 일 없었어요?',
-      '누가 죽인 건지 알아요?',               // [trigger:murder]
-      '범인이 누군지 알아요?',                // [trigger:murder]
-      '자정에 무슨 일이 생겨요?',             // [trigger:midnight]
-      '엄마가 알고 있는 거 있죠?',            // [trigger:mom]
-      '재희 씨 알아요?',                      // [trigger:mom]
-    ],
-    2: [
-      '나영 기억해요',                        // [trigger:nayoung]
-      '동생 기일이 9월 3일이에요?',           // [trigger:nayoung / password]
-      '아빠 박도원 씨 얘기 해줄 수 있어요?',   // [trigger:father]
-      '기억이 왜 안 나는 거예요?',             // [trigger:memory]
-      '엄마 숨기는 게 있죠?',
-      '아직도 그날 기억해요?',
-      '왜 침묵하는 거예요?',
-      '0903이 무슨 날이에요?',               // [trigger:password]
-    ],
-    3: [
-      '엄마 알고 있죠?',
-      '왜 말을 못 하는 거예요?',
-      '진짜로 말해줄 수 있어요?',
-      '숨기는 게 있죠?',
-      '금고 안에 뭐가 들어 있어요?',
-    ],
-  },
-  박도원: {
-    1: [
-      '어디서 주운 거예요?',
-      '전에 본 적 있어요?',
-      '병원에 왜 있었어요?',
-      '제 물건 건드렸어요?',
-      '원래 무슨 일 하셨어요?',               // [trigger:father]
-      '서랍 안에 뭐가 들어 있어요?',           // [trigger:drawer]
-      '금고 비밀번호 알아요?',                 // [trigger:safe]
-      '누가 죽인 건지 알아요?',               // [trigger:murder]
-      '범인이 누군지 알아요?',                // [trigger:murder]
-    ],
-    2: [
-      '딸 얘기 해줄 수 있어요?',              // [trigger:father / nayoung]
-      '박주원 씨 아버지세요?',                // [trigger:juwon / father]
-      '택배 상자 뭐가 들었어요?',              // [trigger:diary]
-      '일기장에 뭐가 적혀 있어요?',           // [trigger:diary]
-      '딸이 왜 죽었어요?',                   // [trigger:murder]
-      '복수하러 온 거예요?',
-      '0903이 무슨 날이에요?',               // [trigger:password]
-      '그날 어디 있었어요?',
-    ],
-    3: [
-      '진짜로 말해줄 수 있어요?',
-      '숨기는 게 있죠?',
-      '금고 안에 뭐가 들어 있어요?',
-      '왜 여기 있는 거예요?',
-    ],
-  },
-  김도현: {
-    1: [
-      '하윤이가 누구예요?',                   // [trigger:hayun]
-      '왜 화난 거예요?',
-      '저 기억해요?',
-      '약 처방 기록 얘기가 뭐예요?',           // [trigger:medicine]
-      '졸피뎀 처방이 뭐예요?',               // [trigger:medicine]
-      '서랍 안에 뭐가 들어 있어요?',           // [trigger:drawer]
-      '금고 비밀번호 알아요?',                // [trigger:safe]
-      '누가 죽인 건지 알아요?',               // [trigger:murder]
-      '범인이 누군지 알아요?',               // [trigger:murder]
-      '그날 뭘 봤어요?',
-    ],
-    2: [
-      '김하윤이 어떻게 된 거예요?',           // [trigger:hayun]
-      '김하윤이 동생이에요?',                 // [trigger:hayun] — 루프2 공개 정보
-      '동생 얘기 해줄 수 있어요?',
-      'USB 영상 본 적 있어요?',              // [trigger:usb]
-      '기억이 왜 안 나는 거예요?',            // [trigger:memory]
-      '0903이 무슨 날이에요?',               // [trigger:password]
-      '상담일지에 뭐가 적혀 있어요?',
-      '그 애 당신을 믿었잖아요',
-    ],
-    3: [
-      '진짜로 말해줄 수 있어요?',
-      '숨기는 게 있죠?',
-      '금고 안에 뭐가 들어 있어요?',
-      '하윤이 죽음이 사고예요?',              // [trigger:hayun / murder]
-      '왜 나를 노리는 거예요?',
-    ],
-  },
+  엄마: [
+    { text: "엄마는 오늘 왜 이렇게 기운이 없어?", loop: 1 },
+    { text: "나 어릴 때 어떤 애였어?", loop: 1 },
+    { text: "밥 더 안 먹어도 돼. 입맛이 없어.", loop: 1, nodes: [401] },
+    { text: "아까 그 택배기사, 아는 사람이야?", loop: 1, nodes: [401] },
+    { text: "이 상자 누가 보낸 건지 알아?", loop: 1, nodes: [402] },
+    { text: "창문은 언제 깨진 거야?", loop: 1, nodes: [402] },
+    { text: "왜 갑자기 나영이 얘기를 꺼내?", loop: 1, nodes: [402] },
+    { text: "나 오늘 출근 안 해도 될까?", loop: 1, nodes: [403] },
+    { text: "거실에 걸린 가족사진, 언제 찍은 거야?", loop: 1 },
+    { text: "자정 넘으면 현관문 꼭 잠가 줘.", loop: 1 },
+    { text: "내일이 나영이 기일이지?", loop: 2 },
+    { text: "동생은 어떤 애였어?", loop: 2 },
+    { text: "나 그때 동생한테 잘해줬어?", loop: 2 },
+    { text: "그 가족 여행, 나만 기억이 안 나.", loop: 2 },
+    { text: "아빠는 어떻게 돌아가셨어?", loop: 2 },
+    { text: "0903, 이 숫자 무슨 뜻인지 알아?", loop: 2 },
+    { text: "모르는 번호로 전화가 계속 와.", loop: 2 },
+    { text: "그 상자 안에 있던 거, 같이 봤잖아.", loop: 2, nodes: [402] },
+    { text: "주원이 알아? 예전에 나랑 만나던 사람.", loop: 2 },
+    { text: "왜 나만 보면 그렇게 겁먹은 얼굴이야?", loop: 2 },
+    { text: "나영이 그날 정말 혼자 떨어진 거야?", loop: 3 },
+    { text: "엄마, 그날 뭘 본 거야?", loop: 3 },
+    { text: "나 때문이라고 생각해?", loop: 3 },
+    { text: "왜 그동안 아무 말도 안 했어?", loop: 3 },
+    { text: "내 방 금고, 열어 본 적 있어?", loop: 3 },
+    { text: "녹음 테이프 같은 거 본 적 있어?", loop: 3 },
+    { text: "치키라는 이름 들어 본 적 있어?", loop: 3 },
+    { text: "나를 지키려고 거짓말한 거지?", loop: 3 },
+    { text: "그래도 나 미워하지는 않지?", loop: 3 },
+    { text: "오늘 하루가 자꾸 반복되는 것 같아.", loop: 3 },
+  ],
+  박도원: [
+    { text: "아까 그 USB, 어디서 주우셨어요?", loop: 1, nodes: [400, 401, 404, 405, 406] },
+    { text: "택배 일은 언제부터 하셨어요?", loop: 1, nodes: [400, 401, 402] },
+    { text: "아까는 왜 그렇게 급히 가셨어요?", loop: 1, nodes: [402] },
+    { text: "이 상자, 직접 두고 가신 거죠?", loop: 1, nodes: [402] },
+    { text: "제 방 서랍 정리하신 적 있으세요?", loop: 1, nodes: [404, 405] },
+    { text: "들고 계신 그 파일, 뭐예요?", loop: 1, nodes: [404] },
+    { text: "아까 원장실 앞에서 뭘 보고 계셨어요?", loop: 1, nodes: [406] },
+    { text: "박도원 씨는 원래 무슨 일 하셨어요?", loop: 1 },
+    { text: "따님이 계세요?", loop: 1 },
+    { text: "이 사진 속 사람, 혹시 아세요?", loop: 1 },
+    { text: "택배 상자 안에 뭐가 들어 있었어요?", loop: 2 },
+    { text: "일기장 얘기, 다시 해 주실래요?", loop: 2 },
+    { text: "따님은 어떤 분이셨어요?", loop: 2 },
+    { text: "따님이 쓴 글, 읽어 보셨어요?", loop: 2 },
+    { text: "USB 안에 뭐가 들었는지 아세요?", loop: 2 },
+    { text: "제 집 주소는 어떻게 아셨어요?", loop: 2, nodes: [400, 401, 402] },
+    { text: "어젯밤 저한테 전화하셨어요?", loop: 2 },
+    { text: "왜 자꾸 저를 지켜보세요?", loop: 2 },
+    { text: "그날 밤에 어디 계셨어요?", loop: 2 },
+    { text: "혹시 금고 여는 법 아세요?", loop: 2 },
+    { text: "따님 이름이 박주원이었죠?", loop: 3 },
+    { text: "주원 씨가 마지막으로 만난 사람이 저였어요?", loop: 3 },
+    { text: "따님 일로 저를 원망하세요?", loop: 3 },
+    { text: "복수하려고 여기 오신 거예요?", loop: 3 },
+    { text: "따님이 왜 그렇게 됐는지 알고 계세요?", loop: 3 },
+    { text: "일기장 마지막 장에 뭐라고 적혀 있었어요?", loop: 3 },
+    { text: "따님을 그렇게 만든 범인이 있다고 생각하세요?", loop: 3 },
+    { text: "오늘 자정에 무슨 일이 생기는지 아세요?", loop: 3 },
+    { text: "녹음 파일 같은 거 갖고 계세요?", loop: 3 },
+    { text: "제가 기억 못 하는 걸 알고 계시죠?", loop: 3 },
+  ],
+  차서연: [
+    { text: "김도현 환자 아직 기다리고 있어요?", loop: 1, nodes: [400, 403] },
+    { text: "지금 바로 갈게요. 무슨 일 있어요?", loop: 1, nodes: [400, 403] },
+    { text: "커피는 괜찮아요. 오늘은 안 마실게요.", loop: 1, nodes: CLINIC_NODES },
+    { text: "서랍에 있던 약은 누가 처방한 거예요?", loop: 1, nodes: CLINIC_NODES },
+    { text: "아까 원장실에서 뭘 찾고 계셨어요?", loop: 1, nodes: [408, 409] },
+    { text: "박도원 씨가 원래 수상했어요?", loop: 1, nodes: [404, 405, 406] },
+    { text: "김도현 씨는 오늘 왜 그렇게 화가 났을까요?", loop: 1, nodes: [407, 410, 411] },
+    { text: "인스타 계정 얘기, 더 해 주세요.", loop: 1, nodes: [404, 405, 406, 407, 410, 411] },
+    { text: "서연 씨, 요즘 이 근처 사건 얘기 들었어요?", loop: 1 },
+    { text: "원장실 창문은 왜 깨진 거예요?", loop: 1, nodes: CLINIC_NODES },
+    { text: "박주원 씨 얘기, 처음부터 다시 해 주세요.", loop: 2 },
+    { text: "주원 씨는 어떤 친구였어요?", loop: 2 },
+    { text: "처방 기록이 왜 비어 있어요?", loop: 2 },
+    { text: "CCTV 영상 확인해 보셨어요?", loop: 2 },
+    { text: "발신자 표시 제한 전화, 받아 본 적 있어요?", loop: 2 },
+    { text: "우리 대학 때부터 알던 사이죠?", loop: 2 },
+    { text: "제가 뭘 숨기고 있다고 느껴요?", loop: 2 },
+    { text: "그 사진, 다시 보여 주실래요?", loop: 2, nodes: [410, 411] },
+    { text: "김하윤 환자 기록 보셨어요?", loop: 2 },
+    { text: "제 기억에 빈 곳이 있는 것 같아요.", loop: 2 },
+    { text: "주원 씨가 마지막에 저에 대해 뭐라고 했어요?", loop: 3 },
+    { text: "제가 주원 씨한테 무슨 짓을 했다고 생각해요?", loop: 3 },
+    { text: "커피에 뭘 탄 적 있어요?", loop: 3, nodes: CLINIC_NODES },
+    { text: "금고 비밀번호, 혹시 아세요?", loop: 3 },
+    { text: "녹음 테이프 얘기 들어 본 적 있어요?", loop: 3 },
+    { text: "주원 씨를 그렇게 만든 범인이 있다고 믿어요?", loop: 3 },
+    { text: "왜 그동안 아무렇지 않은 척했어요?", loop: 3 },
+    { text: "0903이 무슨 날인지 알아요?", loop: 3 },
+    { text: "토끼 인형 같은 거 본 적 있어요?", loop: 3 },
+    { text: "오늘 밤 12시에 어디 있을 거예요?", loop: 3 },
+  ],
+  김도현: [
+    { text: "하윤 씨 얘기, 조금 더 들려주실래요?", loop: 1 },
+    { text: "하윤 씨 상담일지를 다시 찾아볼게요.", loop: 1 },
+    { text: "아까는 왜 그렇게 화가 나셨어요?", loop: 1, nodes: [407, 410, 411] },
+    { text: "원장실은 왜 보고 싶으셨어요?", loop: 1, nodes: [408, 409] },
+    { text: "지금 어디세요? 괜찮으세요?", loop: 1, nodes: [407, 410, 411] },
+    { text: "상담 일정은 다시 잡을게요.", loop: 1 },
+    { text: "제가 그때 무슨 말을 했죠?", loop: 1 },
+    { text: "이틀 전 일은 저도 많이 놀랐어요.", loop: 1 },
+    { text: "하윤 씨가 먹던 약, 알고 계세요?", loop: 1 },
+    { text: "치키라는 이름 들어 보셨어요?", loop: 1 },
+    { text: "하윤 씨는 언제부터 여기 다녔어요?", loop: 2 },
+    { text: "하윤 씨 처방 기록, 같이 보실래요?", loop: 2 },
+    { text: "하윤 씨가 동생분이셨죠?", loop: 2 },
+    { text: "제가 하윤 씨를 기억 못 한다고 생각하세요?", loop: 2 },
+    { text: "USB 영상, 보신 적 있어요?", loop: 2 },
+    { text: "모르는 번호로 전화하신 거, 김도현 씨죠?", loop: 2 },
+    { text: "인스타에 올린 글, 누구한테 쓴 거예요?", loop: 2 },
+    { text: "저를 원망하세요?", loop: 2 },
+    { text: "하윤 씨 일, 사고가 아니라고 보세요?", loop: 2 },
+    { text: "왜 하필 오늘 찾아오셨어요?", loop: 2 },
+    { text: "하윤 씨가 마지막 상담에서 뭐라고 했어요?", loop: 3 },
+    { text: "제가 하윤 씨한테 약을 줬다고요?", loop: 3 },
+    { text: "하윤 씨를 그렇게 만든 범인이 있다고 생각하세요?", loop: 3 },
+    { text: "제가 상담실 밖에서 하윤 씨를 만났어요?", loop: 3 },
+    { text: "오늘 자정에 어디 계실 거예요?", loop: 3 },
+    { text: "금고 안에 하윤 씨 물건이 있어요?", loop: 3 },
+    { text: "녹음된 상담 기록이 남아 있어요?", loop: 3 },
+    { text: "0903, 이 날짜 기억나세요?", loop: 3 },
+    { text: "제게 원하는 게 뭐예요?", loop: 3 },
+    { text: "제가 사과하면 달라지는 게 있을까요?", loop: 3 },
+  ],
 };
 
-// 현재 NPC + 루프 기준으로 추천 풀 조합
+// ── 이미 보낸 문장 기록 (NPC별, 루프가 바뀌면 초기화) ──
+const _normalizeMsg = t => t.replace(/\s+/g, '');
+function loadSentMsgs() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('sent_msgs') || 'null');
+    if (saved && saved.loop === loopNum) return saved;
+  } catch (e) { /* 손상된 값은 무시 */ }
+  return { loop: loopNum, npcs: {} };
+}
+function markSentMsg(npcName, text) {
+  const saved = loadSentMsgs();
+  const list = saved.npcs[npcName] ?? [];
+  const key = _normalizeMsg(text);
+  if (!list.includes(key)) list.push(key);
+  saved.npcs[npcName] = list;
+  sessionStorage.setItem('sent_msgs', JSON.stringify(saved));
+}
+
+// 현재 NPC · 루프 · 최종 장면 기준 추천 풀 (이미 보낸 문장 제외)
 function buildSuggestionPool() {
   const npcName = NPCs[currentNPC]?.name ?? '';
-  const loop = loopNum;
+  const sent = new Set(loadSentMsgs().npcs[npcName] ?? []);
+  return (NPC_SUGGESTIONS[npcName] ?? [])
+    .filter(s => s.loop <= loopNum)
+    .filter(s => !s.nodes || !finalNode || s.nodes.includes(finalNode))
+    .map(s => s.text)
+    .filter(text => !sent.has(_normalizeMsg(text)));
+}
 
-  const pool = [];
-  for (let l = 1; l <= loop; l++) {
-    pool.push(...(NPC_SUGGESTIONS[npcName]?.[l] ?? []));
+// 입력칸이 비어 있을 때 보여줄 추천 2개 (풀에서 무작위)
+function getIdleSuggestions(count = 2) {
+  const pool = buildSuggestionPool();
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  return [...new Set(pool)];
+  return pool.slice(0, count);
 }
 
 // ── bigram 유사도 계산 ──
@@ -792,11 +780,22 @@ function clearSuggestionChips() {
 function filterChoicesByInput(query) {
   const q = query.trim();
   if (!q) {
-    clearSuggestionChips();
+    // 입력칸이 비면 다시 추천 2개
+    showIdleSuggestions();
     return;
   }
   const suggestions = getSuggestions(q);
   renderSuggestionChips(suggestions, q);
+}
+
+// 입력칸을 눌렀는데 비어 있으면 추천 2개를 보여준다
+function showIdleSuggestions() {
+  const input = document.getElementById('msg-input');
+  if (!input || input.value.trim() || input.disabled) {
+    if (input && !input.value.trim()) clearSuggestionChips();
+    return;
+  }
+  renderSuggestionChips(getIdleSuggestions(2), '');
 }
 
 // ─────────────────────────────────────────────
@@ -821,13 +820,14 @@ function isOffTopic(text) {
 //  메시지 전송 (★ 대화 횟수 카운트 추가)
 // ─────────────────────────────────────────────
 function sendMsg() {
-  if (isSending || isSwitchingNPC || isMsgLimitReached) return;
+  if (isSending || isSwitchingNPC || isMsgLimitReached || isOpening) return;
   const input = document.getElementById('msg-input');
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
-  // 전송 후 추천 칩 초기화
+  // 전송 후 추천 칩 초기화 + 보낸 문장 기록 (추천에서 제외)
   clearSuggestionChips();
+  markSentMsg(NPCs[currentNPC].name, text);
 
   // 대화 횟수 증가 & HP 감소
   msgCount++;
@@ -1522,6 +1522,111 @@ function applyLbTransform() {
 }
 
 // ─────────────────────────────────────────────
+//  오늘의 상황 · 첫 메시지
+// ─────────────────────────────────────────────
+let isOpening = false;  // 첫 메시지 생성 중에는 전송을 막는다
+
+// 버튼룸 최종 장면(final_node)의 '오늘의 상황' (frontend/data/today_situations.json)
+async function loadTodaySituation() {
+  if (!finalNode) return null;
+  try {
+    const res = await fetch('/frontend/data/today_situations.json');
+    const data = await res.json();
+    return data.situations?.[String(finalNode)] ?? null;
+  } catch (e) {
+    console.warn('[오늘의 상황] 불러오기 실패', e);
+    return null;
+  }
+}
+
+// 대화창 맨 위 SYSTEM 나레이션 카드: 공통 상황 + 이 NPC와의 현재 상태 한 줄
+function buildSituationCard(situation, npcName) {
+  const npcLine = situation.npcs?.[npcName]?.line ?? '';
+  const card = document.createElement('div');
+  card.className = 'situation-card';
+  card.innerHTML = `
+    <div class="situation-label">SYSTEM · 오늘의 상황</div>
+    <div class="situation-loc">📍 ${esc(situation.location)} · ${esc(situation.place)}</div>
+    <div class="situation-text">${esc(situation.narration)}</div>
+    ${npcLine ? `<div class="situation-npc">— ${esc(npcLine)}</div>` : ''}`;
+  return card;
+}
+
+// 특정 대화창(idx)에 '입력 중…' 표시
+function appendTypingRowTo(idx) {
+  const chatEl = document.getElementById(`chat-npc-${idx}`);
+  if (!chatEl) return;
+  const npc = NPCs[idx];
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.id = `opening-typing-${idx}`;
+  row.innerHTML = `
+    <div class="msg-col">
+      <div class="msg-name">${esc(npc.displayName ?? npc.name)}</div>
+      <div class="typing-bubble">
+        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+      </div>
+    </div>`;
+  chatEl.appendChild(row);
+  if (idx === currentNPC) scrollToBottom();
+}
+
+// 특정 대화창(idx)에 NPC 메시지 추가 (현재 보고 있지 않은 대화창에도 쓸 수 있게)
+function appendNPCBubbleTo(idx, text) {
+  const chatEl = document.getElementById(`chat-npc-${idx}`);
+  if (!chatEl) return;
+  const npc = NPCs[idx];
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = `
+    <div class="msg-col">
+      <div class="msg-name">${esc(npc.displayName ?? npc.name)}</div>
+      <div class="bubble">${esc(text)}</div>
+      <div class="msg-meta"><span class="msg-time">${nowTime()}</span></div>
+    </div>`;
+  chatEl.appendChild(row);
+  if (idx === currentNPC) scrollToBottom();
+}
+
+// NPC 한 명의 첫 메시지 요청 (시간 초과·실패 시 대체 문구)
+async function fetchOpening(idx) {
+  const npcName = NPCs[idx].name;
+  const session_id = sessionStorage.getItem('session_id');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), OPENING_TIMEOUT_MS);
+  try {
+    if (!session_id) throw new Error('no session_id');
+    const res = await fetch(`${BASE_URL}/chat/opening`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id, npc_name: npcName }),
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return { text: data.response || FALLBACK_OPENERS[npcName], imageUrl: data.image_url };
+  } catch (e) {
+    console.warn(`[첫 메시지] ${npcName} 생성 실패 → 대체 문구`, e);
+    return { text: FALLBACK_OPENERS[npcName] ?? '…', imageUrl: null };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// 두 NPC의 첫 메시지를 동시에 생성해 각 대화창에 표시
+async function startOpenings() {
+  isOpening = true;
+  NPCs.forEach((_, i) => appendTypingRowTo(i));
+  await Promise.all(NPCs.map(async (_, i) => {
+    const { text, imageUrl } = await fetchOpening(i);
+    document.getElementById(`opening-typing-${i}`)?.remove();
+    appendNPCBubbleTo(i, text);
+    if (imageUrl) renderNPCImage(imageUrl, i);
+  }));
+  isOpening = false;
+}
+
+// ─────────────────────────────────────────────
 //  초기화
 // ─────────────────────────────────────────────
 (async () => {
@@ -1568,26 +1673,15 @@ function applyLbTransform() {
     }
   }
 
+  // 대화창 + '오늘의 상황' 나레이션 카드
+  const situation = await loadTodaySituation();
   const chatScroll = document.getElementById('chat-scroll');
   NPCs.forEach((npc, i) => {
     const wrap = document.createElement('div');
     wrap.className = 'chat-messages';
     wrap.id = `chat-npc-${i}`;
     if (i !== 0) wrap.style.display = 'none';
-    const msgs = NPC_INIT_MSGS[npc.name] ?? [];
-    const _initTime = nowTime();
-    wrap.innerHTML = msgs.map((text, idx) => {
-      const isLast = idx === msgs.length - 1;
-      const showName = idx === 0;
-      return `
-    <div class="msg-row">
-      <div class="msg-col">
-        <div class="msg-name${showName ? '' : ' msg-name--hidden'}">${npc.displayName ?? npc.name}</div>
-        <div class="bubble">${text}</div>
-        <div class="msg-meta${isLast ? '' : ' msg-meta--hidden'}"><span class="msg-time">${_initTime}</span></div>
-      </div>
-    </div>`;
-    }).join('');
+    if (situation) wrap.appendChild(buildSituationCard(situation, npc.name));
     chatScroll.appendChild(wrap);
   });
 
@@ -1596,8 +1690,12 @@ function applyLbTransform() {
   updateHpBar();
   scrollToBottom();
 
+  // 두 NPC의 첫 메시지를 동시에 생성 (끝날 때까지 전송은 막음)
+  startOpenings();
+
   const msgInput = document.getElementById('msg-input');
   msgInput.addEventListener('input', (e) => { filterChoicesByInput(e.target.value); });
+  msgInput.addEventListener('focus', showIdleSuggestions);
   msgInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) sendMsg(); });
 
   bgmAudio.play().then(() => {

@@ -449,6 +449,7 @@ def build_system_prompt(
     player_name     : str,
     player_gender   : str,
     loop_restriction: str | None = None,
+    today_situation : str = "",
 ) -> str:
     """
     캐릭터별 SystemMessage 문자열을 조립해 반환한다.
@@ -471,6 +472,7 @@ def build_system_prompt(
     player_name     : 유저 닉네임 (예: "정재희")
     player_gender   : 유저 성별 ("남성" / "여성")
     loop_restriction: 루프별 정보 공개 제한 지침 (None일 경우 자동 조회)
+    today_situation : 버튼룸에서 정해진 '오늘의 상황' 블록 (today_situation.py, 없으면 빈 문자열)
     """
     # ── 플레이어 관련 파생 값 계산 ──────────────────
     first_name   = get_first_name(player_name)     # "정재희" → "재희"
@@ -559,6 +561,7 @@ def build_system_prompt(
 - 대화 상대 성별: {player_gender}
 - 대화 상대가 가진 단서: {clues_str}
 </game_state>
+{today_situation}
 """
     # 템플릿의 고정 조사("{player_name}가" 등)를 이름 받침에 맞게 보정
     prompt = fix_josa(prompt, player_name)

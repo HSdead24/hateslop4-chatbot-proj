@@ -114,6 +114,7 @@ def build_park_prompt(
     clues        : list,
     player_name  : str,
     player_gender: str,
+    today_situation: str = "",
 ) -> str:
     """
     박도원 전용 SystemMessage 문자열을 조립해 반환한다.
@@ -136,4 +137,5 @@ def build_park_prompt(
         clues           = clues,
         player_name     = player_name,
         player_gender   = player_gender,
+        today_situation = today_situation,
     )
