@@ -359,7 +359,7 @@ body {
 .room-continue-btn:hover { color:var(--dim); border-color:rgba(200,210,200,0.3); }
 
 /* ══════════════════════════════════
-   PHASE 3: 치키 등장 + 설명
+   PHASE 3: 나레이션 + 마지막에 치키 등장
 ══════════════════════════════════ */
 #ph-chiki {
   display: flex; /* flex-direction을 사용하기 위해 추가 */
@@ -368,42 +368,37 @@ body {
   overflow-y: auto;
 }
 
-.chiki-top {
-  flex: 0 0 auto;
+/* 치키 등장 블록: 나레이션 마지막에 bubbleArea 안에 삽입 */
+.chiki-cameo {
+  display:flex; flex-direction:column; align-items:center;
+  margin-top:12px;
+  opacity:0; transform:translateY(10px);
+  transition:opacity 0.8s, transform 0.8s;
+}
+.chiki-cameo.show { opacity:1; transform:translateY(0); }
+
+.chiki-cameo-figure {
   position: relative;
-  height: 40vh; /* 280px에서 변경 */
-  min-height: 200px;
-  overflow: hidden;
-  background: #030508;
-}
-
-/* 1. 캐릭터를 감싸는 영역: 크기를 적절히 제한하고 중앙 배치 */
-.chiki-figure-wrap {
-  width: 25vh; /* 화면 세로 길이에 비례하게 변경 */
-  height: 25vh;
-  min-width: 180px; min-height: 180px;
-  max-width: 250px; max-height: 250px;
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
+  width: 140px; height: 140px;
   display: flex; align-items: center; justify-content: center;
-  z-index: 5;
+  margin-bottom: 12px;
 }
 
-/* 2. 실제 이미지 스타일: wrap 크기를 벗어나지 않게 설정 */
 .chiki-img {
-  width: 100%;         /* wrap 너비에 맞춤 */
-  height: auto;        /* 비율 유지 */
-  max-height: 100%;    /* 세로로 너무 커지지 않게 제한 */
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
   object-fit: contain;
   animation: chikiFloat 3s ease-in-out infinite; /* 둥둥 뜨는 효과 적용 */
   filter: drop-shadow(0 4px 20px rgba(220, 200, 200, 0.15));
 }
 
-/* 3. 배경 아우라 효과 */
+/* 배경 아우라 효과 */
 .chiki-aura {
   position: absolute;
-  inset: 0;
+  inset: -30px;
   background: radial-gradient(ellipse 60% 70% at 50% 60%, var(--chiki-purple) 0%, transparent 70%);
   animation: chikiAura 3s ease-in-out infinite;
   z-index: 1;
@@ -414,26 +409,20 @@ body {
   50% { opacity: 1; } 
 }
 
-/* 4. 둥둥 뜨는 애니메이션 */
+/* 둥둥 뜨는 애니메이션 */
 @keyframes chikiFloat {
   0%, 100% { transform: translateY(0) rotate(-1deg); }
   50% { transform: translateY(-10px) rotate(1deg); }
 }
 
-.chiki-top-fade {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: linear-gradient(to top, var(--bg), transparent);
-  z-index: 10; /* 이미지보다 위에 오도록 설정 */
-}
+.chiki-cameo .chiki-name-tag { margin-bottom:8px; }
+.chiki-bubble-area { display:flex; flex-direction:column; gap:10px; }
+.chiki-cameo .chiki-bubble { color:#e8d0c0; text-align:center; }
 
 /* 대화 영역 */
 .chiki-dialogue {
   flex:1 1 auto;
-  padding:0 20px 20px;
+  padding:48px 20px 20px;
   display:flex; flex-direction:column;
 }
 

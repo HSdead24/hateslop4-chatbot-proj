@@ -106,38 +106,24 @@
       <img class="room-bg-svg" src="https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550821/room_img_lkekws.png" alt="방 배경">
 
       <div class="room-overlay">
-        <button class="room-continue-btn" onclick="goChiki()">▶&ensp;계속</button>
+        <button class="room-continue-btn" onclick="goNarration()">▶&ensp;계속</button>
       </div>
 
     </div>
   </div>
 
   <!-- ════════════════════════════
-       PHASE 3: 치키 등장 + 설명
+       PHASE 3: 나레이션 + 마지막에 치키 등장
   ════════════════════════════ -->
   <div class="phase" id="ph-chiki">
 
-    <!-- 치키 캐릭터 영역 -->
-    <div class="chiki-top">
-      <div class="chiki-aura"></div>
-      <div class="chiki-figure-wrap">
-        <!-- 치키 (흰 토끼) placeholder SVG — 실제 이미지 수령 시 <img>로 교체 -->
-        <!-- 치키 실제 이미지 -->
-        <img class="chiki-img" src="https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550819/chiki_img_hwqadm.png" alt="치키"
-           onerror="this.style.display='none'">
-      </div>
-      <div class="chiki-top-fade"></div>
-    </div>
-
-    <!-- 치키 대화 영역 -->
+    <!-- 나레이션 영역 -->
     <div class="chiki-dialogue">
-      <div class="chiki-name-tag">
-        <span class="chiki-name">치키</span>
-        <div class="chiki-dot"></div>
+      <div class="chiki-name-tag narration-tag">
         <span class="chiki-role">SYSTEM</span>
       </div>
 
-      <!-- 말풍선: JS가 순차 삽입 -->
+      <!-- 나레이션 / 카드 / 치키 등장 블록: JS가 순차 삽입 -->
       <div class="bubble-area" id="bubbleArea"></div>
 
       <!-- 플레이어 정보 박스: JS가 bubbleArea 안에 동적 삽입 -->
