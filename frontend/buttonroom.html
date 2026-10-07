@@ -57,11 +57,14 @@
   <div class="scene-container" id="sceneContainer">
     <div class="scene-bg"></div>
 
-    <!-- 배경 이미지 레이어 -->
-    <img class="scene-bg-image" id="sceneBgImage" src="" alt="" style="display:none;">
+    <!-- 이미지 영역: 대사 패널 위 공간의 세로 가운데에 배치, 위아래 그라데이션 -->
+    <div class="scene-visual" id="sceneVisual">
+      <!-- 배경 이미지 레이어 -->
+      <img class="scene-bg-image" id="sceneBgImage" src="" alt="" style="display:none;">
 
-    <!-- 실제 이미지 (백엔드 연동 시 src 채워짐) -->
-    <img class="scene-image" id="sceneImage" src="" alt="">
+      <!-- 실제 이미지 (백엔드 연동 시 src 채워짐) -->
+      <img class="scene-image" id="sceneImage" src="" alt="">
+    </div>
 
     <!-- 피 방울 장식 (JS가 동적으로 생성) -->
     <div class="drip-container" id="dripContainer"></div>

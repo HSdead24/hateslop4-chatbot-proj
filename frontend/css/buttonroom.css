@@ -207,15 +207,42 @@ body {
   background: var(--scene-black);
 }
 
+/* 이미지 영역 (배경 + 인물 이미지)
+   - 대사 패널(--panel-h, button.js에서 측정) 위 공간의 세로 가운데에 배치
+   - 공간이 좁으면 위쪽에 붙음 (max)
+   - 위아래 끝을 그라데이션으로 자연스럽게 */
+.scene-visual {
+  position: absolute;
+  left: 0; right: 0;
+  height: 50vh;
+  top: max(25vh, calc((100% - var(--panel-h, 0px)) / 2));
+  transform: translateY(-50%);
+  z-index: 1;
+}
+.scene-visual::before,
+.scene-visual::after {
+  content: '';
+  position: absolute; left: 0; right: 0;
+  height: 18%;
+  pointer-events: none;
+  z-index: 3;
+}
+.scene-visual::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--scene-black) 0%, transparent 100%);
+}
+.scene-visual::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--scene-black) 0%, transparent 100%);
+}
+
 /* 실제 이미지 */
 .scene-image {
   position: absolute;
-  top: 0; left: 0; right: 0;
-  bottom: auto;
-  height: 50vh;
-  width: 100%;
+  inset: 0;
+  width: 100%; height: 100%;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center center;
   display: none;
   z-index: 2;
 }
@@ -223,10 +250,8 @@ body {
 /* 배경 이미지 레이어 */
 .scene-bg-image {
   position: absolute;
-  top: 0; left: 0; right: 0;
-  bottom: auto;
-  height: 50vh;
-  width: 100%;
+  inset: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   display: none;
   z-index: 1;

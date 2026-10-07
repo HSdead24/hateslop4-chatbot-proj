@@ -1329,17 +1329,89 @@ document.getElementById('sound-toggle').addEventListener('click', (e) => {
 });
 
 // ─────────────────────────────────────────────
+//  키보드 대응 — 키보드가 열리면 화면 전체가 밀려 올라가지 않고
+//  #app 높이를 '키보드 위에 보이는 영역'에 맞춰 줄인다
+//  (헤더는 제자리, 대화 영역이 줄어들고 입력창이 키보드 바로 위에 붙음)
+//  iOS Safari: visualViewport로 처리 / Android Chrome: viewport의 interactive-widget
+// ─────────────────────────────────────────────
+(function fitAppToVisualViewport() {
+  const vv  = window.visualViewport;
+  const app = document.getElementById('app');
+  if (!vv || !app) return;
+
+  function fit() {
+    app.style.height = `${vv.height}px`;
+    // iOS가 입력창을 보이게 하려고 페이지를 위로 스크롤한 것을 되돌림
+    window.scrollTo(0, 0);
+    if (typeof scrollToBottom === 'function') scrollToBottom();
+  }
+
+  vv.addEventListener('resize', fit);
+  vv.addEventListener('scroll', () => window.scrollTo(0, 0));
+  document.getElementById('msg-input').addEventListener('blur', () => {
+    // 키보드가 닫히면 원래 높이(CSS 100dvh)로 복귀
+    setTimeout(() => { app.style.height = ''; window.scrollTo(0, 0); }, 100);
+  });
+})();
+
+// ─────────────────────────────────────────────
+//  타이머 일시정지 / 재개 (팝업이 떠 있는 동안 사용)
+//  재개할 때 멈춘 시간만큼 timer_start를 뒤로 미뤄 남은 시간을 그대로 이어간다
+// ─────────────────────────────────────────────
+let timerPausedAt = null;
+
+function pauseGameTimer() {
+  clearInterval(timerInterval);
+  if (!timerPausedAt) timerPausedAt = Date.now();
+}
+
+function resumeGameTimer() {
+  if (timerPausedAt) {
+    const timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
+    if (timerStart) {
+      sessionStorage.setItem('timer_start', String(timerStart + (Date.now() - timerPausedAt)));
+    }
+    timerPausedAt = null;
+  }
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+// ─────────────────────────────────────────────
+//  음악 재생 팝업 — 자동 재생이 막혔을 때 입장 직후 표시
+//  '재생'을 누르면 (사용자 동작 안에서) BGM 재생 후 닫힘
+// ─────────────────────────────────────────────
+function openSoundGate() {
+  pauseGameTimer();
+  document.getElementById('sound-gate-popup').classList.add('open');
+  document.getElementById('sound-gate-overlay').classList.add('show');
+}
+
+function confirmSoundGate() {
+  hasInteracted = true;
+  bgmAudio.play()
+    .then(() => updateSoundIcon(true))
+    .catch(e => console.warn('BGM 재생 실패:', e));
+  document.getElementById('sound-gate-popup').classList.remove('open');
+  document.getElementById('sound-gate-overlay').classList.remove('show');
+  resumeGameTimer();
+}
+
+document.getElementById('sound-gate-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  confirmSoundGate();
+});
+
+// ─────────────────────────────────────────────
 //  포기하기 — 홈(처음으로) / 엔딩으로 버튼
 //  버튼 → '포기하시겠습니까?' 팝업 → 예: 이동 / 아니오: 닫기
 //  팝업이 떠 있는 동안 타이머는 멈추고, 닫으면 멈춘 시간만큼 timer_start를 미뤄서 재개
 // ─────────────────────────────────────────────
-let giveUpTarget   = null; // 'home' | 'ending'
-let giveUpPausedAt = null; // 팝업을 연 시각 (ms)
+let giveUpTarget = null; // 'home' | 'ending'
 
 function openGiveUp(target) {
   giveUpTarget = target;
-  clearInterval(timerInterval);
-  giveUpPausedAt = Date.now();
+  pauseGameTimer();
   document.getElementById('giveup-popup').classList.add('open');
   document.getElementById('giveup-overlay').classList.add('show');
 }
@@ -1348,17 +1420,7 @@ function closeGiveUp() {
   giveUpTarget = null;
   document.getElementById('giveup-popup').classList.remove('open');
   document.getElementById('giveup-overlay').classList.remove('show');
-
-  // 멈춘 시간만큼 timer_start를 뒤로 미루고 타이머 재개
-  if (giveUpPausedAt) {
-    const timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
-    if (timerStart) {
-      sessionStorage.setItem('timer_start', String(timerStart + (Date.now() - giveUpPausedAt)));
-    }
-    giveUpPausedAt = null;
-  }
-  clearInterval(timerInterval);
-  timerInterval = setInterval(updateTimer, 1000);
+  resumeGameTimer();
 }
 
 function confirmGiveUp() {
@@ -1543,7 +1605,8 @@ function applyLbTransform() {
     updateSoundIcon(true);
     hasInteracted = true;
   }).catch(() => {
-    console.warn('브라우저 정책으로 자동 재생 차단. 사용자 클릭 대기 중.');
+    console.warn('브라우저 정책으로 자동 재생 차단. 음악 재생 팝업 표시.');
     updateSoundIcon(false);
+    openSoundGate();
   });
 })();

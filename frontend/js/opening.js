@@ -94,6 +94,13 @@ function showPhase(id) {
   const el = document.getElementById(id);
   el.classList.add('active');
   el.style.pointerEvents = 'all';
+
+  // 바탕(html/body)을 현재 화면 배경색과 맞춤 — iOS Safari 상태바·툴바 주변 띠 방지
+  // (영상·타이머 화면은 검정, 나머지는 기본 배경색)
+  const bg = getComputedStyle(el).backgroundColor;
+  const color = (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') ? bg : '#000';
+  document.documentElement.style.background = color;
+  document.body.style.background = color;
 }
 
 // ────────────────────────────────────────────

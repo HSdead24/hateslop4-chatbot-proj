@@ -308,6 +308,30 @@ function setSceneBgImage(bg) {
 }
 
 // ─────────────────────────────────────────────
+//  대사 패널 높이 측정 → CSS 변수 --panel-h
+//  (이미지 영역을 패널 위 공간의 세로 가운데에 두기 위해 사용)
+// ─────────────────────────────────────────────
+function syncPanelHeight() {
+  const container = document.getElementById('sceneContainer');
+  const dialogue  = document.querySelector('.dialogue-section');
+  if (!container || !dialogue) return;
+  const panelH = container.clientHeight - dialogue.offsetTop;
+  container.style.setProperty('--panel-h', `${Math.max(0, panelH)}px`);
+}
+
+if (window.ResizeObserver) {
+  const panelObserver = new ResizeObserver(syncPanelHeight);
+  ['sceneContainer', 'choicesSection'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) panelObserver.observe(el);
+  });
+  const dialogueEl = document.querySelector('.dialogue-section');
+  if (dialogueEl) panelObserver.observe(dialogueEl);
+}
+window.addEventListener('resize', syncPanelHeight);
+syncPanelHeight();
+
+// ─────────────────────────────────────────────
 //  씬 이미지 교체
 // ─────────────────────────────────────────────
 function setSceneImage(url, speakerName) {
