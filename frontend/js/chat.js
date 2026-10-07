@@ -11,7 +11,7 @@ const BASE_URL = '';
 // ─────────────────────────────────────────────
 const ALL_NPCS = {
   차서연: {
-    id: 0, name: '차서연', sub: '32세 · 여성', tag: '신경과 의사',
+    id: 0, name: '차서연', sub: '34세 · 여성', tag: '정신건강의학과 의사',
     tagColor: '#5a8870',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595780/chat/%EC%B0%A8%EC%84%9C%EC%97%B0/%EC%B0%A8%EC%84%9C%EC%97%B0_%ED%94%84%EB%A1%9C%ED%95%84.png',
     choices: ['커피 안 마실게요', '박주원 알아요?', '사무실 뒤진 거예요?', '패턴이 뭔가요?'],
@@ -23,13 +23,13 @@ const ALL_NPCS = {
     choices: ['밥 먹었어요', '내일이 기일이에요?', '동생 기억해요', '엄마 미안해요'],
   },
   박도원: {
-    id: 2, name: '박도원', sub: '51세 · 남성', tag: '청소부',
+    id: 2, name: '박도원', sub: '64세 · 남성', tag: '청소부',
     tagColor: '#5a6070',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595793/chat/%EB%B0%95%EB%8F%84%EC%9B%90/%EB%B0%95%EB%8F%84%EC%9B%90_%ED%94%84%EB%A1%9C%ED%95%84.png',
     choices: ['어디서 주운 거예요?', '전에 본 적 있어요?', '병원에 왜 있었어요?', '제 물건 건드렸어요?'],
   },
   김도현: {
-    id: 3, name: '김도현', sub: '29세 · 남성', tag: '내담자',
+    id: 3, name: '김도현', sub: '36세 · 남성', tag: '내담자',
     tagColor: '#6a4050',
     profile: 'https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778595806/chat/%EA%B9%80%EB%8F%84%ED%98%84/%EA%B9%80%EB%8F%84%ED%98%84_%EA%B4%9C%EC%B0%AE%EC%9D%80%EB%93%AF%20%EC%9B%83%EC%9D%8C.png',
     choices: ['하윤이가 누구예요?', '왜 화난 거예요?', '저 기억해요?', '약 얘기가 뭐예요?'],

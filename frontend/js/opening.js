@@ -261,12 +261,12 @@ function createSuspectCard() {
   const card = document.createElement('div');
   card.className = 'info-card';
   card.innerHTML = `
-    <div class="info-card-title">의심 인물</div>
+    <div class="info-card-title">SUSPECTS</div>
     <div class="suspect-grid">
-      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">김도현</div><div class="suspect-sub">&lt;안식&gt;의 환자</div></div></div>
-      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">차서연</div><div class="suspect-sub">동료 의사</div></div></div>
+      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">김도현</div><div class="suspect-sub">&lt;안식&gt;의 내담자</div></div></div>
+      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">차서연</div><div class="suspect-sub">&lt;안식&gt;의 정신건강의학과 의사</div></div></div>
       <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">박도원</div><div class="suspect-sub">&lt;안식&gt;의 청소부</div></div></div>
-      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">윤미경</div><div class="suspect-sub">어머니 / 가장 오래 알고 있는 사람</div></div></div>
+      <div class="suspect-chip"><span class="suspect-dot"></span><div><div class="suspect-name">윤미경</div><div class="suspect-sub">당신의 어머니</div></div></div>
     </div>`;
   return card;
 }
