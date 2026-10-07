@@ -1270,27 +1270,17 @@ function esc(s) {
 // ─────────────────────────────────────────────
 //  BGM 제어 로직 (자동 재생 시도 포함)
 // ─────────────────────────────────────────────
-const bgmList = [
-  '/frontend/audio/atlasaudio-horror-ambience-512255.mp3',
-  '/frontend/audio/konstantinpazuzustudio-horror-piano-488124.mp3'
-];
+// 채팅룸 BGM: chat-bgm.mp3 한 곡을 무한 반복
+// (이전 BGM — 되돌릴 때 참고: atlasaudio-horror-ambience-512255.mp3 →
+//  konstantinpazuzustudio-horror-piano-488124.mp3 두 곡을 번갈아 재생)
+const BGM_SRC = '/frontend/audio/chat-bgm.mp3';
 
-let currentBgmIdx = 0; 
-let bgmAudio = new Audio(bgmList[currentBgmIdx]);
+let bgmAudio = new Audio(BGM_SRC);
+bgmAudio.loop   = true;
 bgmAudio.volume = 0.3;
 
 let isSoundOn = false;
 let hasInteracted = false;
-
-// 한 곡이 끝났을 때 다음 곡으로 넘어감
-bgmAudio.addEventListener('ended', () => {
-  currentBgmIdx = (currentBgmIdx + 1) % bgmList.length;
-  bgmAudio.src = bgmList[currentBgmIdx];
-  bgmAudio.volume = 0.3;
-  if (isSoundOn) {
-      bgmAudio.play().catch(e => console.warn('다음 BGM 재생 실패:', e));
-  }
-});
 
 // 상단 스피커 아이콘 이미지를 바꿔주는 헬퍼 함수
 function updateSoundIcon(playing) {
