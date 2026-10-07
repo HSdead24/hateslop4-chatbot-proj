@@ -94,9 +94,16 @@ html, body {
   gap:5px; position:relative;
 }
 
-/* 이름 행: 이름 왼쪽 + BGM 버튼 오른쪽 */
+/* 이름 행 (우측 컨트롤 스택과 겹치지 않게 여백 확보) */
 .header-name-row {
   display:flex; align-items:center; justify-content:space-between;
+  padding-right:38px;
+}
+
+/* 우측 상단 컨트롤 스택: BGM → 홈 → 엔딩 */
+.header-ctrl-stack {
+  position:absolute; top:14px; right:12px; z-index:4;
+  display:flex; flex-direction:column; gap:6px;
 }
 .header-npc-name {
   font-size:18px; font-weight:700; color:var(--text-primary);
@@ -117,6 +124,8 @@ html, body {
 }
 .header-sound-btn svg { width:16px; height:16px; color:rgba(200,204,202,0.6); }
 .header-sound-btn:active { border-color:var(--border-accent); }
+.header-sound-btn { padding:0; }
+.header-giveup-btn svg { color:rgba(212, 32, 24, 0.55); }
 
 /* 캐릭터 전환 버튼 (우측 하단) */
 .npc-switch-btn {
@@ -582,6 +591,61 @@ html, body {
   border-bottom: 1px solid var(--chiki-border);
 }
 #chiki-toast.show { transform:translateY(0); }
+
+/* ── 포기 확인 팝업 (치키 없이 HTML/CSS만으로 구성) ── */
+#giveup-overlay {
+  display: none;
+  position: absolute; inset: 0; z-index: 60;
+  background: rgba(0,0,0,0.78);
+}
+#giveup-overlay.show { display: block; }
+
+#giveup-popup {
+  display: none;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 78%;
+  z-index: 70;
+  background: rgba(10, 12, 20, 0.95);
+  border: 1px solid var(--border-accent);
+  border-radius: 14px;
+  padding: 22px 18px 16px;
+  flex-direction: column;
+  gap: 18px;
+}
+#giveup-popup.open { display: flex; }
+
+#giveup-popup-text {
+  font-family: var(--font-main);
+  font-size: 15px;
+  font-weight: 500;
+  color: #ece8e2;
+  text-align: center;
+  letter-spacing: .5px;
+}
+
+.giveup-popup-actions { display: flex; gap: 8px; }
+.giveup-popup-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--font-main);
+  cursor: pointer;
+}
+#giveup-yes {
+  background: rgba(192,57,43,0.18);
+  border: 1px solid var(--border-accent);
+  color: var(--accent);
+}
+#giveup-no {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+}
+#giveup-yes:active { background: rgba(192,57,43,0.35); }
+#giveup-no:active  { background: rgba(255,255,255,0.12); }
 
 /* ── 치키 팝업 ── */
 #chiki-overlay {

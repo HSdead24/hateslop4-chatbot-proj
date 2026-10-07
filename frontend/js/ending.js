@@ -7,8 +7,9 @@
 //  3. 노이즈 걷히면 ending-content fade-in
 //  4. 대사 순차 타이핑 (pauseBeforeType / speed 반영)
 //  5. 타이핑 중 A+C 글리치 주기적 발동
-//  6. isLast 대사 완료 후 "다시 시작" 버튼 표시
+//  6. isLast 대사 완료 후 "눈을 뜬다" 버튼 표시
 //  7. 버튼 클릭 → /opening
+//  8. 배경음(5분)이 끝나면 자동으로 /opening (3초 전 SYSTEM 팝업)
 // ═══════════════════════════════════════════════
 
 // ─────────────────────────────────────────────
@@ -480,9 +481,10 @@ function junkifyHTML(rawText, ratio) {
 // ─────────────────────────────────────────────
 //  다시 시작 버튼
 // ─────────────────────────────────────────────
-restartBtn.addEventListener('click', () => {
-  // 글리치 루프 정지
+// 새 게임으로 초기화 후 시작 페이지로 ('눈을 뜬다' 버튼 / 음원 종료 공용)
+function restartLoop() {
   clearTimeout(glitchInterval);
+  stopEndingAudio();
 
   // sessionStorage 초기화 (새 게임)
   sessionStorage.removeItem('session_id');
@@ -491,12 +493,123 @@ restartBtn.addEventListener('click', () => {
   sessionStorage.removeItem('timer_start');
 
   window.location.href = '/opening';
+}
+
+restartBtn.addEventListener('click', restartLoop);
+
+// ─────────────────────────────────────────────
+//  엔딩 배경음 (5분) — 끝나면 자동으로 시작 페이지로
+//  - 끝나기 3초 전 SYSTEM 팝업으로 루프 재시작 안내
+//  - 자동 재생이 막히면 SYSTEM 팝업 "화면을 터치하세요"를 띄우고
+//    터치할 때까지 엔딩 전체(노이즈 인트로·대사)를 멈춰둔다
+//    (30초 동안 터치가 없으면 소리 없이 자동 시작, 남은 시간을 작게 표시)
+//  - 소리가 끝내 재생되지 않아도 엔딩 시작 후 5분이 지나면 이동
+// ─────────────────────────────────────────────
+const ENDING_AUDIO_SRC   = '/frontend/audio/ending-static.mp3';
+const ENDING_DURATION_MS = 300 * 1000;  // 음원 길이 (5분)
+const RESTART_NOTICE_SEC = 3;           // 끝나기 몇 초 전에 팝업을 띄울지
+const GATE_TIMEOUT_SEC   = 30;          // 터치 팝업: 이 시간 동안 터치가 없으면 소리 없이 시작
+
+const endingAudio = new Audio(ENDING_AUDIO_SRC);
+endingAudio.preload = 'auto';
+endingAudio.volume  = 0.7;
+
+let fallbackTimer   = null;  // 음원이 재생되지 않을 때 쓰는 5분 타이머
+let noticeShown     = false;
+
+function stopEndingAudio() {
+  endingAudio.pause();
+  clearTimeout(fallbackTimer);
+}
+
+// 엔딩 본편 시작: 노이즈 인트로 → 대사 타이핑, 5분 대체 타이머
+let endingStarted = false;
+function beginEnding() {
+  if (endingStarted) return;
+  endingStarted = true;
+  requestAnimationFrame(runNoiseIntro);
+  startFallbackTimer();
+  if (!endingAudio.paused) clearTimeout(fallbackTimer);
+}
+
+// 진입 시: 자동 재생 시도 → 성공하면 바로 시작, 막히면 터치 팝업
+function tryAutoplay() {
+  endingAudio.play()
+    .then(beginEnding)
+    .catch(openTouchGate);
+}
+
+// 터치 팝업 열기 + 30초 카운트다운 (0이 되면 소리 없이 시작)
+let gateTimer = null;
+function openTouchGate() {
+  touchGate.classList.add('show');
+  touchGate.addEventListener('pointerdown', onGateTouch, { once: true });
+
+  let left = GATE_TIMEOUT_SEC;
+  const countEl = document.getElementById('gate-countdown');
+  const render = () => { countEl.textContent = `00:${String(left).padStart(2, '0')}`; };
+  render();
+  gateTimer = setInterval(() => {
+    left -= 1;
+    render();
+    if (left <= 0) {
+      clearInterval(gateTimer);
+      touchGate.removeEventListener('pointerdown', onGateTouch);
+      touchGate.classList.remove('show');
+      beginEnding();
+    }
+  }, 1000);
+}
+
+// 터치 팝업을 누르면: 사용자 동작 안에서 재생 → 팝업 닫고 엔딩 시작
+function onGateTouch() {
+  clearInterval(gateTimer);
+  touchGate.classList.remove('show');
+  endingAudio.play()
+    .catch(() => {})   // 그래도 실패하면 소리 없이 진행 (5분 타이머로 이동 보장)
+    .finally(beginEnding);
+}
+
+endingAudio.addEventListener('playing', () => clearTimeout(fallbackTimer));
+
+// 남은 시간 표시 팝업: "3초 후 루프가 다시 시작됩니다."
+function showRestartNotice(secondsLeft) {
+  if (noticeShown) return;
+  noticeShown = true;
+  restartNotice.classList.add('show');
+
+  let left = Math.max(1, Math.round(secondsLeft));
+  const countEl = document.getElementById('restart-notice-count');
+  countEl.textContent = left;
+  const tick = setInterval(() => {
+    left -= 1;
+    if (left <= 0) { clearInterval(tick); return; }
+    countEl.textContent = left;
+  }, 1000);
+}
+
+endingAudio.addEventListener('timeupdate', () => {
+  const remaining = endingAudio.duration - endingAudio.currentTime;
+  if (remaining <= RESTART_NOTICE_SEC) showRestartNotice(remaining);
 });
+endingAudio.addEventListener('ended', restartLoop);
+
+// 팝업 DOM
+const restartNotice = document.getElementById('restart-notice');
+const touchGate     = document.getElementById('touch-gate');
+
+function startFallbackTimer() {
+  // 음원이 재생되면 'playing' 이벤트에서 해제됨
+  fallbackTimer = setTimeout(restartLoop, ENDING_DURATION_MS);
+  setTimeout(() => {
+    if (endingAudio.paused) showRestartNotice(RESTART_NOTICE_SEC);
+  }, ENDING_DURATION_MS - RESTART_NOTICE_SEC * 1000);
+}
 
 // ─────────────────────────────────────────────
 //  시작
 // ─────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  // 노이즈 인트로 시작
-  requestAnimationFrame(runNoiseIntro);
+  // 배경음 자동 재생 시도 → 성공 시 노이즈 인트로부터 시작, 막히면 터치 팝업 후 시작
+  tryAutoplay();
 });

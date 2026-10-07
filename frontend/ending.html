@@ -27,6 +27,23 @@
   </div>
 
 </div>
+<!-- 루프 재시작 안내 팝업 (음원 종료 3초 전) -->
+<div class="restart-notice" id="restart-notice" role="alert">
+  <div class="restart-notice-box">
+    <div class="restart-notice-label">SYSTEM</div>
+    <div class="restart-notice-text"><span id="restart-notice-count">3</span>초 후 루프가 다시 시작됩니다.</div>
+  </div>
+</div>
+
+<!-- 자동 재생이 막혔을 때만 표시: 터치할 때까지 엔딩을 멈춰둔다 -->
+<div class="restart-notice touch-gate" id="touch-gate" role="button" aria-label="화면을 터치하세요">
+  <div class="restart-notice-box">
+    <div class="restart-notice-label">SYSTEM</div>
+    <div class="restart-notice-text">화면을 터치하세요.</div>
+    <div class="gate-countdown" id="gate-countdown">00:30</div>
+  </div>
+</div>
+
 <script src="/frontend/js/ending.js"></script>
 </body>
 </html>

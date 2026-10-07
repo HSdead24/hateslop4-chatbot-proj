@@ -1270,27 +1270,17 @@ function esc(s) {
 // ─────────────────────────────────────────────
 //  BGM 제어 로직 (자동 재생 시도 포함)
 // ─────────────────────────────────────────────
-const bgmList = [
-  '/frontend/audio/atlasaudio-horror-ambience-512255.mp3',
-  '/frontend/audio/konstantinpazuzustudio-horror-piano-488124.mp3'
-];
+// 채팅룸 BGM: chat-bgm.mp3 한 곡을 무한 반복
+// (이전 BGM — 되돌릴 때 참고: atlasaudio-horror-ambience-512255.mp3 →
+//  konstantinpazuzustudio-horror-piano-488124.mp3 두 곡을 번갈아 재생)
+const BGM_SRC = '/frontend/audio/chat-bgm.mp3';
 
-let currentBgmIdx = 0; 
-let bgmAudio = new Audio(bgmList[currentBgmIdx]);
-bgmAudio.volume = 0.3;
+let bgmAudio = new Audio(BGM_SRC);
+bgmAudio.loop   = true;
+bgmAudio.volume = 1.0;
 
 let isSoundOn = false;
 let hasInteracted = false;
-
-// 한 곡이 끝났을 때 다음 곡으로 넘어감
-bgmAudio.addEventListener('ended', () => {
-  currentBgmIdx = (currentBgmIdx + 1) % bgmList.length;
-  bgmAudio.src = bgmList[currentBgmIdx];
-  bgmAudio.volume = 0.3;
-  if (isSoundOn) {
-      bgmAudio.play().catch(e => console.warn('다음 BGM 재생 실패:', e));
-  }
-});
 
 // 상단 스피커 아이콘 이미지를 바꿔주는 헬퍼 함수
 function updateSoundIcon(playing) {
@@ -1336,6 +1326,61 @@ document.getElementById('sound-toggle').addEventListener('click', (e) => {
   e.stopPropagation(); 
   hasInteracted = true; 
   toggleSound();
+});
+
+// ─────────────────────────────────────────────
+//  포기하기 — 홈(처음으로) / 엔딩으로 버튼
+//  버튼 → '포기하시겠습니까?' 팝업 → 예: 이동 / 아니오: 닫기
+//  팝업이 떠 있는 동안 타이머는 멈추고, 닫으면 멈춘 시간만큼 timer_start를 미뤄서 재개
+// ─────────────────────────────────────────────
+let giveUpTarget   = null; // 'home' | 'ending'
+let giveUpPausedAt = null; // 팝업을 연 시각 (ms)
+
+function openGiveUp(target) {
+  giveUpTarget = target;
+  clearInterval(timerInterval);
+  giveUpPausedAt = Date.now();
+  document.getElementById('giveup-popup').classList.add('open');
+  document.getElementById('giveup-overlay').classList.add('show');
+}
+
+function closeGiveUp() {
+  giveUpTarget = null;
+  document.getElementById('giveup-popup').classList.remove('open');
+  document.getElementById('giveup-overlay').classList.remove('show');
+
+  // 멈춘 시간만큼 timer_start를 뒤로 미루고 타이머 재개
+  if (giveUpPausedAt) {
+    const timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
+    if (timerStart) {
+      sessionStorage.setItem('timer_start', String(timerStart + (Date.now() - giveUpPausedAt)));
+    }
+    giveUpPausedAt = null;
+  }
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function confirmGiveUp() {
+  clearInterval(timerInterval);
+  bgmAudio.pause();
+
+  if (giveUpTarget === 'home') {
+    // 게임 기록 전부 삭제 후 첫 화면으로
+    sessionStorage.clear();
+    window.location.href = '/';
+  } else if (giveUpTarget === 'ending') {
+    window.location.href = '/ending';
+  }
+}
+
+document.getElementById('giveup-home-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  openGiveUp('home');
+});
+document.getElementById('giveup-ending-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  openGiveUp('ending');
 });
 
 // ─────────────────────────────────────────────
