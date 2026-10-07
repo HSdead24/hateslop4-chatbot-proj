@@ -1277,7 +1277,7 @@ const BGM_SRC = '/frontend/audio/chat-bgm.mp3';
 
 let bgmAudio = new Audio(BGM_SRC);
 bgmAudio.loop   = true;
-bgmAudio.volume = 0.3;
+bgmAudio.volume = 1.0;
 
 let isSoundOn = false;
 let hasInteracted = false;
