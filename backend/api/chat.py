@@ -94,6 +94,24 @@ def chat_opening(req: ChatOpeningRequest):
     if req.npc_name not in VALID_NPC_NAMES or req.npc_name == NPC_EXECUTOR:
         raise HTTPException(status_code=400, detail=f"유효하지 않은 NPC 이름: {req.npc_name}")
 
+    # 화면이 대체 문구를 보여준 경우: 서버 기록의 첫 메시지도 같은 문구로 맞춘다
+    # (화면은 포기했지만 서버가 뒤늦게 생성을 끝내 저장했을 수 있으므로 덮어쓴다)
+    if req.fallback_text:
+        with _opening_lock:
+            latest = get_state(req.session_id)
+            messages = copy.deepcopy(latest["messages"])
+            history = messages.get(req.npc_name, [])
+            fallback = {"role": "assistant", "content": req.fallback_text}
+            if not history:
+                messages[req.npc_name] = [fallback]
+            elif len(history) == 1 and history[0].get("role") == "assistant":
+                messages[req.npc_name] = [fallback]
+            # 이미 플레이어와 대화가 이어졌으면(기록이 2개 이상) 건드리지 않는다
+            merged = dict(latest)
+            merged["messages"] = messages
+            update_state(req.session_id, GameState(**merged))
+        return ChatOpeningResponse(response=req.fallback_text, image_url=None)
+
     try:
         generated_state, response, image_url = generate_opening(state, req.npc_name)
     except Exception as e:
@@ -105,6 +123,7 @@ def chat_opening(req: ChatOpeningRequest):
         with _opening_lock:
             latest = get_state(req.session_id)
             messages = copy.deepcopy(latest["messages"])
+            # 이 NPC 기록이 비어 있을 때만 저장 (그사이 대체 문구가 먼저 저장됐으면 그쪽을 유지)
             if not messages.get(req.npc_name):
                 messages[req.npc_name] = [{"role": "assistant", "content": response}]
                 merged = dict(latest)

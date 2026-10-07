@@ -33,8 +33,10 @@ const ALL_NPCS = {
 };
 
 // 첫 메시지는 '오늘의 상황'을 바탕으로 서버(LLM)가 생성한다 (/chat/opening).
-// 생성이 실패하거나 OPENING_TIMEOUT_MS를 넘기면 장면과 상관없이 어울리는 짧은 대체 문구를 쓴다.
-const OPENING_TIMEOUT_MS = 6000;
+// 생성이 실패하거나 OPENING_TIMEOUT_MS를 넘기면 장면과 상관없이 어울리는 짧은 대체 문구를 쓰고,
+// 서버에도 알려 대화 기록의 첫 메시지를 같은 문구로 맞춘다 (화면과 LLM 기록 일치).
+// 배포 서버가 잠들었다 깨어나는 시간까지 고려해 넉넉히 기다린다.
+const OPENING_TIMEOUT_MS = 15000;
 const FALLBACK_OPENERS = {
   차서연: '선생님, 잠깐 얘기 좀 할 수 있어요?',
   엄마: '왜 그렇게 멍하니 있어.',
@@ -683,7 +685,32 @@ function markSentMsg(npcName, text) {
   sessionStorage.setItem('sent_msgs', JSON.stringify(saved));
 }
 
-// 현재 NPC · 루프 · 최종 장면 기준 추천 풀 (이미 보낸 문장 제외)
+// ── 이미 얻은 단서·치키 트리거를 여는 추천 문장 제외 ──
+// 인물 이름만으로 걸리는 키워드는 판단에서 뺀다 (예: '하윤'이 들어간 김도현 질문 전체가 사라지지 않게)
+const NAME_KEYWORDS = new Set(['하윤', '김하윤', '박주원', '주원', '나영', '박도원', '엄마', '어머니', '차서연', '서연']);
+const hitsKeyword = (text, words) => (words ?? []).some(w => !NAME_KEYWORDS.has(w) && text.includes(w));
+
+function isClueTriggerDone(trigger) {
+  const owned = getClues();
+  if (trigger.package_delivery) return owned.some(c => c.title === '수상한 택배');
+  return !!trigger.clue?.title && owned.some(c => c.title === trigger.clue.title);
+}
+
+// 이 문장이 여는 트리거(현재 루프에 열린 것만)를 모두 이미 얻었으면 true
+function isSuggestionExhausted(text, npcName) {
+  const triggers = [
+    ...CHIKI_TRIGGERS
+      .filter(t => hitsKeyword(text, t.words))
+      .map(t => _firedChikiIds.has(t.id)),
+    ...CLUE_TRIGGERS
+      .filter(t => t.source === 'user' && (!t.npc || t.npc === npcName) && hitsKeyword(text, t.detect_words))
+      .map(t => isClueTriggerDone(t)),
+  ];
+  return triggers.length > 0 && triggers.every(done => done);
+}
+
+// 현재 NPC · 루프 · 최종 장면 기준 추천 풀
+// (이미 보낸 문장, 이미 얻은 단서·치키 트리거만 여는 문장 제외)
 function buildSuggestionPool() {
   const npcName = NPCs[currentNPC]?.name ?? '';
   const sent = new Set(loadSentMsgs().npcs[npcName] ?? []);
@@ -691,7 +718,8 @@ function buildSuggestionPool() {
     .filter(s => s.loop <= loopNum)
     .filter(s => !s.nodes || !finalNode || s.nodes.includes(finalNode))
     .map(s => s.text)
-    .filter(text => !sent.has(_normalizeMsg(text)));
+    .filter(text => !sent.has(_normalizeMsg(text)))
+    .filter(text => !isSuggestionExhausted(text, npcName));
 }
 
 // 입력칸이 비어 있을 때 보여줄 추천 2개 (풀에서 무작위)
@@ -1607,10 +1635,22 @@ async function fetchOpening(idx) {
     return { text: data.response || FALLBACK_OPENERS[npcName], imageUrl: data.image_url };
   } catch (e) {
     console.warn(`[첫 메시지] ${npcName} 생성 실패 → 대체 문구`, e);
-    return { text: FALLBACK_OPENERS[npcName] ?? '…', imageUrl: null };
+    const fallback = FALLBACK_OPENERS[npcName] ?? '…';
+    syncFallbackOpening(session_id, npcName, fallback);
+    return { text: fallback, imageUrl: null };
   } finally {
     clearTimeout(timer);
   }
+}
+
+// 화면이 보여준 대체 문구를 서버 대화 기록의 첫 메시지로 맞춘다 (결과는 기다리지 않음)
+function syncFallbackOpening(session_id, npcName, fallbackText) {
+  if (!session_id) return;
+  fetch(`${BASE_URL}/chat/opening`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id, npc_name: npcName, fallback_text: fallbackText }),
+  }).catch(() => {});
 }
 
 // 두 NPC의 첫 메시지를 동시에 생성해 각 대화창에 표시
