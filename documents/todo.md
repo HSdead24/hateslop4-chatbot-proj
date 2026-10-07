@@ -204,3 +204,21 @@ frontend/
 
 - [x] `README.md` — 배포된 서비스 소개 문서로 재작성 (스토리, 플레이 방식, 기능, 기술 스택, 스크린샷, 팀)
 - [x] 기존 README → `documents/development-notes.md` / `documents/todo.md`, README2 → `documents/engineer-presentation.md`
+
+---
+
+### Phase 23 — 닉네임 · 성별 처리 ✅ 완료
+
+**브랜치**: `npc_stat` (커밋 `066c6d0`, PR 전)
+
+**구현 내용**
+- 닉네임은 완성형 한글만 허용, 입력칸 아래 안내 문구 표시
+- 호칭 개선: 성 자르기 규칙(세 글자, 두 글자 성), 받침에 따른 호격 조사('아'/'야') 자동 처리
+- 성별 '기타' 추가: 중립 호칭("우리 애", 나영은 이름으로 부름), NPC 4명 + 치키 프롬프트에 성별 중립 지침
+- 세계관 문서의 주인공 성별 표현 중립화 + 벡터스토어 재빌드
+
+**완료 작업**
+- [x] `opening.html` / `opening.css` / `opening.js` — 한글 검증, 안내 문구, 성별 버튼 3칸
+- [x] `llm/prompts/base.py` — `get_first_name`, `get_call_name`, `get_child_term`, `get_sibling_term`, `get_gender_guidance`
+- [x] `umma.py` / `cha_seoyeon.py` — `{call_name}` 적용 / `executor.py` — 성별 중립 지침
+- [x] `세계관.md` / `loop3.md` — 성별 중립 표현 + 벡터스토어 재빌드
