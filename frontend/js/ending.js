@@ -61,7 +61,7 @@ const SCRIPT = [
   {
     speaker: 'system',
     pauseBeforeType: 1200,
-    text: '기억을 삭제합니다.\n▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%',
+    text: `수감자 ${PRISONER_NO}의 기억을 삭제합니다.\n▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%`,
     speed: 110,
   },
   {
