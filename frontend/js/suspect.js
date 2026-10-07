@@ -251,10 +251,10 @@ function goToEnding() {
   const overlay = document.createElement('div');
   overlay.id = 'glitch-transition-overlay';
   overlay.style.cssText = `
-    position:fixed;inset:0;z-index:9999;
+    position:absolute;inset:0;z-index:9999;
     background:#000;opacity:0;pointer-events:all;
   `;
-  document.body.appendChild(overlay);
+  (document.getElementById('app') || document.body).appendChild(overlay);
 
   // 2. Web Audio: 지지직 + 팍 사운드
   playGlitchSound();

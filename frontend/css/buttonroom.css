@@ -62,7 +62,7 @@ body {
 
 .game-wrapper {
   width: 100%;
-  max-width: 460px;
+  max-width: 430px;
   height: 100vh;
   height: 100dvh;
   display: flex;
@@ -73,22 +73,12 @@ body {
 }
 
 /* ══════════════════════════════════
-   전역 섬뜩 효과 레이어들
+   게임 화면 안 연출 레이어 (스캔라인 · 비네트 · 클릭 플래시)
 ══════════════════════════════════ */
-
-/* 배경 전체에 깔리는 핏빛 안개 */
-.atmo-layer {
-  position: fixed; inset: 0;
-  pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%,   rgba(140,10,10,0.13)  0%, transparent 65%),
-    radial-gradient(ellipse 60% 40% at 20% 80%,  rgba(0,60,60,0.10)    0%, transparent 60%),
-    radial-gradient(ellipse 50% 30% at 80% 100%, rgba(10,30,50,0.12)   0%, transparent 60%);
-}
 
 /* CRT 스캔라인 */
 .scanlines {
-  position: fixed; inset: 0; pointer-events: none; z-index: 200;
+  position: absolute; inset: 0; pointer-events: none; z-index: 200;
   background: repeating-linear-gradient(
     0deg,
     transparent,
@@ -100,7 +90,7 @@ body {
 
 /* 화면 모서리 비네트 */
 .vignette {
-  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background: radial-gradient(ellipse 100% 100% at 50% 50%,
     transparent 50%,
     rgba(0,0,0,0.55) 100%
@@ -109,7 +99,7 @@ body {
 
 /* 클릭 플래시 */
 .flash-overlay {
-  position: fixed; inset: 0; pointer-events: none;
+  position: absolute; inset: 0; pointer-events: none;
   opacity: 0; z-index: 300;
   background: rgba(0,180,160,0.07);
   transition: opacity 0.06s;
@@ -611,7 +601,7 @@ body {
    이미지 팝업 오버레이 (popup_img 씬용)
 ══════════════════════════════════ */
 .img-popup-overlay {
-  position: fixed; inset: 0; z-index: 540;
+  position: absolute; inset: 0; z-index: 540;
   background: rgba(0,0,0,0.82);
   display: none; align-items: center; justify-content: center;
 }
@@ -647,7 +637,7 @@ body {
    단서 획득 오버레이
 ══════════════════════════════════ */
 .clue-reveal-overlay {
-  position: fixed; inset: 0; z-index: 550;
+  position: absolute; inset: 0; z-index: 550;
   background: rgba(0,0,0,0.88);
   display: none; align-items: center; justify-content: center;
 }

@@ -385,6 +385,9 @@ function startNarration() {
 //  PHASE 3 → buttonroom.html
 // ────────────────────────────────────────────
 async function goGame() {
+  // 새 게임: 이전 플레이의 기록(단서, 치키 트리거, 루프 정보 등)을 전부 지운다
+  sessionStorage.clear();
+
   // sessionStorage에 이름·성별 저장 (button.js에서 읽음)
   sessionStorage.setItem('player_name',   STATE.name);
   sessionStorage.setItem('player_gender', STATE.gender);

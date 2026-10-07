@@ -33,7 +33,7 @@
 
 html, body {
   width:100%; height:100%;
-  background:#0a0908;
+  background:var(--bg-base); /* #app과 같은 색: iOS Safari 하단 툴바 주변 띠 방지 */
   display:flex; justify-content:center;
   font-family:var(--font-main);
   overflow:hidden;
@@ -48,9 +48,9 @@ html, body {
   display:flex; flex-direction:column;
   overflow:hidden;
 
-  /* 아이폰 노치, 다이내믹 아일랜드 대응 */
+  /* 아이폰 노치, 다이내믹 아일랜드 대응
+     (하단 홈 바 여백은 #input-area에서 한 번만 처리) */
   padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom); /* 하단 홈 바 대응 */
 }
 
 /* 스캔라인 오버레이 */
@@ -108,7 +108,7 @@ html, body {
 .header-npc-name {
   font-size:18px; font-weight:700; color:var(--text-primary);
 }
-.header-npc-row2 { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.header-npc-row2 { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding-right:38px; }
 .header-npc-sub  { font-size:10px; color:var(--text-secondary); }
 .header-tag {
   font-size:9px; font-family:var(--font-mono); font-weight:500;
@@ -408,7 +408,8 @@ html, body {
   line-height:1; pointer-events:none;
 }
 #msg-input {
-  flex:1; background:var(--bg-surface2);
+  /* min-width:0 — iOS Safari에서 입력칸이 기본 폭 이하로 줄지 않아 보내기 버튼을 밀어내던 문제 방지 */
+  flex:1; min-width:0; background:var(--bg-surface2);
   border:1px solid var(--border-warm); border-radius:3px;
   padding:10px 13px; font-size:16px;
   color:var(--text-primary); font-family:var(--font-main);
@@ -532,7 +533,7 @@ html, body {
 
 /* ── 라이트박스 ── */
 #img-lightbox {
-  display:none; position:fixed; inset:0; z-index:200;
+  display:none; position:absolute; inset:0; z-index:200;
 }
 #img-lightbox.open { display:block; }
 
