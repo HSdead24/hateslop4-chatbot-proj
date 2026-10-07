@@ -1339,6 +1339,61 @@ document.getElementById('sound-toggle').addEventListener('click', (e) => {
 });
 
 // ─────────────────────────────────────────────
+//  포기하기 — 홈(처음으로) / 엔딩으로 버튼
+//  버튼 → '포기하시겠습니까?' 팝업 → 예: 이동 / 아니오: 닫기
+//  팝업이 떠 있는 동안 타이머는 멈추고, 닫으면 멈춘 시간만큼 timer_start를 미뤄서 재개
+// ─────────────────────────────────────────────
+let giveUpTarget   = null; // 'home' | 'ending'
+let giveUpPausedAt = null; // 팝업을 연 시각 (ms)
+
+function openGiveUp(target) {
+  giveUpTarget = target;
+  clearInterval(timerInterval);
+  giveUpPausedAt = Date.now();
+  document.getElementById('giveup-popup').classList.add('open');
+  document.getElementById('giveup-overlay').classList.add('show');
+}
+
+function closeGiveUp() {
+  giveUpTarget = null;
+  document.getElementById('giveup-popup').classList.remove('open');
+  document.getElementById('giveup-overlay').classList.remove('show');
+
+  // 멈춘 시간만큼 timer_start를 뒤로 미루고 타이머 재개
+  if (giveUpPausedAt) {
+    const timerStart = parseInt(sessionStorage.getItem('timer_start') || '0', 10);
+    if (timerStart) {
+      sessionStorage.setItem('timer_start', String(timerStart + (Date.now() - giveUpPausedAt)));
+    }
+    giveUpPausedAt = null;
+  }
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function confirmGiveUp() {
+  clearInterval(timerInterval);
+  bgmAudio.pause();
+
+  if (giveUpTarget === 'home') {
+    // 게임 기록 전부 삭제 후 첫 화면으로
+    sessionStorage.clear();
+    window.location.href = '/';
+  } else if (giveUpTarget === 'ending') {
+    window.location.href = '/ending';
+  }
+}
+
+document.getElementById('giveup-home-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  openGiveUp('home');
+});
+document.getElementById('giveup-ending-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  openGiveUp('ending');
+});
+
+// ─────────────────────────────────────────────
 //  미확인 단서 배지 업데이트
 // ─────────────────────────────────────────────
 function updateClueBadge() {
