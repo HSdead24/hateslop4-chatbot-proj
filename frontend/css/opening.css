@@ -58,7 +58,9 @@ body {
    PHASE 공통 — 절대 위치로 겹침
 ══════════════════════════════════ */
 .phase {
+  /* iPhone 상태바(시계·배터리) 아래부터 화면 시작 — 영상·타이틀이 위로 치우치지 않게 */
   position:absolute; inset:0;
+  top: env(safe-area-inset-top);
   display:flex; flex-direction:column;
   opacity:0; pointer-events:none;
   transition: opacity 0.8s ease;
