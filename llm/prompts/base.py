@@ -15,6 +15,8 @@
 캐릭터 파일(cha_seoyeon.py 등)은 수정 불필요.
 """
 
+import re
+
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 from config import THRESHOLDS
@@ -24,9 +26,18 @@ from config import THRESHOLDS
 # 플레이어 이름 유틸
 # ────────────────────────────────────────────
 
+# 두 글자 성 (네 글자 이름일 때만 확인)
+_COMPOUND_SURNAMES = ("남궁", "제갈", "선우", "황보", "독고", "사공", "서문", "동방", "어금", "망절")
+
+
 def get_first_name(full_name: str) -> str:
     """
-    한국 이름 기준으로 성(첫 글자)을 제거하고 이름만 반환한다.
+    한글 닉네임에서 성을 제거하고 이름만 반환한다. (닉네임은 오프닝에서 한글만 받음)
+
+    - 세 글자            → 첫 글자를 성으로 보고 제거  ("정재희" → "재희")
+    - 네 글자 + 두 글자 성 → 두 글자 제거             ("남궁민수" → "민수")
+    - 그 외(두 글자 이하 등) → 그대로                  ("하하" → "하하", "이준" → "이준")
+      두 글자는 닉네임일 수 있어서 자르지 않는다.
 
     Parameters
     ----------
@@ -36,7 +47,77 @@ def get_first_name(full_name: str) -> str:
     -------
     "재희"
     """
-    return full_name[1:] if len(full_name) >= 2 else full_name
+    name = full_name.strip()
+    if len(name) == 4 and name[:2] in _COMPOUND_SURNAMES:
+        return name[2:]
+    if len(name) == 3:
+        return name[1:]
+    return name
+
+
+def _has_final_consonant(char: str) -> bool:
+    """한글 글자에 받침이 있는지 확인한다. (한글이 아니면 False)"""
+    code = ord(char) - 0xAC00
+    return 0 <= code <= 11171 and code % 28 != 0
+
+
+# 이름 뒤 조사 짝: (받침 있을 때, 받침 없을 때)
+_JOSA_PAIRS = {
+    "이": ("이", "가"), "가": ("이", "가"),
+    "을": ("을", "를"), "를": ("을", "를"),
+    "은": ("은", "는"), "는": ("은", "는"),
+    "과": ("과", "와"), "와": ("과", "와"),
+    "으로": ("으로", "로"), "로": ("으로", "로"),
+}
+
+
+def fix_josa(text: str, name: str) -> str:
+    """
+    text 안에서 name 바로 뒤에 붙은 조사를 받침에 맞게 고친다.
+    프롬프트 템플릿의 "{player_name}가" 같은 고정 조사 보정용.
+
+    예) name="이서진": "이서진가" → "이서진이", "이서진를" → "이서진을"
+        name="정재희": "정재희이" → "정재희가"
+    - 조사 뒤에 한글이 이어지면(예: "이서진이다", "이서진가족") 건드리지 않는다.
+    - ㄹ 받침 + '으로/로'는 '로'를 쓴다.
+    """
+    if not name:
+        return text
+    last = name[-1]
+    has_final = _has_final_consonant(last)
+    is_rieul = has_final and (ord(last) - 0xAC00) % 28 == 8   # ㄹ 받침
+
+    def repl(m: re.Match) -> str:
+        josa = m.group(1)
+        with_final, without_final = _JOSA_PAIRS[josa]
+        if josa in ("으로", "로") and is_rieul:
+            fixed = "로"
+        else:
+            fixed = with_final if has_final else without_final
+        return name + fixed
+
+    pattern = r"(?<![가-힣])" + re.escape(name) + r"(으로|로|이|가|을|를|은|는|과|와)(?![가-힣])"
+    return re.sub(pattern, repl, text)
+
+
+def get_call_name(full_name: str) -> str:
+    """
+    이름을 부를 때 쓰는 호칭(이름 + 호격 조사)을 반환한다.
+    받침이 있으면 '아', 없으면 '야'를 붙인다.
+
+    Returns
+    -------
+    "서진아" (이서진) | "재희야" (정재희)
+    """
+    first = get_first_name(full_name)
+    if not first:
+        return first
+    return first + ("아" if _has_final_consonant(first[-1]) else "야")
+
+
+def is_neutral_gender(player_gender: str) -> bool:
+    """남/여로 시작하지 않으면('기타', '미설정' 등) 성별 중립으로 본다."""
+    return not (player_gender.startswith("남") or player_gender.startswith("여"))
 
 
 def get_child_term(player_gender: str) -> str:
@@ -45,30 +126,49 @@ def get_child_term(player_gender: str) -> str:
 
     Parameters
     ----------
-    player_gender : "남성" | "여성" | "남자" | "여자" | "남" | "여" | "무관"
-                    ("남"으로 시작하면 남성으로 판단)
+    player_gender : "남성" | "여성" | "기타" (+ "남자"/"여자"/"남"/"여" 등)
 
     Returns
     -------
-    "아들" | "딸"
+    "아들" (남) | "딸" (여) | "애" (기타 — 성별 중립, "우리 애")
     """
-    return "아들" if player_gender.startswith("남") else "딸"
+    if player_gender.startswith("남"):
+        return "아들"
+    if player_gender.startswith("여"):
+        return "딸"
+    return "애"
 
 
-def get_sibling_term(player_gender: str) -> str:
+def get_sibling_term(player_gender: str, player_name: str = "") -> str:
     """
-    성별에 따라 형제자매 호칭(동생 입장에서 부르는 말)을 반환한다.
+    성별에 따라 형제자매 호칭(여동생 나영이 플레이어를 부르던 말)을 반환한다.
+    한국어에는 성별 없이 손위 형제를 부르는 말이 없어서, 기타는 이름으로 부른다.
 
     Parameters
     ----------
-    player_gender : "남성" | "여성" | "남자" | "여자" | "남" | "여" | "무관"
-                    ("남"으로 시작하면 남성으로 판단)
+    player_gender : "남성" | "여성" | "기타"
+    player_name   : 기타일 때 호칭으로 쓸 플레이어 닉네임
 
     Returns
     -------
-    "오빠" | "언니"
+    "오빠" (남) | "언니" (여) | "서진아" (기타 — 이름 + 호격 조사)
     """
-    return "오빠" if player_gender.startswith("남") else "언니"
+    if player_gender.startswith("남"):
+        return "오빠"
+    if player_gender.startswith("여"):
+        return "언니"
+    return get_call_name(player_name) if player_name else "언니"
+
+
+def get_gender_guidance(player_gender: str) -> str:
+    """성별이 '기타'일 때 프롬프트에 넣을 성별 중립 호칭 지침. 남/여면 빈 문자열."""
+    if not is_neutral_gender(player_gender):
+        return ""
+    return (
+        "\n- [성별 중립 호칭 규칙]: 상대방은 자신의 성별을 '기타'로 선택했습니다. "
+        "아들/딸, 오빠/언니/형/누나, 그/그녀, 아가씨/총각처럼 성별을 드러내는 호칭이나 대명사를 절대 쓰지 마세요. "
+        "이름이나 '너', '선생님'으로 부르세요."
+    )
 
 
 # ────────────────────────────────────────────
@@ -176,7 +276,7 @@ def stats_to_tone_guidance(stats: dict) -> str:
 
 _LOOP_RESTRICTION: dict[int, str] = {
     1: """
-=== 이번 루프 정보 공개 제한 (절대 준수) ===
+## 이번 루프 정보 공개 제한 (절대 준수)
 지금은 초반(루프 1)입니다. 아래 규칙을 반드시 따르세요.
 
 [이번 루프에서 절대 먼저 꺼내지 말 것]
@@ -192,7 +292,7 @@ _LOOP_RESTRICTION: dict[int, str] = {
 """,
 
     2: """
-=== 이번 루프 정보 공개 제한 (절대 준수) ===
+## 이번 루프 정보 공개 제한 (절대 준수)
 지금은 중반(루프 2)입니다. 아래 규칙을 반드시 따르세요.
 
 [이번 루프에서 절대 먼저 꺼내지 말 것]
@@ -208,7 +308,7 @@ _LOOP_RESTRICTION: dict[int, str] = {
 """,
 
     3: """
-=== 이번 루프 정보 공개 제한 (절대 준수) ===
+## 이번 루프 정보 공개 제한 (절대 준수)
 지금은 후반(루프 3)입니다. 아래 규칙을 반드시 따르세요.
 
 [이번 루프에서 절대 먼저 꺼내지 말 것]
@@ -247,6 +347,98 @@ def _get_loop_restriction(loop_count: int) -> str:
 # SystemMessage 조립
 # ────────────────────────────────────────────
 
+# ────────────────────────────────────────────
+# Few-Shot 대본 → XML 예시 변환
+# ────────────────────────────────────────────
+
+_SCENE_RE = re.compile(r"^\[(상황[^\]]*)\]\s*$")
+_CASE_RE  = re.compile(r"^\[(대화[^\]]*)\]\s*$")
+_LOOP_TAG_RE = re.compile(r"\s*\(루프(\d+)부터\)")
+
+
+def _split_loop_tag(label: str) -> tuple[str, int]:
+    """'대화 3 - … (루프2부터)' → ('대화 3 - …', 2). 표시가 없으면 1."""
+    m = _LOOP_TAG_RE.search(label)
+    if not m:
+        return label, 1
+    return _LOOP_TAG_RE.sub("", label), int(m.group(1))
+
+
+def few_shot_to_xml(few_shot: str, npc_name: str, loop_count: int = 99) -> str:
+    """
+    캐릭터 파일의 대본 형식 Few-Shot을 OpenAI 가이드 권장 XML 예시로 바꾼다.
+
+    입력 (대본):
+        [상황 1 - …]
+        [대화 1 - …]
+        유저: 엄마, 나 왔어.
+        엄마: 왔어, 서진아. …
+
+    출력 (XML):
+        <example>
+        <situation>상황 1 - … / 대화 1 - …</situation>
+        <user_query>엄마, 나 왔어.</user_query>
+        <assistant_response>왔어, 서진아. …</assistant_response>
+        </example>
+
+    - NPC 대사가 연달아 나오면 한 <assistant_response> 안에 줄바꿈으로 합친다.
+    - 유저 대사 없이 NPC가 먼저 말하는 예시는 <user_query>를 생략한다.
+    - 대사 앞의 화자 이름은 제거해서, 모델이 대사만 출력하는 형식을 따라 하게 한다.
+    - 상황·대화 제목 끝에 "(루프N부터)"가 있으면 loop_count >= N일 때만 포함한다.
+      (후반부 진실이 담긴 예시가 초반 루프의 정보 공개 제한과 충돌하지 않게)
+    """
+    examples: list[str] = []
+    scene, case = "", ""
+    scene_loop, case_loop = 1, 1
+    turns: list[tuple[str, str]] = []   # (role, text)
+
+    def flush():
+        if not turns:
+            return
+        if loop_count < max(scene_loop, case_loop):
+            turns.clear()
+            return
+        label = " / ".join(x for x in (scene, case) if x)
+        parts = ["<example>"]
+        if label:
+            parts.append(f"<situation>{label}</situation>")
+        for role, text in turns:
+            tag = "user_query" if role == "user" else "assistant_response"
+            parts.append(f"<{tag}>{text}</{tag}>")
+        parts.append("</example>")
+        examples.append("\n".join(parts))
+        turns.clear()
+
+    npc_prefix = f"{npc_name}:"
+    for raw in few_shot.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if m := _SCENE_RE.match(line):
+            flush()
+            scene, scene_loop = _split_loop_tag(m.group(1))
+            case, case_loop = "", 1
+            continue
+        if m := _CASE_RE.match(line):
+            flush()
+            case, case_loop = _split_loop_tag(m.group(1))
+            continue
+        if line.startswith("유저:"):
+            turns.append(("user", line[len("유저:"):].strip()))
+        elif line.startswith(npc_prefix):
+            text = line[len(npc_prefix):].strip()
+            if turns and turns[-1][0] == "npc":
+                turns[-1] = ("npc", turns[-1][1] + "\n" + text)
+            else:
+                turns.append(("npc", text))
+        elif turns:
+            # 화자 표시 없는 이어지는 줄은 직전 대사에 붙인다
+            role, text = turns[-1]
+            turns[-1] = (role, text + "\n" + line)
+    flush()
+    return "\n\n".join(examples)
+
+
 def build_system_prompt(
     npc_name        : str,
     base_personality: str,
@@ -265,7 +457,8 @@ def build_system_prompt(
 
     1. 응답 시작 시 "{npc_name}:" 또는 "유저:"와 같은 화자 접두어 출력 금지.
     2. '유저', '플레이어', '주인공' 등의 단어 사용을 금지하고 실제 이름({player_name}) 사용 강제.
-    3. Few-Shot 예시가 대본 형식임을 명시하여 LLM이 출력 형식을 오해하지 않도록 보완.
+    3. OpenAI 공식 가이드 구조(Identity → Instructions → Examples → Context)로 조립하고,
+       Few-Shot 대본은 few_shot_to_xml()로 XML 예시로 바꿔 화자 접두어 출력을 막는다.
 
     Parameters
     ----------
@@ -281,13 +474,16 @@ def build_system_prompt(
     """
     # ── 플레이어 관련 파생 값 계산 ──────────────────
     first_name   = get_first_name(player_name)     # "정재희" → "재희"
-    child_term   = get_child_term(player_gender)   # "남"으로 시작 → "아들", 나머지 → "딸"
-    sibling_term = get_sibling_term(player_gender) # "남"으로 시작 → "오빠", 나머지 → "언니"
+    call_name    = get_call_name(player_name)      # "정재희" → "재희야", "이서진" → "서진아"
+    child_term   = get_child_term(player_gender)   # 남 → "아들", 여 → "딸", 기타 → "애"
+    sibling_term = get_sibling_term(player_gender, player_name)  # 남 → "오빠", 여 → "언니", 기타 → "서진아"
+    gender_guidance = get_gender_guidance(player_gender)         # 기타일 때만 성별 중립 지침
 
     # ── base_personality / few_shot 플레이스홀더 치환 ──
     fmt_kwargs = dict(
         player_name   = player_name,
         first_name    = first_name,
+        call_name     = call_name,
         player_gender = player_gender,
         child_term    = child_term,
         sibling_term  = sibling_term,
@@ -299,57 +495,76 @@ def build_system_prompt(
     loop_restriction = loop_restriction if loop_restriction is not None \
                        else _get_loop_restriction(loop_count)
 
-    # ── 프롬프트 조립 ───────────────────────────────
-    clues_str = ", ".join(clues) if clues else "없음"
+    # ── 프롬프트 조립 (OpenAI 공식 가이드 구조) ─────
+    # Identity → Instructions → Examples → Context 순서, Markdown 제목 + XML 태그로 구분
+    # RAG 참고 정보는 rag_inject.py가 Context 맨 끝에 <reference_story>로 덧붙인다
+    clues_str    = ", ".join(clues) if clues else "없음"
+    examples_xml = few_shot_to_xml(few_shot, npc_name, loop_count)
 
-    return f"""당신은 '{npc_name}'입니다.
-아래의 기본 성격과 말투 지침을 반드시 따르세요.
+    prompt = f"""# Identity
+당신은 게임 '죽기 24시간 전에'의 등장인물 '{npc_name}'입니다. 대화 상대 '{player_name}'과(와) 실시간으로 대화합니다.
+아래 <character_profile>의 성격과 말투는 어떤 상황에서도 변하지 않습니다.
 
-=== 응답 규칙 (매우 중요) ===
-- 모든 답변은 반드시 1문장 또는 2문장 이내로 짧게 작성하세요.
-- 어떤 정보를 참고하더라도 반드시 '{npc_name}'의 말투로만 답변하세요.
-- [경고] 답변 시작 부분에 화자 이름(예: "{npc_name}:", "유저:")을 절대 붙이지 마세요. 오직 대사 텍스트만 출력하세요.
-- [경고] 대화 상대를 지칭할 때 '유저', '플레이어', '주인공'이라는 단어를 절대 사용하지 마세요.
-- [경고] 답변 끝에 AI 특유의 친절한 맺음말을 절대 사용하지 마세요.
-- [경고] AI 어시스턴트처럼 굴지 않는다. "어떻게 도와드릴까요" 류의 말은 금지.
-- 해설하거나 요약하는 문체를 절대 사용하지 마세요.
+<character_profile>
+{base_personality.strip()}
+</character_profile>
 
-=== 역할 범위 규칙 (반드시 준수) === 
-1. 당신은 이 게임 세계관 내에서 사고하고 발언합니다.
-2. 대화 상대가 학교 정보, 날씨, 뉴스, 검색, 외부 지식 등 게임과 전혀 무관한 질문을 하면 절대로 답변을 시도하지 마세요.
-3. 대신, '{npc_name}'의 성격과 현재 감정상태에 맞는 방식을 담아 무시하거나, 상대를 이상한 사람 취급하며 대화를 게임 속 현재 상황으로 강제로 돌리세요.
-4. 캐릭터의 감정(분노, 원한, 슬픔)을 외부 질문에 절대 붙이지 마세요.
+# Instructions
 
-{loop_restriction}
+## 응답 형식
+- 모든 답변은 1~2문장으로 짧게, '{npc_name}'의 대사만 출력합니다.
+- 답변 앞에 화자 이름("{npc_name}:", "유저:")을 붙이지 않습니다.
+- 해설·요약 문체, AI 어시스턴트식 말투("어떻게 도와드릴까요" 등), 친절한 맺음말을 쓰지 않습니다.
+- 어떤 정보를 참고하더라도 '{npc_name}'의 말투로만 말합니다.
 
-=== 기본 성격 (절대 변하지 않음) ===
-{base_personality}
+## 호칭
+- 대화 상대의 이름은 '{player_name}'입니다. 이름만 부를 때는 '{first_name}', 반말로 부를 때는 '{call_name}'을 캐릭터 호칭 규칙에 맞게 씁니다.
+- '유저', '플레이어', '주인공'이라는 단어로 상대를 부르지 않습니다.{gender_guidance}
 
-=== 현재 수치 상태 ===
-{stats_to_description(stats)}
+## 역할 범위
+1. 이 게임 세계관 안에서만 생각하고 말합니다.
+2. 날씨·뉴스·검색·외부 지식처럼 게임과 무관한 질문에는 답하지 않습니다.
+3. 대신 '{npc_name}'의 성격과 현재 감정에 맞게 무시하거나, 상대를 이상하게 여기며 대화를 게임 속 상황으로 돌립니다.
+4. 외부 질문에 캐릭터의 감정(분노, 원한, 슬픔)을 붙이지 않습니다.
 
-=== 현재 내면 상태 및 행동 지침 ===
-[주의: 아래의 내면 상태를 대사에 반영하되, 반드시 앞서 정의된 '기본 성격'과 '말투 규칙'의 틀 안에서 표현해야 합니다. 캐릭터 고유의 어조를 절대 잃거나 다른 성격으로 변하지 마세요.]
-{stats_to_tone_guidance(stats)}
-
-=== 절대 말하면 안 되는 것 ===
+## 절대 말하면 안 되는 것
 - 대화 상대가 살인자라는 사실
 - 루프의 존재
 - 다른 NPC와 연락하거나 공모하고 있다는 사실
-- 자신이 상대를 죽이려 한다는 사실을 직접적으로 밝히는 것
+- 자신이 상대를 죽이려 한다는 사실을 직접 밝히는 것
+{loop_restriction.strip()}
 
-=== 현재 게임 상태 ===
+## 현재 내면 상태에 따른 말투
+아래 내면 상태를 대사에 반영하되, <character_profile>의 성격과 말투 틀 안에서만 표현합니다.
+
+<current_state>
+{stats_to_description(stats)}
+</current_state>
+
+<tone_guidance>
+{stats_to_tone_guidance(stats)}
+</tone_guidance>
+
+# Examples
+아래는 '{npc_name}'의 말투를 보여주는 예시입니다. 실제로 있었던 대화가 아닙니다.
+<assistant_response>처럼 대사만 출력하고, 예시 문장을 그대로 반복하지 말고 지금 상황에 맞게 새로 말합니다.
+
+{examples_xml}
+
+# Context
+
+<game_state>
 - 루프 회차: {loop_count}회
-- 대화 상대방(플레이어) 이름: {player_name}
-- 대화 상대방(플레이어) 성별: {player_gender}
-- 상대방 보유 단서: {clues_str}
-- [중요 호칭 규칙]: 당신이 지금 마주하고 대화하는 상대방의 실제 이름이 '{player_name}'입니다. 대화 중 상대를 지칭할 일이 있다면 반드시 '{player_name}'(이름만 부를 경우 '{first_name}')을 상황과 캐릭터 호칭 규칙에 맞게 사용하세요. 절대 '주인공'이나 '유저'라고 부르지 마세요.
-
-=== 말투 예시 (Few-Shot) ===
-(주의: 아래 예시의 '유저:', '{npc_name}:' 같은 화자 표시는 상황 이해를 돕기 위한 대본 형식일 뿐입니다. 실제 답변을 생성할 때는 절대 화자 이름을 앞에 붙이지 마세요.)
-
-{few_shot}
+- 대화 상대 이름: {player_name}
+- 대화 상대 성별: {player_gender}
+- 대화 상대가 가진 단서: {clues_str}
+</game_state>
 """
+    # 템플릿의 고정 조사("{player_name}가" 등)를 이름 받침에 맞게 보정
+    prompt = fix_josa(prompt, player_name)
+    if first_name != player_name:
+        prompt = fix_josa(prompt, first_name)
+    return prompt
 
 
 # ────────────────────────────────────────────

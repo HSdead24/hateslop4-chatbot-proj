@@ -73,7 +73,7 @@
 |---|---|
 | Frontend | HTML, CSS, JavaScript (모바일 화면 기준 웹) |
 | Backend | FastAPI |
-| LLM | OpenAI GPT-4o / GPT-4o-mini, LangGraph, LangChain |
+| LLM | OpenAI GPT-6 Luna, LangGraph, LangChain |
 | RAG | Chroma, OpenAI `text-embedding-3-small` |
 | 이미지 | Cloudinary |
 | 배포 | Docker, Render |

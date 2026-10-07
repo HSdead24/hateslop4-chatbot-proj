@@ -22,17 +22,29 @@ NPC별 초기 수치, 사용할 GPT 모델명, 루프 횟수 등
 # LLM 모델 설정
 # ────────────────────────────────────────────
 
-# 일반 대화에 사용하는 기본 모델 (토큰 절약)
-LLM_MODEL_DEFAULT = "gpt-4o-mini"
+# 일반 대화에 사용하는 기본 모델 (1~2루프) — 가장 효율적인 모델
+#   $0.10 / $0.50 per 1M tokens (입력 / 출력), 2026-10 공식 가격표 기준
+LLM_MODEL_DEFAULT = "gpt-6-luna"
 
-# 중요한 장면(루프 후반, 진실 접근 시)에 사용하는 고성능 모델
-LLM_MODEL_HEAVY = "gpt-4o"
+# 마지막 루프(진실 접근 구간)에 사용하는 모델 — 같은 luna에 추론 강도만 높여 규칙 준수 강화
+#   2026-10-07 비교: luna medium 평균 2.8초 / sol low 평균 4.6초, 비용은 sol이 약 19배.
+#   품질 차이에 비해 속도·비용 차이가 커서 luna medium으로 결정.
+#   (sol로 되돌리려면 "gpt-6.1-sol" + 추론 'low' — sol은 'none'·'minimal' 미지원)
+LLM_MODEL_HEAVY = "gpt-6-luna"
 
-# LLM 온도 설정 (0.0 = 일관성 최대 / 1.0 = 창의성 최대)
-LLM_TEMPERATURE = 0.7
+# 추론 강도 (GPT-6 계열은 모두 추론 모델)
+#   - 1~2루프: 'none' → 추론 없이 빠르게 응답
+#   - 3루프  : 'medium' → 정보 공개 제한 등 규칙을 더 잘 지킴
+#   추론 토큰은 출력 토큰으로 청구되고 출력 한도에서도 차감된다.
+LLM_REASONING_EFFORT_DEFAULT = "none"
+LLM_REASONING_EFFORT_HEAVY   = "medium"
 
-# NPC 응답 최대 토큰 수 - 파싱 에러 방지 위해 여유 있게 수정
-LLM_MAX_TOKENS = 800
+# 응답 최대 토큰 수 (추론 토큰 포함)
+#   - DEFAULT: 추론 없음 → 대답 길이만 고려
+#   - HEAVY  : 추론 토큰 몫까지 여유 있게
+#   ※ GPT-6 계열은 temperature 지원 여부가 공식 문서에 명시되지 않아 설정하지 않는다.
+LLM_MAX_TOKENS_DEFAULT = 800
+LLM_MAX_TOKENS_HEAVY   = 4000
 
 
 # ────────────────────────────────────────────
