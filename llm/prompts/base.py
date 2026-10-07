@@ -24,9 +24,18 @@ from config import THRESHOLDS
 # 플레이어 이름 유틸
 # ────────────────────────────────────────────
 
+# 두 글자 성 (네 글자 이름일 때만 확인)
+_COMPOUND_SURNAMES = ("남궁", "제갈", "선우", "황보", "독고", "사공", "서문", "동방", "어금", "망절")
+
+
 def get_first_name(full_name: str) -> str:
     """
-    한국 이름 기준으로 성(첫 글자)을 제거하고 이름만 반환한다.
+    한글 닉네임에서 성을 제거하고 이름만 반환한다. (닉네임은 오프닝에서 한글만 받음)
+
+    - 세 글자            → 첫 글자를 성으로 보고 제거  ("정재희" → "재희")
+    - 네 글자 + 두 글자 성 → 두 글자 제거             ("남궁민수" → "민수")
+    - 그 외(두 글자 이하 등) → 그대로                  ("하하" → "하하", "이준" → "이준")
+      두 글자는 닉네임일 수 있어서 자르지 않는다.
 
     Parameters
     ----------
@@ -36,7 +45,38 @@ def get_first_name(full_name: str) -> str:
     -------
     "재희"
     """
-    return full_name[1:] if len(full_name) >= 2 else full_name
+    name = full_name.strip()
+    if len(name) == 4 and name[:2] in _COMPOUND_SURNAMES:
+        return name[2:]
+    if len(name) == 3:
+        return name[1:]
+    return name
+
+
+def _has_final_consonant(char: str) -> bool:
+    """한글 글자에 받침이 있는지 확인한다. (한글이 아니면 False)"""
+    code = ord(char) - 0xAC00
+    return 0 <= code <= 11171 and code % 28 != 0
+
+
+def get_call_name(full_name: str) -> str:
+    """
+    이름을 부를 때 쓰는 호칭(이름 + 호격 조사)을 반환한다.
+    받침이 있으면 '아', 없으면 '야'를 붙인다.
+
+    Returns
+    -------
+    "서진아" (이서진) | "재희야" (정재희)
+    """
+    first = get_first_name(full_name)
+    if not first:
+        return first
+    return first + ("아" if _has_final_consonant(first[-1]) else "야")
+
+
+def is_neutral_gender(player_gender: str) -> bool:
+    """남/여로 시작하지 않으면('기타', '미설정' 등) 성별 중립으로 본다."""
+    return not (player_gender.startswith("남") or player_gender.startswith("여"))
 
 
 def get_child_term(player_gender: str) -> str:
@@ -45,30 +85,49 @@ def get_child_term(player_gender: str) -> str:
 
     Parameters
     ----------
-    player_gender : "남성" | "여성" | "남자" | "여자" | "남" | "여" | "무관"
-                    ("남"으로 시작하면 남성으로 판단)
+    player_gender : "남성" | "여성" | "기타" (+ "남자"/"여자"/"남"/"여" 등)
 
     Returns
     -------
-    "아들" | "딸"
+    "아들" (남) | "딸" (여) | "애" (기타 — 성별 중립, "우리 애")
     """
-    return "아들" if player_gender.startswith("남") else "딸"
+    if player_gender.startswith("남"):
+        return "아들"
+    if player_gender.startswith("여"):
+        return "딸"
+    return "애"
 
 
-def get_sibling_term(player_gender: str) -> str:
+def get_sibling_term(player_gender: str, player_name: str = "") -> str:
     """
-    성별에 따라 형제자매 호칭(동생 입장에서 부르는 말)을 반환한다.
+    성별에 따라 형제자매 호칭(여동생 나영이 플레이어를 부르던 말)을 반환한다.
+    한국어에는 성별 없이 손위 형제를 부르는 말이 없어서, 기타는 이름으로 부른다.
 
     Parameters
     ----------
-    player_gender : "남성" | "여성" | "남자" | "여자" | "남" | "여" | "무관"
-                    ("남"으로 시작하면 남성으로 판단)
+    player_gender : "남성" | "여성" | "기타"
+    player_name   : 기타일 때 호칭으로 쓸 플레이어 닉네임
 
     Returns
     -------
-    "오빠" | "언니"
+    "오빠" (남) | "언니" (여) | "서진아" (기타 — 이름 + 호격 조사)
     """
-    return "오빠" if player_gender.startswith("남") else "언니"
+    if player_gender.startswith("남"):
+        return "오빠"
+    if player_gender.startswith("여"):
+        return "언니"
+    return get_call_name(player_name) if player_name else "언니"
+
+
+def get_gender_guidance(player_gender: str) -> str:
+    """성별이 '기타'일 때 프롬프트에 넣을 성별 중립 호칭 지침. 남/여면 빈 문자열."""
+    if not is_neutral_gender(player_gender):
+        return ""
+    return (
+        "\n- [성별 중립 호칭 규칙]: 상대방은 자신의 성별을 '기타'로 선택했습니다. "
+        "아들/딸, 오빠/언니/형/누나, 그/그녀, 아가씨/총각처럼 성별을 드러내는 호칭이나 대명사를 절대 쓰지 마세요. "
+        "이름이나 '너', '선생님'으로 부르세요."
+    )
 
 
 # ────────────────────────────────────────────
@@ -281,13 +340,16 @@ def build_system_prompt(
     """
     # ── 플레이어 관련 파생 값 계산 ──────────────────
     first_name   = get_first_name(player_name)     # "정재희" → "재희"
-    child_term   = get_child_term(player_gender)   # "남"으로 시작 → "아들", 나머지 → "딸"
-    sibling_term = get_sibling_term(player_gender) # "남"으로 시작 → "오빠", 나머지 → "언니"
+    call_name    = get_call_name(player_name)      # "정재희" → "재희야", "이서진" → "서진아"
+    child_term   = get_child_term(player_gender)   # 남 → "아들", 여 → "딸", 기타 → "애"
+    sibling_term = get_sibling_term(player_gender, player_name)  # 남 → "오빠", 여 → "언니", 기타 → "서진아"
+    gender_guidance = get_gender_guidance(player_gender)         # 기타일 때만 성별 중립 지침
 
     # ── base_personality / few_shot 플레이스홀더 치환 ──
     fmt_kwargs = dict(
         player_name   = player_name,
         first_name    = first_name,
+        call_name     = call_name,
         player_gender = player_gender,
         child_term    = child_term,
         sibling_term  = sibling_term,
@@ -343,7 +405,7 @@ def build_system_prompt(
 - 대화 상대방(플레이어) 이름: {player_name}
 - 대화 상대방(플레이어) 성별: {player_gender}
 - 상대방 보유 단서: {clues_str}
-- [중요 호칭 규칙]: 당신이 지금 마주하고 대화하는 상대방의 실제 이름이 '{player_name}'입니다. 대화 중 상대를 지칭할 일이 있다면 반드시 '{player_name}'(이름만 부를 경우 '{first_name}')을 상황과 캐릭터 호칭 규칙에 맞게 사용하세요. 절대 '주인공'이나 '유저'라고 부르지 마세요.
+- [중요 호칭 규칙]: 당신이 지금 마주하고 대화하는 상대방의 실제 이름이 '{player_name}'입니다. 대화 중 상대를 지칭할 일이 있다면 반드시 '{player_name}'(이름만 부를 경우 '{first_name}', 반말로 부를 경우 '{call_name}')을 상황과 캐릭터 호칭 규칙에 맞게 사용하세요. 절대 '주인공'이나 '유저'라고 부르지 마세요.{gender_guidance}
 
 === 말투 예시 (Few-Shot) ===
 (주의: 아래 예시의 '유저:', '{npc_name}:' 같은 화자 표시는 상황 이해를 돕기 위한 대본 형식일 뿐입니다. 실제 답변을 생성할 때는 절대 화자 이름을 앞에 붙이지 마세요.)

@@ -106,17 +106,36 @@ function showPhase(id) {
 // ────────────────────────────────────────────
 //  PHASE 0: 이름 / 성별 입력 검증
 // ────────────────────────────────────────────
+// 닉네임 규칙: 완성된 한글 글자만 (영문·숫자·공백·특수문자 불가)
+const NAME_VALID_RE    = /^[가-힣]+$/;
+// 입력 중 허용 문자: 완성형 + 조합 중인 자음·모음 (조합 중에는 오류 표시 안 함)
+const NAME_TYPING_RE   = /^[가-힣ㄱ-ㅎㅏ-ㅣ]*$/;
+
+function isValidName(name) {
+  return NAME_VALID_RE.test(name);
+}
+
 function checkInput() {
-  const name = document.getElementById('playerName').value.trim();
+  const input = document.getElementById('playerName');
+  const hint  = document.getElementById('nameHint');
+  const name  = input.value.trim();
   STATE.name = name;
   sessionStorage.setItem('player_name', name);
-  document.getElementById('startBtn').disabled = !(name.length > 0 && STATE.gender);
+
+  // 한글 이외의 문자가 섞이면 안내 문구를 빨간색으로 강조
+  const hasInvalidChar = !NAME_TYPING_RE.test(input.value);
+  hint.classList.toggle('error', hasInvalidChar);
+  input.classList.toggle('invalid', hasInvalidChar);
+
+  // 한글 닉네임 + 성별을 모두 선택해야 시작 버튼 활성화
+  document.getElementById('startBtn').disabled = !(isValidName(name) && STATE.gender);
 }
 
 function selectGender(g) {
   STATE.gender = g;
   document.getElementById('genderM').classList.toggle('selected', g === '남성');
   document.getElementById('genderF').classList.toggle('selected', g === '여성');
+  document.getElementById('genderX').classList.toggle('selected', g === '기타');
   checkInput();
 }
 
@@ -125,6 +144,7 @@ function selectGender(g) {
 // ────────────────────────────────────────────
 function goOpening() {
   STATE.name = document.getElementById('playerName').value.trim();
+  if (!isValidName(STATE.name) || !STATE.gender) return;  // 버튼 비활성화를 우회한 경우 방어
   curtainTransition(() => {
     showPhase('ph-video');
     const video = document.getElementById('opVideo');

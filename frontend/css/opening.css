@@ -171,9 +171,18 @@ body {
   background: rgba(0,200,160,0.04);
 }
 .form-input::placeholder { color: var(--muted); }
+.form-input.invalid { border-color: rgba(192,57,43,0.55); }
+
+/* 닉네임 안내 (한글만) — 잘못 입력하면 빨간색으로 강조 */
+.form-hint {
+  margin-top: 8px;
+  font-size: 10.5px; letter-spacing: 0.5px; line-height: 1.6;
+  color: var(--muted);
+}
+.form-hint.error { color: var(--red2); }
 
 .gender-row {
-  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;
 }
 .gender-btn {
   padding:12px; background: rgba(255,255,255,0.03);

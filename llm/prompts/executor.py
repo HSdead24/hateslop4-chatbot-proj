@@ -6,6 +6,8 @@
 chat_node.py에서 build_executor_prompt()를 호출해 SystemMessage를 생성한다.
 """
 
+from prompts.base import get_gender_guidance
+
 
 # ────────────────────────────────────────────
 # 기본 성격
@@ -216,7 +218,7 @@ def build_executor_prompt(
 === 현재 게임 상태 ===
 - 루프 회차: {loop_count}회
 - 대화 상대방(플레이어) 이름: {player_name}
-- 대화 상대방(플레이어) 성별: {player_gender}
+- 대화 상대방(플레이어) 성별: {player_gender}{get_gender_guidance(player_gender)}
 - 상대방 보유 단서: {clues_str}
 
 === 말투 예시 (Few-Shot) ===
