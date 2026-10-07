@@ -486,11 +486,8 @@ function restartLoop() {
   clearTimeout(glitchInterval);
   stopEndingAudio();
 
-  // sessionStorage 초기화 (새 게임)
-  sessionStorage.removeItem('session_id');
-  sessionStorage.removeItem('loop_num');
-  sessionStorage.removeItem('last_button_id');
-  sessionStorage.removeItem('timer_start');
+  // sessionStorage 초기화 (새 게임) — 단서·치키 트리거 등 모든 기록 삭제
+  sessionStorage.clear();
 
   window.location.href = '/opening';
 }
