@@ -438,7 +438,7 @@ async function trySafePassword(idx) {
   if (!input) return;
 
   const pw = input.value.trim();
-  if (pw === '0902') {
+  if (pw === '0903') {
     // 정답 — 단서 카드 업데이트
     const allClues = getClues();
     const safeClue = allClues[idx];
@@ -595,7 +595,7 @@ const NPC_SUGGESTIONS = {
       'CCTV 각도가 왜 이상해요?',             // [trigger:usb]
       '기억이 왜 안 나는 거예요?',             // [trigger:memory]
       '발신자 표시 제한 전화 받았어요?',       // [trigger:phone]
-      '0902가 무슨 날이에요?',                // [trigger:password]
+      '0903이 무슨 날이에요?',                // [trigger:password]
       '솔직하게 말해줄 수 있어요?',
       '그날 어디 있었어요?',
     ],
@@ -626,13 +626,13 @@ const NPC_SUGGESTIONS = {
     ],
     2: [
       '나영 기억해요',                        // [trigger:nayoung]
-      '동생 기일이 9월 2일이에요?',           // [trigger:nayoung / password]
+      '동생 기일이 9월 3일이에요?',           // [trigger:nayoung / password]
       '아빠 박도원 씨 얘기 해줄 수 있어요?',   // [trigger:father]
       '기억이 왜 안 나는 거예요?',             // [trigger:memory]
       '엄마 숨기는 게 있죠?',
       '아직도 그날 기억해요?',
       '왜 침묵하는 거예요?',
-      '0902가 무슨 날이에요?',               // [trigger:password]
+      '0903이 무슨 날이에요?',               // [trigger:password]
     ],
     3: [
       '엄마 알고 있죠?',
@@ -661,7 +661,7 @@ const NPC_SUGGESTIONS = {
       '일기장에 뭐가 적혀 있어요?',           // [trigger:diary]
       '딸이 왜 죽었어요?',                   // [trigger:murder]
       '복수하러 온 거예요?',
-      '0902가 무슨 날이에요?',               // [trigger:password]
+      '0903이 무슨 날이에요?',               // [trigger:password]
       '그날 어디 있었어요?',
     ],
     3: [
@@ -690,7 +690,7 @@ const NPC_SUGGESTIONS = {
       '동생 얘기 해줄 수 있어요?',
       'USB 영상 본 적 있어요?',              // [trigger:usb]
       '기억이 왜 안 나는 거예요?',            // [trigger:memory]
-      '0902가 무슨 날이에요?',               // [trigger:password]
+      '0903이 무슨 날이에요?',               // [trigger:password]
       '상담일지에 뭐가 적혀 있어요?',
       '그 애 당신을 믿었잖아요',
     ],
