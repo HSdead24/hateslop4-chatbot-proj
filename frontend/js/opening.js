@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════
 //  opening.js  —  오프닝 페이지 동작 로직
 //  Phase 0 (입력) → Phase 1 (타이틀) →
-//  Phase 2 (방 reveal) → Phase 3 (치키) →
+//  Phase 2 (방 reveal) → Phase 3 (나레이션 + 치키 등장) →
 //  buttonroom.html
 // ════════════════════════════════════════════
 
@@ -14,46 +14,54 @@ const STATE = {
 };
 
 // ────────────────────────────────────────────
-//  치키 말풍선 대사 목록
+//  나레이션 대사 목록 — 게임 시스템의 목소리 (2인칭 존댓말)
 //  인자: n = 이름 HTML span, g = 성별 문자열
 // ────────────────────────────────────────────
 // ── 카드 삽입 인덱스 ──────────────────────────
-//  RULE_CARD_AFTER  = 2  (index 2 대사 직후)
-//  INFO_CARD_AFTER  = 4  (index 4 대사 직후, 기존 infoBox 위치)
-//  SUSPECT_CARD_AFTER = 7 (index 7 대사 직후, 구 index 11 텍스트 리스트 대체)
+//  RULE_CARD_AFTER    = 2  (index 2 대사 직후)
+//  INFO_CARD_AFTER    = 7  (index 7 대사 직후)
+//  SUSPECT_CARD_AFTER = 8  (index 8 대사 직후)
 const RULE_CARD_AFTER    = 2;
-const INFO_CARD_AFTER    = 6;
-const SUSPECT_CARD_AFTER = 9;
+const INFO_CARD_AFTER    = 7;
+const SUSPECT_CARD_AFTER = 8;
 
-const CHIKI_LINES = [
+const NARRATION_LINES = [
   // 0
-  (n) => `${n}, 안녕~? 🐰✨`,
+  (n) => `${n}, 당신은 죽었습니다.`,
   // 1
-  ()  => `우리 친구 아주 불쌍하게 죽었네. 🩸`,
+  ()  => `9월 3일 오전 7시. 아무도 당신의 마지막을 지켜보지 않았습니다.`,
   // 2 ← RULE_CARD_AFTER
-  ()  => `치키가 한 번 더 기회를 줄게. 대신 규칙이 있어.`,
+  ()  => `그런데 시간이 거꾸로 흐르기 시작합니다. 단, 규칙이 있습니다.`,
   // 3
-  (n) => `${n}(이)는 곧 네가 죽은 시간, <span class="warn">9월 3일 오전 7시</span>의 정확히 하루 전으로 돌아가.`,
+  ()  => `당신은 죽기 정확히 하루 전, <span class="warn">9월 2일 오전 7시</span>로 돌아갑니다.`,
   // 4
-  ()  => `하지만 조심해. <span class="warn">밤 12시</span>가 되면, 누군가가 널 찾아올 거야.`,
+  ()  => `그리고 <span class="warn">밤 12시</span>, 누군가가 당신을 찾아옵니다.`,
   // 5
-  ()  => `그 습격이 네 죽음으로 이어지기 전에, 너를 노리는 범인이 누군지 알아내야 해. 그래야 너가 살 수 있어! 히히.`,
-  // 6 ← INFO_CARD_AFTER
-  ()  => `죽으면서 기억을 조금 잃었지? 아주 간단하게만 알려줄게. 범인을 바로 알려주면 재미없잖아 ♦️🐰`,
-  // 7
-  ()  => `너는 사람의 마음을 들여다보는 일을 해. 그런데 이상하지?`,
-  // 8
-  ()  => `사람 마음은 그렇게 잘 안다면서, 왜 <span class="warn">누군가의 원한은 몰랐을까?</span> 🐰`,
-  // 9 ← SUSPECT_CARD_AFTER
-  ()  => `대신 의심할 사람들은 알려줄게. 짜잔~ 🎀`,
+  ()  => `그 방문이 죽음으로 이어지기 전에, 당신을 노리는 사람이 누구인지 알아내야 합니다.`,
+  // 6
+  ()  => `당신에게 주어진 기회는 <span class="warn">단 세 번</span>뿐입니다.`,
+  // 7 ← INFO_CARD_AFTER
+  ()  => `죽음을 지나오며 기억의 일부가 지워졌습니다. 남아 있는 것은 이것뿐입니다.`,
+  // 8 ← SUSPECT_CARD_AFTER
+  ()  => `당신의 곁에는 의심할 만한 사람들이 있습니다.`,
+  // 9
+  ()  => `누구를 믿고, 누구를 피할지. 모든 선택은 당신의 몫입니다.`,
   // 10
-  ()  => `지금부터 네 선택이 너의 운명을 가를 거야.`,
+  ()  => `단서를 모으고, 자정이 오기 전에 범인을 지목하십시오.`,
   // 11
-  ()  => `누구를 믿을지, 누구를 피할지. 잘못 고르면 곤란하겠지? 🐰`,
-  // 12
-  (n) => `그럼 시작해볼까, ${n}.`,
+  ()  => `잘못 고른다면, 이 아침은 다시 시작될 것입니다.`,
+  // 12 ── 관리자 치키 소개
+  ()  => `이 루프는 관리자 <span class="hl">치키</span>가 운영합니다.`,
   // 13
-  ()  => `단서를 모으고, 마지막에 범인을 맞혀봐. 치키가 끝까지 지켜볼게. 🐰⏰🩸`,
+  ()  => `치키는 당신에게 규칙을 안내하고, 당신이 끝까지 살아남을 수 있도록 도울 것입니다.`,
+];
+
+// 나레이션이 끝난 뒤 시스템 관리자 치키가 등장해서 하는 대사 (반말, 장난스러운 말투)
+const CHIKI_CAMEO_LINES = [
+  (n) => `안녕~ ${n}? 🐰 이 루프를 관리하는 치키야!`,
+  ()  => `남의 마음은 그렇게 잘 들여다보면서…`,
+  ()  => `정작 <span class="warn">네 마음속</span>은 한 번도 안 들여다봤지? 🐰`,
+  ()  => `괜찮아, 치키가 끝까지 지켜보고 있을게. 자, 이제 눈 뜰 시간이야. 히히 🩸`,
 ];
 
 // ────────────────────────────────────────────
@@ -173,12 +181,12 @@ function goRoom() {
 }
 
 // ────────────────────────────────────────────
-//  PHASE 2 → 3: 치키 등장
+//  PHASE 2 → 3: 나레이션
 // ────────────────────────────────────────────
-function goChiki() {
+function goNarration() {
   curtainTransition(() => {
     showPhase('ph-chiki');
-    startChikiDialogue();
+    startNarration();
   });
 }
 
@@ -224,11 +232,15 @@ function createRuleCard() {
     <div class="info-card-title">규칙</div>
     <div class="info-card-row">
       <span class="ic-label">⏰</span>
-      <span class="ic-val"><span class="warn">죽기 24시간 전</span>으로 돌아가. <span class="warn">자정 전까지</span> 범인을 찾아야 해.</span>
+      <span class="ic-val"><span class="warn">죽기 24시간 전</span>으로 돌아갑니다. <span class="warn">자정 전까지</span> 범인을 찾아야 합니다.</span>
+    </div>
+    <div class="info-card-row">
+      <span class="ic-label">🔁</span>
+      <span class="ic-val">기회는 <span class="warn">총 3번</span>. 모두 놓치면 더는 돌아올 수 없습니다.</span>
     </div>
     <div class="info-card-result-row">
-      <div class="ic-result good">✅ 맞히면<br>치키가 구해줌</div>
-      <div class="ic-result bad">💀 틀리면<br>또 죽음 🩸</div>
+      <div class="ic-result good">✅ 맞히면<br>살아남습니다</div>
+      <div class="ic-result bad">💀 틀리면<br>다시 죽습니다 🩸</div>
     </div>`;
   return card;
 }
@@ -237,11 +249,11 @@ function createInfoCard() {
   const card = document.createElement('div');
   card.className = 'info-card';
   card.innerHTML = `
-    <div class="info-card-title">네 정보</div>
+    <div class="info-card-title">PROFILE</div>
     <div class="info-card-row"><span class="ic-label">이름</span><span class="ic-val accent">${escHtml(STATE.name)}</span></div>
     <div class="info-card-row"><span class="ic-label">나이</span><span class="ic-val">34세</span></div>
     <div class="info-card-row"><span class="ic-label">성별</span><span class="ic-val">${escHtml(STATE.gender)}</span></div>
-    <div class="info-card-row"><span class="ic-label">직업</span><span class="ic-val">정신건강의학과 의사 / 심리상담센터 &lt;안식&gt; 상담가</span></div>`;
+    <div class="info-card-row"><span class="ic-label">직업</span><span class="ic-val">정신건강의학과 &lt;안식&gt; 상담사</span></div>`;
   return card;
 }
 
@@ -266,9 +278,30 @@ function insertCard(area, cardEl) {
 }
 
 // ────────────────────────────────────────────
-//  치키 대화 진행
+//  치키 등장 블록 (나레이션 마지막에 1회)
 // ────────────────────────────────────────────
-function startChikiDialogue() {
+function createChikiCameo() {
+  const cameo = document.createElement('div');
+  cameo.className = 'chiki-cameo';
+  cameo.innerHTML = `
+    <div class="chiki-cameo-figure">
+      <div class="chiki-aura"></div>
+      <img class="chiki-img" src="https://res.cloudinary.com/dqu0dyn5k/image/upload/v1778550819/chiki_img_hwqadm.png" alt="치키"
+         onerror="this.style.display='none'">
+    </div>
+    <div class="chiki-name-tag">
+      <span class="chiki-name">치키</span>
+      <div class="chiki-dot"></div>
+      <span class="chiki-role">ADMIN</span>
+    </div>
+    <div class="chiki-bubble-area"></div>`;
+  return cameo;
+}
+
+// ────────────────────────────────────────────
+//  나레이션 진행
+// ────────────────────────────────────────────
+function startNarration() {
   const area  = document.getElementById('bubbleArea');
   const goBtn = document.getElementById('goBtn');
 
@@ -279,8 +312,36 @@ function startChikiDialogue() {
   let i = 0;
 
   function showNext() {
-    if (i >= CHIKI_LINES.length) return;
+    if (i >= NARRATION_LINES.length) return;
     showNextBubble();
+  }
+
+  function showChikiCameo() {
+    const cameo = createChikiCameo();
+    insertCard(area, cameo);
+    const cameoArea = cameo.querySelector('.chiki-bubble-area');
+    let j = 0;
+
+    function showNextChikiLine() {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble chiki-bubble';
+      cameoArea.appendChild(bubble);
+
+      glitchTypeInto(bubble, CHIKI_CAMEO_LINES[j](nameSpan), () => {
+        setTimeout(() => bubble.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+        j++;
+        if (j < CHIKI_CAMEO_LINES.length) {
+          setTimeout(showNextChikiLine, 500);
+          return;
+        }
+        setTimeout(() => {
+          goBtn.classList.add('show');
+          goBtn.scrollIntoView({ behavior:'smooth', block:'nearest' });
+        }, 400);
+      });
+    }
+
+    setTimeout(showNextChikiLine, 700);
   }
 
   function showNextBubble() {
@@ -288,15 +349,15 @@ function startChikiDialogue() {
     bubble.className = 'bubble';
     area.appendChild(bubble);
 
-    const html = CHIKI_LINES[i](nameSpan, STATE.gender);
+    const html = NARRATION_LINES[i](nameSpan, STATE.gender);
     const currentIndex = i;
     i++;
 
     glitchTypeInto(bubble, html, () => {
       setTimeout(() => bubble.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
 
-      if (currentIndex === CHIKI_LINES.length - 1) {
-        setTimeout(() => goBtn.classList.add('show'), 400);
+      if (currentIndex === NARRATION_LINES.length - 1) {
+        setTimeout(showChikiCameo, 900);
         return;
       }
 

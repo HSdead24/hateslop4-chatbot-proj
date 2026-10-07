@@ -45,13 +45,14 @@ def get_child_term(player_gender: str) -> str:
 
     Parameters
     ----------
-    player_gender : "남자" | "여자" | "무관"
+    player_gender : "남성" | "여성" | "남자" | "여자" | "남" | "여" | "무관"
+                    ("남"으로 시작하면 남성으로 판단)
 
     Returns
     -------
     "아들" | "딸"
     """
-    return "아들" if player_gender == "남자" else "딸"
+    return "아들" if player_gender.startswith("남") else "딸"
 
 
 def get_sibling_term(player_gender: str) -> str:
@@ -60,13 +61,14 @@ def get_sibling_term(player_gender: str) -> str:
 
     Parameters
     ----------
-    player_gender : "남자" | "여자" | "무관"
+    player_gender : "남성" | "여성" | "남자" | "여자" | "남" | "여" | "무관"
+                    ("남"으로 시작하면 남성으로 판단)
 
     Returns
     -------
     "오빠" | "언니"
     """
-    return "오빠" if player_gender == "남자" else "언니"
+    return "오빠" if player_gender.startswith("남") else "언니"
 
 
 # ────────────────────────────────────────────
@@ -274,13 +276,13 @@ def build_system_prompt(
     loop_count      : 현재 루프 회차
     clues           : 유저 보유 단서 목록
     player_name     : 유저 닉네임 (예: "정재희")
-    player_gender   : 유저 성별 ("남자" / "여자")
+    player_gender   : 유저 성별 ("남성" / "여성")
     loop_restriction: 루프별 정보 공개 제한 지침 (None일 경우 자동 조회)
     """
     # ── 플레이어 관련 파생 값 계산 ──────────────────
     first_name   = get_first_name(player_name)     # "정재희" → "재희"
-    child_term   = get_child_term(player_gender)   # "남자" → "아들", 나머지 → "딸"
-    sibling_term = get_sibling_term(player_gender) # "남자" → "오빠", 나머지 → "언니"
+    child_term   = get_child_term(player_gender)   # "남"으로 시작 → "아들", 나머지 → "딸"
+    sibling_term = get_sibling_term(player_gender) # "남"으로 시작 → "오빠", 나머지 → "언니"
 
     # ── base_personality / few_shot 플레이스홀더 치환 ──
     fmt_kwargs = dict(
